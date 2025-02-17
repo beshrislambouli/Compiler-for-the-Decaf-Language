@@ -8,30 +8,29 @@ namespace decaf {
     class DecafCompiler {
     public:
         static void main(int argc, char** argv) {
-            std::cout << "WORKED" << std::endl;
-            // CommandLineInterface::parse(argc, argv, {});
-            // std::ifstream inputStream;
-            // std::ofstream outputStream;
+            CommandLineInterface::parse(argc, argv, {});
+            std::ifstream inputStream;
+            std::ofstream outputStream;
 
-            // if (!CommandLineInterface::infile.empty()) {
-            //     inputStream.open(CommandLineInterface::infile);
-            // }
-            // if (!CommandLineInterface::outfile.empty()) {
-            //     outputStream.open(CommandLineInterface::outfile);
-            // }
+            if (!CommandLineInterface::infile.empty()) {
+                inputStream.open(CommandLineInterface::infile);
+            }
+            if (!CommandLineInterface::outfile.empty()) {
+                outputStream.open(CommandLineInterface::outfile);
+            }
 
-            // switch (CommandLineInterface::target) {
-            //     case CompilerAction::SCAN:
-            //         break;
-            //     case CompilerAction::PARSE:
-            //         break;
-            //     case CompilerAction::INTER:
-            //         break;
-            //     case CompilerAction::ASSEMBLY:
-            //         break;
-            //     default:
-            //         break;
-            // }
+            switch (CommandLineInterface::target) {
+                case CompilerAction::SCAN:
+                    break;
+                case CompilerAction::PARSE:
+                    break;
+                case CompilerAction::INTER:
+                    break;
+                case CompilerAction::ASSEMBLY:
+                    break;
+                default:
+                    break;
+            }
         }
     };
 }
