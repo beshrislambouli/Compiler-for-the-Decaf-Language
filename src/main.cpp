@@ -9,7 +9,7 @@ namespace decaf {
 
     class DecafCompiler {
     public:
-        static void main(int argc, char** argv) {
+        static int main(int argc, char** argv) {
             CommandLineInterface::parse(argc, argv, {});
 
             std::ifstream inputStream = input (CommandLineInterface::infile);
@@ -21,18 +21,19 @@ namespace decaf {
             
 
             Scanner scanner;
-            scanner.scan(inputStream,outputStream);
-            if (CommandLineInterface::target == CompilerAction::SCAN ) return;
+            if (scanner.scan(inputStream,outputStream)) return 1;
+            if (CommandLineInterface::target == CompilerAction::SCAN ) return 0;
 
             outputStream << "PARSE()" << std::endl;;
-            if (CommandLineInterface::target == CompilerAction::PARSE ) return;
+            if (CommandLineInterface::target == CompilerAction::PARSE ) return 0;
 
             outputStream << "INTER()" << std::endl;;
-            if (CommandLineInterface::target == CompilerAction::INTER ) return;
+            if (CommandLineInterface::target == CompilerAction::INTER ) return 0;
 
             outputStream << "ASSEMBLY()" << std::endl;;
-            if (CommandLineInterface::target == CompilerAction::ASSEMBLY ) return;
+            if (CommandLineInterface::target == CompilerAction::ASSEMBLY ) return 0;
 
+            return 0;
         }
 
         static std::ifstream input(std::string infile) {
@@ -68,6 +69,5 @@ namespace decaf {
 }
 
 int main(int argc, char** argv) {
-    decaf::DecafCompiler::main(argc, argv);
-    return 0;
+    return decaf::DecafCompiler::main(argc, argv);
 }

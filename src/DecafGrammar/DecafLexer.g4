@@ -70,3 +70,5 @@ HEX_LITERAL   : '0x' HEX_DIGIT+;
 WS            : [ \t\n\r\f]+ -> skip;        // Skip spaces, tabs, line breaks, form feeds
 COMMENT       : '/*' .*? '*/' -> skip;       // Block comments
 LINE_COMMENT  : '//' ~[\r\n]* -> skip;       // Line comments
+
+ERROR : . ; // Must keep as last rule in grammar!

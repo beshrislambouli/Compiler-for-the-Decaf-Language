@@ -4,6 +4,9 @@
 # Ignore the generated code
 /src/DecafGrammar/generated/
 
+# Ignore the output files
+/output/
+
 # Ignore CMake cache and temporary files
 CMakeCache.txt
 CMakeFiles/

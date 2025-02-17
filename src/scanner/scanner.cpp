@@ -18,10 +18,16 @@ int Scanner::scan (std::ifstream& fin, std::ofstream& fout) {
             case DecafLexer::BOOL_LITERAL: type = "BOOLEANLITERAL"; break;
             case DecafLexer::STRING_LITERAL: type = "STRINGLITERAL"; break;
             case DecafLexer::ID: type = "IDENTIFIER"; break;
+            case DecafLexer::ERROR: type = "ERROR"; break;
             default: type = "";
         }
 
         if ( token->getText() == "<EOF>" ) {break;}
+        if (type == "ERROR") {
+            fout << "ERROR" << std::endl;
+            return 1;
+        }
+
         fout << line << " ";
         if (type != "") fout << type << " ";
         fout << token->getText() << std::endl ;
