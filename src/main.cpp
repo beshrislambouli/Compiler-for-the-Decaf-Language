@@ -3,34 +3,64 @@
 #include <memory>
 #include "cli.h"
 
+
 namespace decaf {
 
     class DecafCompiler {
     public:
         static void main(int argc, char** argv) {
             CommandLineInterface::parse(argc, argv, {});
+
+            std::ifstream inputStream = input (CommandLineInterface::infile);
+            std::ofstream outputStream= output(CommandLineInterface::outfile);
+            
+            if (CommandLineInterface::target == CompilerAction::DEFAULT) {
+                CommandLineInterface::target = CompilerAction::SCAN;
+            }
+            
+
+            outputStream << "SCAN()" << std::endl;;
+            if (CommandLineInterface::target == CompilerAction::SCAN ) return;
+
+            outputStream << "PARSE()" << std::endl;;
+            if (CommandLineInterface::target == CompilerAction::PARSE ) return;
+
+            outputStream << "INTER()" << std::endl;;
+            if (CommandLineInterface::target == CompilerAction::INTER ) return;
+
+            outputStream << "ASSEMBLY()" << std::endl;;
+            if (CommandLineInterface::target == CompilerAction::ASSEMBLY ) return;
+
+        }
+
+        static std::ifstream input(std::string infile) {
             std::ifstream inputStream;
-            std::ofstream outputStream;
-
-            if (!CommandLineInterface::infile.empty()) {
+            // Check if infile is empty and throw an error
+            if (CommandLineInterface::infile.empty()) {
+                throw std::runtime_error("Input file is required.");
+            } else {
                 inputStream.open(CommandLineInterface::infile);
+                if (!inputStream.is_open()) {
+                    throw std::runtime_error("Failed to open input file: " + CommandLineInterface::infile);
+                }
             }
-            if (!CommandLineInterface::outfile.empty()) {
-                outputStream.open(CommandLineInterface::outfile);
-            }
+            return inputStream;
+        }
 
-            switch (CommandLineInterface::target) {
-                case CompilerAction::SCAN:
-                    break;
-                case CompilerAction::PARSE:
-                    break;
-                case CompilerAction::INTER:
-                    break;
-                case CompilerAction::ASSEMBLY:
-                    break;
-                default:
-                    break;
+        static std::ofstream output(std::string outfile) {
+            std::ofstream outputStream;
+            // If outfile is empty, default to stdout using ofstream
+            if (CommandLineInterface::outfile.empty()) {
+                outputStream.copyfmt(std::cout);  // Share the formatting settings with stdout
+                outputStream.clear(std::cout.rdstate());  // Copy the state of std::cout
+                outputStream.basic_ios<char>::rdbuf(std::cout.rdbuf());  // Use the same buffer as std::cout
+            } else {
+                outputStream.open(CommandLineInterface::outfile);
+                if (!outputStream.is_open()) {
+                    throw std::runtime_error("Failed to open output file: " + CommandLineInterface::outfile);
+                }
             }
+            return outputStream;
         }
     };
 }
