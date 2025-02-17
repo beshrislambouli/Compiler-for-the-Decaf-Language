@@ -1,6 +1,9 @@
 # Ignore the build directory
 /cmake-build/
 
+# Ignore the generated code
+/src/DecafGrammar/generated/
+
 # Ignore CMake cache and temporary files
 CMakeCache.txt
 CMakeFiles/
