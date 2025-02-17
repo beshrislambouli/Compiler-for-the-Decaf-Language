@@ -2,7 +2,8 @@
 #include <fstream>
 #include <memory>
 #include "cli.h"
-
+#include "scanner.h"
+#include "parser.h"
 
 namespace decaf {
 
@@ -19,7 +20,8 @@ namespace decaf {
             }
             
 
-            outputStream << "SCAN()" << std::endl;;
+            outputStream << "SCAN()" << std::endl;
+            scanner();
             if (CommandLineInterface::target == CompilerAction::SCAN ) return;
 
             outputStream << "PARSE()" << std::endl;;
