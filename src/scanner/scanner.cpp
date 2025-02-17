@@ -1,24 +1,14 @@
 #include "scanner.h"
 
-int scanner () {
+int Scanner::scan (std::ifstream& fin, std::ofstream& fout) {
 
-    std::string filename = "src/scanner/in.dcf";
-    std::ifstream file;
-  file.open(filename);
+    antlr4::ANTLRInputStream input(fin);
+    DecafLexer lexer(&input);
+    antlr4::CommonTokenStream tokens(&lexer);
+    tokens.fill();
 
-  if (!file.is_open()) {
-    std::cout << "Failed to open file: " << filename << "\n";
-    return -1;
-  }
 
-  // Create lexer
-  antlr4::ANTLRInputStream input(file);
-  DecafLexer lexer(&input);
-  antlr4::CommonTokenStream tokens(&lexer);
-  tokens.fill();
-
-  int t = 0 ;
-  for (auto token : tokens.getTokens()) {
+    for (auto token : tokens.getTokens()) {
         int line = token->getLine();
         std::string type;
         switch (token->getType()) {
@@ -30,11 +20,11 @@ int scanner () {
             case DecafLexer::ID: type = "IDENTIFIER"; break;
             default: type = "";
         }
-        if ( token->getText() == "<EOF>" ) {break;}
 
-        std::cout << line << " ";
-        if (type != "") std::cout << type << " ";
-        std::cout << token->getText() << std::endl ;
+        if ( token->getText() == "<EOF>" ) {break;}
+        fout << line << " ";
+        if (type != "") fout << type << " ";
+        fout << token->getText() << std::endl ;
     }
 
     return 0;

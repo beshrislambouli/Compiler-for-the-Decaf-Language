@@ -3,4 +3,8 @@
 #include "DecafLexer.h"
 #include "antlr4-runtime.h"
 
-int scanner ();
+
+class Scanner {
+public:
+    int scan (std::ifstream& fin, std::ofstream& fout);
+};

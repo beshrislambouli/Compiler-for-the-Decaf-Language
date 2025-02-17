@@ -20,8 +20,8 @@ namespace decaf {
             }
             
 
-            outputStream << "SCAN()" << std::endl;
-            scanner();
+            Scanner scanner;
+            scanner.scan(inputStream,outputStream);
             if (CommandLineInterface::target == CompilerAction::SCAN ) return;
 
             outputStream << "PARSE()" << std::endl;;
