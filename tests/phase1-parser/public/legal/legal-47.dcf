@@ -1,0 +1,12 @@
+void main ( ) {
+  // Capital L should not be a keyword
+  long L;
+
+  // These are long literals
+  L = 100L;
+  L = 0xABCL;
+
+  // These are integer literals
+  L = 100;
+  L = 0xDEF;
+}

@@ -1,0 +1,7 @@
+int a;
+int b;
+
+void main() {
+    a = '5';
+    b = 0xabc;
+}

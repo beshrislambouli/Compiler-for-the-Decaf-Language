@@ -1,0 +1,7 @@
+// cannot have array as return type for function
+int [ 10 ] return_ten_favorites ( ) {
+    int my_favs[10];
+    return my_favs;
+}
+
+void main ( ) { }

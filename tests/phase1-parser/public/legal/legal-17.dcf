@@ -1,0 +1,8 @@
+void main ( ) {
+  int a;
+  int a;
+
+  long b;
+  long b;
+  // semantically bad, but gramatically ok
+}

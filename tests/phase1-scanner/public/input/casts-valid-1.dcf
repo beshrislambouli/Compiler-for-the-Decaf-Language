@@ -1,0 +1,8 @@
+int a;
+long b;
+
+// Should be parsed as a keyword
+a = long(b);
+a = long(a);
+b = int(a);
+b = int(b);

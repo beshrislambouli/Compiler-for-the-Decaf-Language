@@ -1,0 +1,5 @@
+void int ( ) { // cannot have keyword as name of function
+}
+
+void main ( ) {
+}

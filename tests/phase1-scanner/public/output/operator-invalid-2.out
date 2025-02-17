@@ -1,0 +1,2 @@
+operator-invalid-2 line 1:2: token recognition error at: '\'
+operator-invalid-2 line 2:2: token recognition error at: '?'

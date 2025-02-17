@@ -1,0 +1,22 @@
+import printf;
+
+long ack( long x, long y ) {
+  if (x <= 0L) {
+    return y + 1L;
+  } else {
+    if (y <= 0L) {
+      return ack( x-1L,1L );
+    } else {
+      return ack( x-1L, ack( x, y-1L ) );
+    }
+  }
+}
+
+void main( ) {
+  long x, y, res;
+  x = 3L;
+  y = 10L;
+  res = ack( x, y );
+
+  printf("ack( %ld,%ld ): %ld\n", x, y, res);
+}

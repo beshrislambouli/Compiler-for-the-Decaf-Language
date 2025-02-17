@@ -1,0 +1,6 @@
+void main ( ) {
+    int x, y;
+    long l;
+
+    l = long(int(long(x) * long(y)) * 2); // should be able to parse casts
+}

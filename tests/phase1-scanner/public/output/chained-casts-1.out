@@ -1,0 +1,29 @@
+1 int
+1 IDENTIFIER a
+1 ;
+2 long
+2 IDENTIFIER b
+2 ;
+4 IDENTIFIER b
+4 =
+4 LONGLITERAL 13L
+4 ;
+6 IDENTIFIER a
+6 =
+6 int
+6 (
+6 long
+6 (
+6 int
+6 (
+6 long
+6 (
+6 int
+6 (
+6 IDENTIFIER b
+6 )
+6 )
+6 )
+6 )
+6 )
+6 ;

@@ -1,0 +1,3 @@
+void main ( ) {
+    long a, b[32], c, d[44], e, f;
+}

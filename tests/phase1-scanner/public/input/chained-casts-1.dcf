@@ -1,0 +1,6 @@
+int a;
+long b;
+
+b = 13L;
+
+a = int(long(int(long(int(b)))));
