@@ -1,20 +1,26 @@
 #!/bin/bash
 
-# Directory containing the test files
-TEST_DIR="./tests/phase1-parser/public/legal"
+if [ "$1" == "legal" ]; then
+    directory="./tests/phase1-parser/public/legal"
+    expected_exit_code=0
+elif [ "$1" == "illegal" ]; then
+    directory="./tests/phase1-parser/public/illegal"
+    expected_exit_code=1
+else
+    echo "Usage: $0 [legal|illegal]"
+    exit 1
+fi
 
-# Iterate over all .dcf files in the directory
-for file in "$TEST_DIR"/*.dcf; do
-    # Run the file with ./run.sh
+for file in "$directory"/*.dcf; do
+    file_name=$(basename "$file")
     ./run.sh "$file" -t parse
-    
-    # Capture the return value
-    return_code=$?
+    exit_code=$?
 
-    # Check the return code and print the result
-    if [ $return_code -eq 0 ]; then
-        echo "PASS: $file"
+    if [ "$1" == "legal" ] && [ $exit_code -eq 0 ]; then
+        echo "$file_name: PASS"
+    elif [ "$1" == "illegal" ] && [ $exit_code -ne 0 ]; then
+        echo "$file_name: PASS"
     else
-        echo "FAIL: $file"
+        echo "$file_name: FAIL"
     fi
 done
