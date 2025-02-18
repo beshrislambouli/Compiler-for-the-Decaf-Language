@@ -4,7 +4,7 @@ options {
     tokenVocab=DecafLexer;
 }
 
-program: import_decl* field_decl* method_decl*;
+program: import_decl* field_decl* method_decl* EOF;
 
 import_decl: IMPORT ID SEMI;
 
