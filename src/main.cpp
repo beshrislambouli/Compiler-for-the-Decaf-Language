@@ -19,21 +19,25 @@ namespace decaf {
                 CommandLineInterface::target = CompilerAction::SCAN;
             }
             
+            switch (CommandLineInterface::target) {
+                case CompilerAction::SCAN:
+                    Scanner scanner;
+                    return scanner.scan(inputStream,outputStream);
+    
+                case CompilerAction::PARSE:
+                    Parser parser;
+                    return parser.parse(inputStream,outputStream);
+                    
+                case CompilerAction::INTER:
+                    return 1;
 
-            Scanner scanner;
-            if (scanner.scan(inputStream,outputStream)) return 1;
-            if (CommandLineInterface::target == CompilerAction::SCAN ) return 0;
+                case CompilerAction::ASSEMBLY:
+                    return 1;
 
-            outputStream << "PARSE()" << std::endl;;
-            if (CommandLineInterface::target == CompilerAction::PARSE ) return 0;
-
-            outputStream << "INTER()" << std::endl;;
-            if (CommandLineInterface::target == CompilerAction::INTER ) return 0;
-
-            outputStream << "ASSEMBLY()" << std::endl;;
-            if (CommandLineInterface::target == CompilerAction::ASSEMBLY ) return 0;
-
-            return 0;
+                default:
+                    return 1;
+                    
+            }
         }
 
         static std::ifstream input(std::string infile) {
