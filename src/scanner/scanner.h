@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "DecafLexer.h"
-// #include "antlr4-runtime.h"
+#include "antlr4-runtime.h"
 
 
 class Scanner {

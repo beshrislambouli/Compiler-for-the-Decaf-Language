@@ -2,7 +2,7 @@
 #include <fstream>
 #include "DecafLexer.h"
 #include "DecafParser.h"
-// #include "antlr4-runtime.h"
+#include "antlr4-runtime.h"
 
 class Parser {
 public:
