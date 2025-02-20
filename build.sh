@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of required packages
-REQUIRED_PKGS="libantlr4-runtime-dev"
+REQUIRED_PKGS="antlr4 libantlr4-runtime-dev"
 
 # Function to check if a package is installed
 check_installed() {
@@ -13,6 +13,10 @@ check_installed() {
 #     echo "This script must be run as root. Restarting with sudo..."
 #     exec sudo bash "$0" "$@"
 # fi
+
+# Update package lists
+echo "Updating package lists..."
+apt-get update
 
 echo "Checking and installing missing dependencies..."
 for pkg in $REQUIRED_PKGS; do
