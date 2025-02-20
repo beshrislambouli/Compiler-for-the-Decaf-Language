@@ -18,7 +18,7 @@ echo "Checking and installing missing dependencies..."
 for pkg in $REQUIRED_PKGS; do
     if ! check_installed "$pkg"; then
         echo "Installing $pkg..."
-        sudo apt-get install -y "$pkg"
+        apt-get install -y "$pkg"
     else
         echo "$pkg is already installed."
     fi
