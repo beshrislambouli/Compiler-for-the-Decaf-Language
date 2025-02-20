@@ -8,11 +8,11 @@ check_installed() {
     dpkg -l | grep -q "^ii  $1 "
 }
 
-# Ensure the script runs with sudo privileges
-if [[ $EUID -ne 0 ]]; then
-    echo "This script must be run as root. Restarting with sudo..."
-    exec sudo bash "$0" "$@"
-fi
+# # Ensure the script runs with sudo privileges
+# if [[ $EUID -ne 0 ]]; then
+#     echo "This script must be run as root. Restarting with sudo..."
+#     exec sudo bash "$0" "$@"
+# fi
 
 echo "Checking and installing missing dependencies..."
 for pkg in $REQUIRED_PKGS; do
