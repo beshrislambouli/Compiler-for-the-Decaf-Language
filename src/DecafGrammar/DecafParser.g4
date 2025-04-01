@@ -119,9 +119,7 @@ eq_op: EQ
 // cond_op: AND
 //       | OR;
 
-literal: (MINUS)? INT_LITERAL
-       | LONG_LITERAL
-       | CHAR_LITERAL
-       | BOOL_LITERAL;
-
-alpha_num: ALPHA | DIGIT ;
+literal: (MINUS)? INT_LITERAL #Int_Lit
+       | LONG_LITERAL #Long_Lit
+       | CHAR_LITERAL #Char_Lit
+       | BOOL_LITERAL #Bool_Lit;
