@@ -4,6 +4,7 @@
 #include "cli.h"
 #include "scanner.h"
 #include "parser.h"
+#include "semantics.h"
 
 namespace decaf {
 
@@ -16,7 +17,7 @@ namespace decaf {
             std::ofstream outputStream= output(CommandLineInterface::outfile);
             
             if (CommandLineInterface::target == CompilerAction::DEFAULT) {
-                CommandLineInterface::target = CompilerAction::SCAN;
+                CommandLineInterface::target = CompilerAction::INTER;
             }
             
             switch (CommandLineInterface::target) {
@@ -29,7 +30,8 @@ namespace decaf {
                     return parser.parse(inputStream,outputStream);
                     
                 case CompilerAction::INTER:
-                    return 1;
+                    Semantics semantics;
+                    return semantics.check(inputStream,outputStream);
 
                 case CompilerAction::ASSEMBLY:
                     return 1;
