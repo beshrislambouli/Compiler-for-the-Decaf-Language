@@ -8,8 +8,14 @@ std::unique_ptr<T> any_to_unique_ptr(antlrcpp::Any obj) {
     return std::unique_ptr<T>(obj.as<T*>());
 }
 
-antlrcpp::Any DecafASTBuilder::visitProgram(DecafParser::ProgramContext *ctx) {
+template<typename T>
+std::unique_ptr<T> make(antlr4::ParserRuleContext* ctx) {
+    return std::make_unique<T>(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
+}
 
+antlrcpp::Any DecafASTBuilder::visitProgram(DecafParser::ProgramContext *ctx) {
+    auto program = make <AST::Program>(ctx);
+    return program.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitImport_decl(DecafParser::Import_declContext *ctx) {

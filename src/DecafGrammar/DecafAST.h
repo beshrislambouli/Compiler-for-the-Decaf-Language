@@ -163,11 +163,13 @@ public:
     virtual void accept(Visitor& visitor) = 0;
 };
 
-class Program : AST_Node {
+class Program : public AST_Node {
 public:
     std::vector<std::unique_ptr<Import_Decl>> import_decls;
     std::vector<std::unique_ptr<Field_Decl>>  field_decls;
     std::vector<std::unique_ptr<Method_Decl>> method_decls;
+
+    Program(int row, int col) : AST_Node(row,col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -398,7 +400,9 @@ public:
     }
 };
 
-class Expr : AST_Node {}; // TODO: TYPE??
+class Expr : AST_Node {
+    std::unique_ptr<Type> type_t;
+}; // TODO: TYPE??
 
 class Unary_Expr : Expr {
 public:
@@ -657,6 +661,7 @@ class Literal : AST_Node {
     // TODO: Don't forget the hex numbers
 public:
     std::string literal;
+    std::unique_ptr<Type> type_t;
 };
 
 class Int_Lit : Literal {
@@ -698,9 +703,11 @@ public:
         Int,
         Long,
         Char,
-        Bool
+        Bool,
+        Void,
+        Null_Type,
     };
-    Type_t type;
+    Type_t type = Null_Type;
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -709,6 +716,8 @@ public:
 class Id : AST_Node {
 public:
     std::string id;
+    
+    std::unique_ptr<Type> type_t;
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
