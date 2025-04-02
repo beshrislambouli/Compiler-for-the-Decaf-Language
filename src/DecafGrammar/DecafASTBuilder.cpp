@@ -289,6 +289,13 @@ antlrcpp::Any DecafASTBuilder::visitAssign_op(DecafParser::Assign_opContext *ctx
 
 antlrcpp::Any DecafASTBuilder::visitIncrement(DecafParser::IncrementContext *ctx) {
     auto increment = make_t (Increment);
+
+    if (ctx->INCREMENT()) {
+        increment -> type = Increment::INCREMENT;
+    } else if (ctx->DECREMENT()) {
+        increment -> type = Increment::DECREMENT;
+    }
+
     return increment.release();
 }
 
