@@ -21,25 +21,68 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
 }
 
 
-void Semantics::visit(AST::Program& node) {}
+void Semantics::visit(AST::Program& node) {
+    for (auto& u: node.import_decls) {
+        u->accept(*this);
+    }
+    for (auto& u : node.field_decls) {
+        u->accept(*this);
+    }
+    for (auto& u : node.method_decls) {
+        u->accept(*this);
+    }
+}
 
-void Semantics::visit(AST::Import_Decl& node) {}
+void Semantics::visit(AST::Import_Decl& node) {
+    node.id -> accept(*this);
+}
 
-void Semantics::visit(AST::Field_Decl& node) {}
+void Semantics::visit(AST::Field_Decl& node) {
+    node.field_type -> accept(*this);
+    for (auto& u : node.fields) {
+        u->accept(*this);
+    }
+}
 
-void Semantics::visit(AST::Id_Field_Decl& node) {}
+void Semantics::visit(AST::Id_Field_Decl& node) {
+    node.id -> accept(*this);
+}
 
-void Semantics::visit(AST::Array_Field_Decl& node) {}
+void Semantics::visit(AST::Array_Field_Decl& node) {
+    node.id -> accept(*this);
+    node.size -> accept(*this);
+}
 
-void Semantics::visit(AST::Method_Decl& node) {}
+void Semantics::visit(AST::Method_Decl& node) {
+    node.method_type -> accept(*this);
+    node.id -> accept(*this);
+    for (auto& u: node.parameters) {
+        u -> accept(*this);
+    }
+    node.block -> accept(*this);
+}
 
-void Semantics::visit(AST::Parameter& node) {}
+void Semantics::visit(AST::Parameter& node) {
+    node.field_type -> accept(*this);
+    node.id -> accept(*this);
+}
 
-void Semantics::visit(AST::Block& node) {}
+void Semantics::visit(AST::Block& node) {
+    for (auto& u : node.field_decls) {
+        u -> accept (*this);
+    }
+    for (auto& u : node.statements) {
+        u -> accept (*this);
+    }
+}
 
-void Semantics::visit(AST::Field_Type& node) {}
+void Semantics::visit(AST::Field_Type& node) {
+    node.type -> accept(*this);
+}
 
-void Semantics::visit(AST::Method_Type& node) {}
+void Semantics::visit(AST::Method_Type& node) {
+    node.type -> accept(*this);
+}
 
 void Semantics::visit(AST::Location_Assign_Op& node) {}
 

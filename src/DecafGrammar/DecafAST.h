@@ -232,6 +232,7 @@ public:
     std::unique_ptr<Method_Type> method_type;
     std::unique_ptr<Id> id;
     std::vector<std::unique_ptr<Parameter>> parameters;
+    std::unique_ptr<Block> block;
     
     Method_Decl(int row, int col) : AST_Node(row, col) {}
 

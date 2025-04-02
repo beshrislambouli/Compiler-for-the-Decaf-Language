@@ -88,6 +88,7 @@ antlrcpp::Any DecafASTBuilder::visitMethod_decl(DecafParser::Method_declContext 
         method_decl -> parameters. push_back (get(Parameter,parameter_ctx));
     }
 
+    method_decl -> block = get(Block,ctx->block());
 
     return method_decl.release();
 }
@@ -138,11 +139,22 @@ antlrcpp::Any DecafASTBuilder::visitField_type(DecafParser::Field_typeContext *c
 
 
 antlrcpp::Any DecafASTBuilder::visitBlock(DecafParser::BlockContext *ctx) {
-    
+    auto block = make_t (Block);
+
+    for (auto field_decl_ctx : ctx->field_decl() ) {
+        block -> field_decls .push_back (get(Field_Decl,field_decl_ctx));
+    }
+
+    for (auto statement_ctx : ctx->statement() ) {
+        // block -> statements .push_back (get(Statement,statement_ctx));
+    }
+
+    return block.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLocation_Assign_Op(DecafParser::Location_Assign_OpContext *ctx) {
-    
+    auto location_assign_op = make_t (Location_Assign_Op);
+    return location_assign_op.release() ;
 }
 
 antlrcpp::Any DecafASTBuilder::visitLocation_Incr(DecafParser::Location_IncrContext *ctx) {
