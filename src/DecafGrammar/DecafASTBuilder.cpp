@@ -14,6 +14,7 @@ std::unique_ptr<T> any_to_unique_ptr(antlrcpp::Any obj) {
 
 #define make_t(T) std::make_unique<T>(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine())
 #define make_Id() std::make_unique<Id>((ctx)->ID()->getText(), (ctx)->ID()->getSymbol()->getLine(), (ctx)->ID()->getSymbol()->getCharPositionInLine())
+#define make_Type(T) std::make_unique<Type>(T, ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine())
 #define get(T, ctx) any_to_unique_ptr<T>(visit(ctx))
 
 
@@ -101,18 +102,42 @@ antlrcpp::Any DecafASTBuilder::visitParameter(DecafParser::ParameterContext *ctx
     return parameter.release();
 }
 
-antlrcpp::Any DecafASTBuilder::visitBlock(DecafParser::BlockContext *ctx) {
+antlrcpp::Any DecafASTBuilder::visitMethod_type(DecafParser::Method_typeContext *ctx) {
+    auto method_type = make_t (Method_Type);
+
+    if (ctx->INT()) {
+        method_type -> type = make_Type (Type::Int);
+    } else if (ctx->LONG()) {
+        method_type -> type = make_Type (Type::Long);
+    } else if (ctx->BOOL()) {
+        method_type -> type = make_Type (Type::Bool);
+    } else if (ctx->VOID()) {
+        method_type -> type = make_Type (Type::Void);
+    } else {
+        std::cout << "ERROR DecafASTBuilder::visitMethod_type" << std::endl;
+    }
     
+    return method_type.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitField_type(DecafParser::Field_typeContext *ctx) {
     auto field_type = make_t (Field_Type);
+
+    if (ctx->INT()) {
+        field_type -> type = make_Type (Type::Int);
+    } else if (ctx->LONG()) {
+        field_type -> type = make_Type (Type::Long);
+    } else if (ctx->BOOL()) {
+        field_type -> type = make_Type (Type::Bool);
+    } else {
+        std::cout << "ERROR DecafASTBuilder::visitField_type" << std::endl;
+    }
+
     return field_type.release();
 }
 
-antlrcpp::Any DecafASTBuilder::visitMethod_type(DecafParser::Method_typeContext *ctx) {
-    auto method_type = make_t (Method_Type);
-    return method_type.release();
+
+antlrcpp::Any DecafASTBuilder::visitBlock(DecafParser::BlockContext *ctx) {
     
 }
 
