@@ -189,6 +189,15 @@ antlrcpp::Any DecafASTBuilder::visitMethod_Call_Stmt(DecafParser::Method_Call_St
 
 antlrcpp::Any DecafASTBuilder::visitIf_Else_Stmt(DecafParser::If_Else_StmtContext *ctx) {
     auto if_else_stmt = make_t (If_Else_Stmt);
+
+    if_else_stmt -> expr_if = get(Expr,ctx->expr());
+
+    if_else_stmt -> block_then = get (Block,ctx->block(0));
+
+    if (ctx->ELSE()) {
+        if_else_stmt -> block_else = get (Block,ctx->block(1));
+    }
+
     return (Statement*)if_else_stmt.release();
 }
 
