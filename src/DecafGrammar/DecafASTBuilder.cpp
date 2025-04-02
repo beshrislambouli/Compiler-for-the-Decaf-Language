@@ -78,11 +78,22 @@ antlrcpp::Any DecafASTBuilder::visitArray_Field_Decl(DecafParser::Array_Field_De
 
 antlrcpp::Any DecafASTBuilder::visitMethod_decl(DecafParser::Method_declContext *ctx) {
     auto method_decl = make_t (Method_Decl);
+
+    method_decl -> method_type = get(Method_Type,ctx->method_type());
+    
+    method_decl -> id = make_Id();
+
+    for (auto parameter_ctx : ctx -> parameter() ) {
+        method_decl -> parameters. push_back (get(Parameter,parameter_ctx));
+    }
+
+
     return method_decl.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitParameter(DecafParser::ParameterContext *ctx) {
-    
+    auto parameter = make_t (Parameter);
+    return parameter.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitBlock(DecafParser::BlockContext *ctx) {
@@ -95,6 +106,8 @@ antlrcpp::Any DecafASTBuilder::visitField_type(DecafParser::Field_typeContext *c
 }
 
 antlrcpp::Any DecafASTBuilder::visitMethod_type(DecafParser::Method_typeContext *ctx) {
+    auto method_type = make_t (Method_Type);
+    return method_type.release();
     
 }
 
