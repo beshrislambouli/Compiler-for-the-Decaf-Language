@@ -301,16 +301,27 @@ antlrcpp::Any DecafASTBuilder::visitIncrement(DecafParser::IncrementContext *ctx
 
 antlrcpp::Any DecafASTBuilder::visitLoc_Var(DecafParser::Loc_VarContext *ctx) {
     auto loc_var = make_t (Loc_Var);
+
+    loc_var -> id = make_Id();
+
     return (Location*)loc_var.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLoc_Array(DecafParser::Loc_ArrayContext *ctx) {
     auto loc_array = make_t (Loc_Array);
+
+    loc_array -> id = make_Id();
+
+    loc_array ->expr= get(Expr, ctx->expr());
+
     return (Location*)loc_array.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLen_Expr(DecafParser::Len_ExprContext *ctx) {
     auto len_expr = make_t (Len_Expr);
+
+    len_expr -> id = make_Id();
+
     return (Expr*)len_expr.release();
 }
 
