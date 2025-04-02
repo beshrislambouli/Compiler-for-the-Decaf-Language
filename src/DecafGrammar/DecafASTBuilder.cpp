@@ -154,6 +154,14 @@ antlrcpp::Any DecafASTBuilder::visitBlock(DecafParser::BlockContext *ctx) {
 
 antlrcpp::Any DecafASTBuilder::visitLocation_Assign_Op(DecafParser::Location_Assign_OpContext *ctx) {
     auto location_assign_op = make_t (Location_Assign_Op);
+
+    location_assign_op -> location = get(Location, ctx->location());
+
+    location_assign_op -> assign_op= get(Assign_Op, ctx->assign_op());
+
+    // location_assign_op -> expr = get (Expr, ctx->expr()) ;
+
+
     return (Statement*)location_assign_op.release() ;
 }
 
@@ -206,7 +214,8 @@ antlrcpp::Any DecafASTBuilder::visitFor_Upd_Incr(DecafParser::For_Upd_IncrContex
 }
 
 antlrcpp::Any DecafASTBuilder::visitAssign_op(DecafParser::Assign_opContext *ctx) {
-    
+    auto assign_op = make_t (Assign_Op);
+    return assign_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitIncrement(DecafParser::IncrementContext *ctx) {
@@ -214,11 +223,13 @@ antlrcpp::Any DecafASTBuilder::visitIncrement(DecafParser::IncrementContext *ctx
 }
 
 antlrcpp::Any DecafASTBuilder::visitLoc_Var(DecafParser::Loc_VarContext *ctx) {
-    
+    auto loc_var = make_t (Loc_Var);
+    return (Location*)loc_var.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLoc_Array(DecafParser::Loc_ArrayContext *ctx) {
-    
+    auto loc_array = make_t (Loc_Array);
+    return (Location*)loc_array.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLen_Expr(DecafParser::Len_ExprContext *ctx) {
