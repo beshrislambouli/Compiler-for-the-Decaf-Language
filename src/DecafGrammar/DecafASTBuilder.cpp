@@ -146,7 +146,7 @@ antlrcpp::Any DecafASTBuilder::visitBlock(DecafParser::BlockContext *ctx) {
     }
 
     for (auto statement_ctx : ctx->statement() ) {
-        // block -> statements .push_back (get(Statement,statement_ctx));
+        block -> statements .push_back (get(Statement,statement_ctx));
     }
 
     return block.release();
@@ -154,39 +154,47 @@ antlrcpp::Any DecafASTBuilder::visitBlock(DecafParser::BlockContext *ctx) {
 
 antlrcpp::Any DecafASTBuilder::visitLocation_Assign_Op(DecafParser::Location_Assign_OpContext *ctx) {
     auto location_assign_op = make_t (Location_Assign_Op);
-    return location_assign_op.release() ;
+    return (Statement*)location_assign_op.release() ;
 }
 
 antlrcpp::Any DecafASTBuilder::visitLocation_Incr(DecafParser::Location_IncrContext *ctx) {
-    
+    auto location_incr = make_t (Location_Incr);
+    return (Statement*)location_incr.release() ;
 }
 
 antlrcpp::Any DecafASTBuilder::visitMethod_Call_Stmt(DecafParser::Method_Call_StmtContext *ctx) {
-    
+    auto method_call_stmt = make_t (Method_Call_Stmt);
+    return (Statement*)method_call_stmt.release() ;
 }
 
 antlrcpp::Any DecafASTBuilder::visitIf_Else_Stmt(DecafParser::If_Else_StmtContext *ctx) {
-    
+    auto if_else_stmt = make_t (If_Else_Stmt);
+    return (Statement*)if_else_stmt.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitFor_Stmt(DecafParser::For_StmtContext *ctx) {
-    
+    auto for_stmt = make_t (For_Stmt);
+    return (Statement*)for_stmt.release ();
 }
 
 antlrcpp::Any DecafASTBuilder::visitWhile_Stmt(DecafParser::While_StmtContext *ctx) {
-    
+    auto while_stmt = make_t (While_Stmt);
+    return (Statement*)while_stmt.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitReturn_Stmt(DecafParser::Return_StmtContext *ctx) {
-    
+    auto return_stmt = make_t (Return_Stmt);
+    return (Statement*)return_stmt.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitBreak_Stmt(DecafParser::Break_StmtContext *ctx) {
-    
+    auto break_stmt = make_t (Break_Stmt);
+    return (Statement*)break_stmt.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitContinue_Stmt(DecafParser::Continue_StmtContext *ctx) {
-    
+    auto continue_stmt = make_t (Continue_Stmt);
+    return (Statement*)continue_stmt.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitFor_Upd_Assign_Op(DecafParser::For_Upd_Assign_OpContext *ctx) {
