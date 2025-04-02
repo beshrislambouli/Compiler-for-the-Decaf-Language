@@ -1,5 +1,7 @@
 #include "DecafASTBuilder.h"
 
+using namespace AST;
+
 template<typename T>
 std::unique_ptr<T> any_to_unique_ptr(antlrcpp::Any obj) {
     if (obj.isNull()) {
@@ -13,23 +15,25 @@ std::unique_ptr<T> make(antlr4::ParserRuleContext* ctx) {
     return std::make_unique<T>(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 }
 
-#define make_Id(ctx) std::make_unique<AST::Id>((ctx)->ID()->getText(), (ctx)->ID()->getSymbol()->getLine(), (ctx)->ID()->getSymbol()->getCharPositionInLine())
+#define make_Id(ctx) std::make_unique<Id>((ctx)->ID()->getText(), (ctx)->ID()->getSymbol()->getLine(), (ctx)->ID()->getSymbol()->getCharPositionInLine())
+#define get(T, ctx) any_to_unique_ptr<T>(visit(ctx))
+
 
 antlrcpp::Any DecafASTBuilder::visitProgram(DecafParser::ProgramContext *ctx) {
-    auto program = make <AST::Program>(ctx);
+    auto program = make <Program>(ctx);
 
     for (auto import_decl_ctx : ctx -> import_decl() ) {
-        auto import_decl = any_to_unique_ptr<AST::Import_Decl>(visitImport_decl(import_decl_ctx));
+        auto import_decl = get(Import_Decl,import_decl_ctx);
         program -> import_decls .push_back (std::move(import_decl));
     }
 
     for (auto field_decl_ctx : ctx -> field_decl()) {
-        auto field_decl = any_to_unique_ptr<AST::Field_Decl>(visitField_decl(field_decl_ctx));
+        auto field_decl = get(Field_Decl,field_decl_ctx);
         program -> field_decls .push_back (std::move(field_decl));
     }
 
     for (auto method_decl_ctx : ctx -> method_decl()) {
-        auto method_decl = any_to_unique_ptr<AST::Method_Decl>(visitMethod_decl(method_decl_ctx));
+        auto method_decl = get(Method_Decl,method_decl_ctx);
         program -> method_decls .push_back (std::move(method_decl));
     }
 
@@ -37,7 +41,7 @@ antlrcpp::Any DecafASTBuilder::visitProgram(DecafParser::ProgramContext *ctx) {
 }
 
 antlrcpp::Any DecafASTBuilder::visitImport_decl(DecafParser::Import_declContext *ctx) {
-    auto import_decl = make <AST::Import_Decl>(ctx);
+    auto import_decl = make <Import_Decl>(ctx);
 
     import_decl -> id = make_Id(ctx);
 
@@ -47,7 +51,7 @@ antlrcpp::Any DecafASTBuilder::visitImport_decl(DecafParser::Import_declContext 
 
 antlrcpp::Any DecafASTBuilder::visitField_decl(DecafParser::Field_declContext *ctx) {
     std::cout << "visitField_decl" << std::endl;
-    auto field_decl = make <AST::Field_Decl>(ctx);
+    auto field_decl = make <Field_Decl>(ctx);
 
     return field_decl.release();
     
@@ -63,7 +67,7 @@ antlrcpp::Any DecafASTBuilder::visitArray_Field_Decl(DecafParser::Array_Field_De
 
 antlrcpp::Any DecafASTBuilder::visitMethod_decl(DecafParser::Method_declContext *ctx) {
     std::cout << "visitMethod_decl" << std::endl;
-    auto method_decl = make <AST::Method_Decl>(ctx);
+    auto method_decl = make <Method_Decl>(ctx);
 
     return method_decl.release();
 }
