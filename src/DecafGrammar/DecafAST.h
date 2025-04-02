@@ -165,9 +165,9 @@ public:
 
 class Program : AST_Node {
 public:
-    std::vector<std::unique_ptr<Import_Decl>> import_decl;
-    std::vector<std::unique_ptr<Field_Decl>>  field_decl;
-    std::vector<std::unique_ptr<Method_Decl>> method_decl;
+    std::vector<std::unique_ptr<Import_Decl>> import_decls;
+    std::vector<std::unique_ptr<Field_Decl>>  field_decls;
+    std::vector<std::unique_ptr<Method_Decl>> method_decls;
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
