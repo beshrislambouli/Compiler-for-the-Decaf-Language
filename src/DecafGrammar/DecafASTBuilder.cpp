@@ -167,6 +167,11 @@ antlrcpp::Any DecafASTBuilder::visitLocation_Assign_Op(DecafParser::Location_Ass
 
 antlrcpp::Any DecafASTBuilder::visitLocation_Incr(DecafParser::Location_IncrContext *ctx) {
     auto location_incr = make_t (Location_Incr);
+
+    location_incr -> location = get(Location,ctx->location());
+
+    location_incr -> increment = get(Increment,ctx->increment());
+
     return (Statement*)location_incr.release() ;
 }
 
@@ -219,7 +224,8 @@ antlrcpp::Any DecafASTBuilder::visitAssign_op(DecafParser::Assign_opContext *ctx
 }
 
 antlrcpp::Any DecafASTBuilder::visitIncrement(DecafParser::IncrementContext *ctx) {
-    
+    auto increment = make_t (Increment);
+    return increment.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLoc_Var(DecafParser::Loc_VarContext *ctx) {
