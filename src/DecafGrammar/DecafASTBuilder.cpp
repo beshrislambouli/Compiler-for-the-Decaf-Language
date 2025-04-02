@@ -406,19 +406,23 @@ antlrcpp::Any DecafASTBuilder::visitString_Arg(DecafParser::String_ArgContext *c
 }
 
 antlrcpp::Any DecafASTBuilder::visitBin_mul_op(DecafParser::Bin_mul_opContext *ctx) {
-    
+    auto bin_mul_op = make_t (Mul_Op);
+    return (Bin_Op*)bin_mul_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitBin_add_op(DecafParser::Bin_add_opContext *ctx) {
-    
+    auto bin_add_op = make_t (Add_Op);
+    return (Bin_Op*)bin_add_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitRel_op(DecafParser::Rel_opContext *ctx) {
-    
+    auto rel_op = make_t (Rel_Op);
+    return (Bin_Op*)rel_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitEq_op(DecafParser::Eq_opContext *ctx) {
-    
+    auto eq_op = make_t (Eq_Op);
+    return (Bin_Op*)eq_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitInt_Lit(DecafParser::Int_LitContext *ctx) {
