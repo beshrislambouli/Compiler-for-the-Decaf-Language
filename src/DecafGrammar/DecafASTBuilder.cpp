@@ -93,6 +93,11 @@ antlrcpp::Any DecafASTBuilder::visitMethod_decl(DecafParser::Method_declContext 
 
 antlrcpp::Any DecafASTBuilder::visitParameter(DecafParser::ParameterContext *ctx) {
     auto parameter = make_t (Parameter);
+
+    parameter -> field_type = get(Field_Type,ctx->field_type());
+
+    parameter -> id = make_Id();
+
     return parameter.release();
 }
 
