@@ -834,6 +834,8 @@ public:
     
     Id(int row, int col) : AST_Node(row, col) {}
 
+    Id(std::string id, int row, int col) : id(id), AST_Node(row, col) {}
+
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }

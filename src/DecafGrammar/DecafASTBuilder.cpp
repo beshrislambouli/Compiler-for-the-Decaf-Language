@@ -13,8 +13,9 @@ std::unique_ptr<T> make(antlr4::ParserRuleContext* ctx) {
     return std::make_unique<T>(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 }
 
+#define make_Id(ctx) std::make_unique<AST::Id>((ctx)->ID()->getText(), (ctx)->ID()->getSymbol()->getLine(), (ctx)->ID()->getSymbol()->getCharPositionInLine())
+
 antlrcpp::Any DecafASTBuilder::visitProgram(DecafParser::ProgramContext *ctx) {
-    std::cout << "visitProgram" << std::endl;
     auto program = make <AST::Program>(ctx);
 
     for (auto import_decl_ctx : ctx -> import_decl() ) {
@@ -36,8 +37,9 @@ antlrcpp::Any DecafASTBuilder::visitProgram(DecafParser::ProgramContext *ctx) {
 }
 
 antlrcpp::Any DecafASTBuilder::visitImport_decl(DecafParser::Import_declContext *ctx) {
-    std::cout << "visitImport_decl" << std::endl;
     auto import_decl = make <AST::Import_Decl>(ctx);
+
+    import_decl -> id = make_Id(ctx);
 
     return import_decl.release();
 
