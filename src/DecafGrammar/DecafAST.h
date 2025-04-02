@@ -756,6 +756,8 @@ public:
     
     Logic_Op(int row, int col) : Bin_Op(row, col) {}
 
+    Logic_Op(Type type, int row, int col) : type(type), Bin_Op(row, col) {}
+
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }

@@ -355,12 +355,22 @@ antlrcpp::Any DecafASTBuilder::visitINT_Expr(DecafParser::INT_ExprContext *ctx) 
 
 antlrcpp::Any DecafASTBuilder::visitLoc_Expr(DecafParser::Loc_ExprContext *ctx) {
     auto loc_expr = make_t (Loc_Expr);
+
+    loc_expr -> location = get (Location, ctx->location());
+
     return (Expr*)loc_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitOr_Op_Expr(DecafParser::Or_Op_ExprContext *ctx) {
-    auto loc_expr = make_t (Loc_Expr);
-    return (Expr*)loc_expr.release();
+    auto logic_op_expr = make_t (Logic_Op_Expr);
+
+    logic_op_expr -> expr_lhs = get (Expr, ctx->expr(0));
+
+    logic_op_expr -> bin_op = std::make_unique<Logic_Op>(Logic_Op::OR, ctx->OR()->getSymbol()->getLine(), ctx->OR()->getSymbol()->getCharPositionInLine());
+
+    logic_op_expr -> expr_rhs = get (Expr, ctx->expr(1));
+
+    return (Expr*)logic_op_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLONG_Expr(DecafParser::LONG_ExprContext *ctx) {
@@ -390,6 +400,13 @@ antlrcpp::Any DecafASTBuilder::visitMinus_Expr(DecafParser::Minus_ExprContext *c
 
 antlrcpp::Any DecafASTBuilder::visitAnd_Op_Expr(DecafParser::And_Op_ExprContext *ctx) {
     auto logic_op_expr = make_t (Logic_Op_Expr);
+
+    logic_op_expr -> expr_lhs = get (Expr, ctx->expr(0));
+
+    logic_op_expr -> bin_op = std::make_unique<Logic_Op>(Logic_Op::AND, ctx->AND()->getSymbol()->getLine(), ctx->AND()->getSymbol()->getCharPositionInLine());
+
+    logic_op_expr -> expr_rhs = get (Expr, ctx->expr(1));
+
     return (Expr*)logic_op_expr.release();
 }
 
