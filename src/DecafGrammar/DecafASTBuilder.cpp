@@ -419,6 +419,9 @@ antlrcpp::Any DecafASTBuilder::visitEq_Op_Expr(DecafParser::Eq_Op_ExprContext *c
 
 antlrcpp::Any DecafASTBuilder::visitMinus_Expr(DecafParser::Minus_ExprContext *ctx) {
     auto minus_expr = make_t (Minus_Expr);
+
+    minus_expr -> expr = get (Expr, ctx->expr());
+
     return (Expr*)minus_expr.release();
 }
 
@@ -436,6 +439,9 @@ antlrcpp::Any DecafASTBuilder::visitAnd_Op_Expr(DecafParser::And_Op_ExprContext 
 
 antlrcpp::Any DecafASTBuilder::visitNot_Expr(DecafParser::Not_ExprContext *ctx) {
     auto not_expr = make_t (Not_Expr);
+
+    not_expr -> expr = get (Expr, ctx->expr());
+
     return (Expr*)not_expr.release();
 }
 
