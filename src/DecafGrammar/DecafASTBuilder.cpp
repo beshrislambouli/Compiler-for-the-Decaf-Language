@@ -217,11 +217,19 @@ antlrcpp::Any DecafASTBuilder::visitFor_Stmt(DecafParser::For_StmtContext *ctx) 
 
 antlrcpp::Any DecafASTBuilder::visitWhile_Stmt(DecafParser::While_StmtContext *ctx) {
     auto while_stmt = make_t (While_Stmt);
+
+    while_stmt -> expr_cond = get (Expr,ctx->expr());
+
+    while_stmt -> block = get (Block,ctx->block());
+
     return (Statement*)while_stmt.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitReturn_Stmt(DecafParser::Return_StmtContext *ctx) {
     auto return_stmt = make_t (Return_Stmt);
+
+    return_stmt -> expr = get (Expr, ctx->expr());
+
     return (Statement*)return_stmt.release();
 }
 
