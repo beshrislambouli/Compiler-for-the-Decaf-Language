@@ -693,6 +693,7 @@ public:
 };
 
 class Type : AST_Node {
+public:
     enum Type_t {
         Int,
         Long,
@@ -706,6 +707,7 @@ class Type : AST_Node {
 };
 
 class Id : AST_Node {
+public:
     std::string id;
 
     void accept (Visitor& visitor) override {

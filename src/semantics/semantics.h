@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include "DecafLexer.h"
 #include "DecafParser.h"
 #include "DecafAST.h"
+#include "DecafASTBuilder.h"
 #include "antlr4-runtime.h"
 
 class Semantics : AST::Visitor {
