@@ -395,6 +395,13 @@ antlrcpp::Any DecafASTBuilder::visitMethod_Call_Expr(DecafParser::Method_Call_Ex
 
 antlrcpp::Any DecafASTBuilder::visitMul_Op_Expr(DecafParser::Mul_Op_ExprContext *ctx) {
     auto mul_op_expr = make_t (Mul_Op_Expr);
+
+    mul_op_expr -> expr_lhs = get (Expr, ctx->expr(0));
+
+    mul_op_expr -> bin_op   = get (Bin_Op, ctx->bin_mul_op());
+
+    mul_op_expr -> expr_rhs = get (Expr, ctx->expr(1));
+
     return (Expr*)mul_op_expr.release();
 }
 
