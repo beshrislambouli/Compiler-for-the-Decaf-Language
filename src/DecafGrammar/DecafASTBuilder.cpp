@@ -203,6 +203,15 @@ antlrcpp::Any DecafASTBuilder::visitIf_Else_Stmt(DecafParser::If_Else_StmtContex
 
 antlrcpp::Any DecafASTBuilder::visitFor_Stmt(DecafParser::For_StmtContext *ctx) {
     auto for_stmt = make_t (For_Stmt);
+
+    for_stmt -> id = make_Id();
+
+    for_stmt -> expr_init = get (Expr,ctx->expr(0));
+
+    for_stmt -> expr_cond = get (Expr,ctx->expr(1));
+
+    for_stmt -> for_update= get (For_Update,ctx->for_update());
+
     return (Statement*)for_stmt.release ();
 }
 
@@ -227,11 +236,13 @@ antlrcpp::Any DecafASTBuilder::visitContinue_Stmt(DecafParser::Continue_StmtCont
 }
 
 antlrcpp::Any DecafASTBuilder::visitFor_Upd_Assign_Op(DecafParser::For_Upd_Assign_OpContext *ctx) {
-    
+    auto for_upd_assign_op = make_t (For_Upd_Assign_Op);
+    return (For_Update*)for_upd_assign_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitFor_Upd_Incr(DecafParser::For_Upd_IncrContext *ctx) {
-    
+    auto for_upd_incr = make_t (For_Upd_Incr);
+    return (For_Update*)for_upd_incr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitAssign_op(DecafParser::Assign_opContext *ctx) {
