@@ -267,6 +267,23 @@ antlrcpp::Any DecafASTBuilder::visitFor_Upd_Incr(DecafParser::For_Upd_IncrContex
 
 antlrcpp::Any DecafASTBuilder::visitAssign_op(DecafParser::Assign_opContext *ctx) {
     auto assign_op = make_t (Assign_Op);
+
+    if (ctx->ASSIGN()) {
+        assign_op -> type = Assign_Op::ASSIGN;
+    } else if (ctx->PLUS_ASSIGN()) {
+        assign_op -> type = Assign_Op::PLUS_ASSIGN;
+    } else if (ctx->MINUS_ASSIGN()) {
+        assign_op -> type = Assign_Op::MINUS_ASSIGN;
+    } else if (ctx->MUL_ASSIGN()) {
+        assign_op -> type = Assign_Op::MUL_ASSIGN;
+    } else if (ctx->DIV_ASSIGN()) {
+        assign_op -> type = Assign_Op::DIV_ASSIGN;
+    } else if (ctx->MOD_ASSIGN()) {
+        assign_op -> type = Assign_Op::MOD_ASSIGN;
+    } else {
+        std::cout << "ERROR: DecafASTBuilder::visitAssign_op" << std::endl;
+    }
+
     return assign_op.release();
 }
 
