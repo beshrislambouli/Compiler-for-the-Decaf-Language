@@ -339,11 +339,17 @@ antlrcpp::Any DecafASTBuilder::visitAdd_Op_Expr(DecafParser::Add_Op_ExprContext 
 
 antlrcpp::Any DecafASTBuilder::visitParen_Expr(DecafParser::Paren_ExprContext *ctx) {
     auto paren_expr = make_t (Paren_Expr);
+
+    paren_expr -> expr = get (Expr,ctx->expr());
+
     return (Expr*)paren_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitINT_Expr(DecafParser::INT_ExprContext *ctx) {
     auto int_expr = make_t (INT_Expr);
+
+    int_expr -> expr = get (Expr,ctx->expr());
+
     return (Expr*)int_expr.release();
 }
 
