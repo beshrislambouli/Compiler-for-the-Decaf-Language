@@ -375,11 +375,21 @@ antlrcpp::Any DecafASTBuilder::visitOr_Op_Expr(DecafParser::Or_Op_ExprContext *c
 
 antlrcpp::Any DecafASTBuilder::visitLONG_Expr(DecafParser::LONG_ExprContext *ctx) {
     auto long_expr = make_t (LONG_Expr);
+
+    long_expr -> expr = get (Expr, ctx->expr());
+
     return (Expr*)long_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitMethod_Call_Expr(DecafParser::Method_Call_ExprContext *ctx) {
     auto method_call_expr = make_t (Method_Call_Expr);
+
+    method_call_expr -> id = make_Id();
+
+    for (auto extern_arg_ctx : ctx->extern_arg()) {
+        method_call_expr -> extern_args .push_back (get(Extern_Arg, extern_arg_ctx));
+    }
+
     return (Expr*)method_call_expr.release();
 }
 

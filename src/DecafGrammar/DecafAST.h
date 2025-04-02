@@ -585,7 +585,7 @@ public:
 class Method_Call_Expr : public Expr {
 public:
     std::unique_ptr<Id> id;
-    std::unique_ptr<Extern_Arg> exter_args;
+    std::vector<std::unique_ptr<Extern_Arg>> extern_args;
     
     Method_Call_Expr(int row, int col) : Expr(row, col) {}
 
