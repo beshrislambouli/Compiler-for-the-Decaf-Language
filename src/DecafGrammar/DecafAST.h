@@ -179,6 +179,8 @@ public:
 class Import_Decl : public AST_Node {
 public:
     std::unique_ptr<Id> id;
+    
+    Import_Decl(int row, int col) : AST_Node(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -191,17 +193,24 @@ class Field_Decl : public AST_Node {
 public:
     std::unique_ptr<Field_Type> field_type;
     std::unique_ptr<Field> field;
+    
+    Field_Decl(int row, int col) : AST_Node(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
 };
 
-class Field : public AST_Node {};
+class Field : public AST_Node {
+public:
+    Field(int row, int col) : AST_Node(row, col) {}
+};
 
 class Id_Field_Decl : public Field {
 public:
     std::unique_ptr<Id> id;
+    
+    Id_Field_Decl(int row, int col) : Field(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -212,6 +221,8 @@ class Array_Field_Decl : public Field {
 public:
     std::unique_ptr<Id> id;
     std::unique_ptr<Int_Lit> size;
+    
+    Array_Field_Decl(int row, int col) : Field(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -223,6 +234,8 @@ public:
     std::unique_ptr<Method_Type> method_type;
     std::unique_ptr<Id> id;
     std::vector<std::unique_ptr<Parameter>> parameters;
+    
+    Method_Decl(int row, int col) : AST_Node(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -233,6 +246,8 @@ class Parameter : public AST_Node {
 public:
     std::unique_ptr<Field_Type> field_type;
     std::unique_ptr<Id> id;
+    
+    Parameter(int row, int col) : AST_Node(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -242,6 +257,8 @@ public:
 class Method_Type : public AST_Node {
 public:
     std::unique_ptr<Type> type;
+    
+    Method_Type(int row, int col) : AST_Node(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -251,6 +268,8 @@ public:
 class Field_Type : public AST_Node {
 public:
     std::unique_ptr<Type> type;
+    
+    Field_Type(int row, int col) : AST_Node(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -261,19 +280,26 @@ class Block : public AST_Node {
 public:
     std::vector<std::unique_ptr<Field_Decl>> field_decls;
     std::vector<std::unique_ptr<Statement>> statements;
+    
+    Block(int row, int col) : AST_Node(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
 };
 
-class Statement : public AST_Node {};
+class Statement : public AST_Node {
+public:
+    Statement(int row, int col) : AST_Node(row, col) {}
+};
 
 class Location_Assign_Op : public Statement {
 public:
     std::unique_ptr<Location> location;
     std::unique_ptr<Assign_Op> assign_op;
     std::unique_ptr<Expr> expr;
+    
+    Location_Assign_Op(int row, int col) : Statement(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -284,6 +310,8 @@ class Location_Incr : public Statement {
 public:
     std::unique_ptr<Location> location;
     std::unique_ptr<Increment> increment;
+    
+    Location_Incr(int row, int col) : Statement(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -294,6 +322,8 @@ class Method_Call_Stmt : public Statement {
 public:
     std::unique_ptr<Id> id;
     std::vector<Extern_Arg> extern_args;
+    
+    Method_Call_Stmt(int row, int col) : Statement(row, col) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -305,6 +335,8 @@ public:
     std::unique_ptr<Expr> expr_if;
     std::unique_ptr<Block> block_then;
     std::unique_ptr<Block> block_else; // OPTIONAL
+    
+    If_Else_Stmt(int row, int col) : Statement(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -317,6 +349,8 @@ public:
     std::unique_ptr<Expr> expr_init;
     std::unique_ptr<Expr> expr_cond;
     std::unique_ptr<For_Update> for_update;
+    
+    For_Stmt(int row, int col) : Statement(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -327,6 +361,8 @@ class While_Stmt : public Statement {
 public:
     std::unique_ptr<Expr> expr_cond;
     std::unique_ptr<Block> block;
+    
+    While_Stmt(int row, int col) : Statement(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -336,6 +372,8 @@ public:
 class Return_Stmt : public Statement {
 public:
     std::unique_ptr<Expr> expr; // OPTIONAL
+    
+    Return_Stmt(int row, int col) : Statement(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -344,6 +382,8 @@ public:
 
 class Break_Stmt : public Statement {
 public:
+    Break_Stmt(int row, int col) : Statement(row, col) {}
+    
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -351,18 +391,25 @@ public:
 
 class Continue_Stmt : public Statement {
 public:
+    Continue_Stmt(int row, int col) : Statement(row, col) {}
+    
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
 };
 
-class For_Update : public AST_Node {};
+class For_Update : public AST_Node {
+public:
+    For_Update(int row, int col) : AST_Node(row, col) {}
+};
 
 class For_Upd_Assign_Op : public For_Update {
 public:
     std::unique_ptr<Location> location;
     std::unique_ptr<Assign_Op> assign_Op;
     std::unique_ptr<Expr> expr;
+    
+    For_Upd_Assign_Op(int row, int col) : For_Update(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -374,16 +421,23 @@ public:
     std::unique_ptr<Location> location;
     std::unique_ptr<Increment> increment;
     
+    For_Upd_Incr(int row, int col) : For_Update(row, col) {}
+    
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
 };
 
-class Location : public AST_Node {};
+class Location : public AST_Node {
+public:
+    Location(int row, int col) : AST_Node(row, col) {}
+};
 
 class Loc_Var : public Location {
 public:
     std::unique_ptr<Id> id;
+    
+    Loc_Var(int row, int col) : Location(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -394,6 +448,8 @@ class Loc_Array : public Location {
 public:
     std::unique_ptr<Id> id;
     std::unique_ptr<Expr> expr;
+    
+    Loc_Array(int row, int col) : Location(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -401,16 +457,22 @@ public:
 };
 
 class Expr : public AST_Node {
+public:
     std::unique_ptr<Type> type_t;
+    
+    Expr(int row, int col) : AST_Node(row, col) {}
 }; // TODO: TYPE??
 
 class Unary_Expr : public Expr {
 public:
     std::unique_ptr<Expr> expr;
+    
+    Unary_Expr(int row, int col) : Expr(row, col) {}
 }; 
 
 class Minus_Expr : public Unary_Expr {
 public:
+    Minus_Expr(int row, int col) : Unary_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -419,6 +481,7 @@ public:
 
 class Not_Expr : public Unary_Expr {
 public:
+    Not_Expr(int row, int col) : Unary_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -428,6 +491,7 @@ public:
 
 class INT_Expr : public Unary_Expr {
 public:
+    INT_Expr(int row, int col) : Unary_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -437,6 +501,7 @@ public:
 
 class LONG_Expr : public Unary_Expr {
 public:
+    LONG_Expr(int row, int col) : Unary_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -445,6 +510,7 @@ public:
 
 class Paren_Expr : public Unary_Expr {
 public:
+    Paren_Expr(int row, int col) : Unary_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -457,10 +523,13 @@ public:
     std::unique_ptr<Expr> expr_lhs;
     std::unique_ptr<Bin_Op> bin_op;
     std::unique_ptr<Expr> expr_rhs;
+    
+    Bin_Expr(int row, int col) : Expr(row, col) {}
 };
 
 class Mul_Op_Expr : public Bin_Expr {
 public:
+    Mul_Op_Expr(int row, int col) : Bin_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -469,6 +538,7 @@ public:
 
 class Add_Op_Expr : public Bin_Expr {
 public:
+    Add_Op_Expr(int row, int col) : Bin_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -477,6 +547,7 @@ public:
 
 class Rel_Op_Expr : public Bin_Expr {
 public:
+    Rel_Op_Expr(int row, int col) : Bin_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -485,6 +556,7 @@ public:
 
 class Eq_Op_Expr : public Bin_Expr {
 public:
+    Eq_Op_Expr(int row, int col) : Bin_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -493,6 +565,7 @@ public:
 
 class Logic_Op_Expr : public Bin_Expr {
 public:
+    Logic_Op_Expr(int row, int col) : Bin_Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -502,6 +575,8 @@ public:
 class Loc_Expr : public Expr  {
 public:
     std::unique_ptr<Location> location;
+    
+    Loc_Expr(int row, int col) : Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -512,6 +587,8 @@ class Method_Call_Expr : public Expr {
 public:
     std::unique_ptr<Id> id;
     std::unique_ptr<Extern_Arg> exter_args;
+    
+    Method_Call_Expr(int row, int col) : Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -522,6 +599,8 @@ class Literal_Expr : public Expr {
 public:
     std::unique_ptr<Literal> literal;
     
+    Literal_Expr(int row, int col) : Expr(row, col) {}
+    
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -530,17 +609,24 @@ public:
 class Len_Expr : public Expr {
 public:
     std::unique_ptr<Id> id;
+    
+    Len_Expr(int row, int col) : Expr(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
 };
 
-class Extern_Arg : public AST_Node {};
+class Extern_Arg : public AST_Node {
+public:
+    Extern_Arg(int row, int col) : AST_Node(row, col) {}
+};
 
 class Expr_Arg : public Extern_Arg {
 public:
     std::unique_ptr<Expr> expr;
+    
+    Expr_Arg(int row, int col) : Extern_Arg(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -550,6 +636,8 @@ public:
 class String_Arg : public Extern_Arg {
 public:
     std::string string_arg;
+    
+    String_Arg(int row, int col) : Extern_Arg(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -568,6 +656,8 @@ public:
     };
 
     Type type;
+    
+    Assign_Op(int row, int col) : AST_Node(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -581,13 +671,18 @@ public:
         DECREMENT
     };
     Type type;
+    
+    Increment(int row, int col) : AST_Node(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
 };
 
-class Bin_Op : public AST_Node {};
+class Bin_Op : public AST_Node {
+public:
+    Bin_Op(int row, int col) : AST_Node(row, col) {}
+};
 
 class Mul_Op : public Bin_Op {
 public:
@@ -597,6 +692,8 @@ public:
         MOD
     };
     Type type;
+    
+    Mul_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -610,6 +707,8 @@ public:
         MINUS,
     };
     Type type;
+    
+    Add_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -625,6 +724,8 @@ public:
         GE,
     };
     Type type;
+    
+    Rel_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -638,6 +739,8 @@ public:
         NEQ
     };
     Type type;
+    
+    Eq_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -651,6 +754,8 @@ public:
         AND
     };
     Type type;
+    
+    Logic_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -662,11 +767,15 @@ class Literal : public AST_Node {
 public:
     std::string literal;
     std::unique_ptr<Type> type_t;
+    
+    Literal(int row, int col) : AST_Node(row, col) {}
 };
 
 class Int_Lit : public Literal {
 public:
     bool minus;
+    
+    Int_Lit(int row, int col) : Literal(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -675,6 +784,7 @@ public:
 
 class Long_Lit : public Literal {
 public:
+    Long_Lit(int row, int col) : Literal(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -683,6 +793,7 @@ public:
 
 class Char_Lit : public Literal {
 public:
+    Char_Lit(int row, int col) : Literal(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -691,6 +802,7 @@ public:
 
 class Bool_Lit : public Literal {
 public:
+    Bool_Lit(int row, int col) : Literal(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
@@ -708,6 +820,9 @@ public:
         Null_Type,
     };
     Type_t type = Null_Type;
+    
+    Type(int row, int col) : AST_Node(row, col) {}
+    
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -718,6 +833,8 @@ public:
     std::string id;
     
     std::unique_ptr<Type> type_t;
+    
+    Id(int row, int col) : AST_Node(row, col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
