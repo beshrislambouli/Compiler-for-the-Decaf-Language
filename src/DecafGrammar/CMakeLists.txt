@@ -9,6 +9,6 @@ add_custom_command(
     DEPENDS DecafLexer.g4 DecafParser.g4
 )
 
-add_library(DecafGrammar STATIC generated/DecafLexer.cpp generated/DecafParser.cpp)
+add_library(DecafGrammar STATIC DecafAST.h generated/DecafLexer.cpp generated/DecafParser.cpp)
 target_link_libraries(DecafGrammar PUBLIC /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/libantlr4-runtime.a)
-target_include_directories(DecafGrammar PUBLIC /usr/include/antlr4-runtime ${CMAKE_CURRENT_LIST_DIR}/generated)
+target_include_directories(DecafGrammar PUBLIC ${CMAKE_CURRENT_LIST_DIR} /usr/include/antlr4-runtime ${CMAKE_CURRENT_LIST_DIR}/generated)

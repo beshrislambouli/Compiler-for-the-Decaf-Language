@@ -19,27 +19,29 @@ namespace decaf {
             if (CommandLineInterface::target == CompilerAction::DEFAULT) {
                 CommandLineInterface::target = CompilerAction::INTER;
             }
-            
-            switch (CommandLineInterface::target) {
-                case CompilerAction::SCAN:
-                    Scanner scanner;
-                    return scanner.scan(inputStream,outputStream);
+            Semantics semantics;
+            semantics.check(inputStream,outputStream);
+            // switch (CommandLineInterface::target) {
+            //     case CompilerAction::SCAN:
+            //         Scanner scanner;
+            //         return scanner.scan(inputStream,outputStream);
     
-                case CompilerAction::PARSE:
-                    Parser parser;
-                    return parser.parse(inputStream,outputStream);
+            //     case CompilerAction::PARSE:
+            //         Parser parser;
+            //         return parser.parse(inputStream,outputStream);
                     
-                case CompilerAction::INTER:
-                    Semantics semantics;
-                    return semantics.check(inputStream,outputStream);
+            //     case CompilerAction::INTER:
+            //         Semantics semantics;
+            //         return semantics.check(inputStream,outputStream);
 
-                case CompilerAction::ASSEMBLY:
-                    return 1;
+            //     case CompilerAction::ASSEMBLY:
+            //         return 1;
 
-                default:
-                    return 1;
+            //     default:
+            //         return 1;
                     
-            }
+            // }
+            return 1;
         }
 
         static std::ifstream input(std::string infile) {
