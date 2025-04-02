@@ -188,11 +188,9 @@ public:
 };
 
 class Field_Decl : public AST_Node {
-    // TODO: thing again about this, 
-    // but I am planning to add multiaple Field_Decl nodes if they are all delcared on the same line 
 public:
     std::unique_ptr<Field_Type> field_type;
-    std::unique_ptr<Field> field;
+    std::vector<std::unique_ptr<Field>> fields;
     
     Field_Decl(int row, int col) : AST_Node(row, col) {}
 

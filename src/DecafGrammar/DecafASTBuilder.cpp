@@ -14,15 +14,40 @@ std::unique_ptr<T> make(antlr4::ParserRuleContext* ctx) {
 }
 
 antlrcpp::Any DecafASTBuilder::visitProgram(DecafParser::ProgramContext *ctx) {
+    std::cout << "visitProgram" << std::endl;
     auto program = make <AST::Program>(ctx);
+
+    for (auto import_decl_ctx : ctx -> import_decl() ) {
+        auto import_decl = any_to_unique_ptr<AST::Import_Decl>(visitImport_decl(import_decl_ctx));
+        program -> import_decls .push_back (std::move(import_decl));
+    }
+
+    for (auto field_decl_ctx : ctx -> field_decl()) {
+        auto field_decl = any_to_unique_ptr<AST::Field_Decl>(visitField_decl(field_decl_ctx));
+        program -> field_decls .push_back (std::move(field_decl));
+    }
+
+    for (auto method_decl_ctx : ctx -> method_decl()) {
+        auto method_decl = any_to_unique_ptr<AST::Method_Decl>(visitMethod_decl(method_decl_ctx));
+        program -> method_decls .push_back (std::move(method_decl));
+    }
+
     return program.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitImport_decl(DecafParser::Import_declContext *ctx) {
+    std::cout << "visitImport_decl" << std::endl;
+    auto import_decl = make <AST::Import_Decl>(ctx);
+
+    return import_decl.release();
 
 }
 
 antlrcpp::Any DecafASTBuilder::visitField_decl(DecafParser::Field_declContext *ctx) {
+    std::cout << "visitField_decl" << std::endl;
+    auto field_decl = make <AST::Field_Decl>(ctx);
+
+    return field_decl.release();
     
 }
 
@@ -35,7 +60,10 @@ antlrcpp::Any DecafASTBuilder::visitArray_Field_Decl(DecafParser::Array_Field_De
 }
 
 antlrcpp::Any DecafASTBuilder::visitMethod_decl(DecafParser::Method_declContext *ctx) {
-    
+    std::cout << "visitMethod_decl" << std::endl;
+    auto method_decl = make <AST::Method_Decl>(ctx);
+
+    return method_decl.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitParameter(DecafParser::ParameterContext *ctx) {
