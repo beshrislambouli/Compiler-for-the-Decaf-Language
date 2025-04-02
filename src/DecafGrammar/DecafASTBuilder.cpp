@@ -159,7 +159,7 @@ antlrcpp::Any DecafASTBuilder::visitLocation_Assign_Op(DecafParser::Location_Ass
 
     location_assign_op -> assign_op= get(Assign_Op, ctx->assign_op());
 
-    // location_assign_op -> expr = get (Expr, ctx->expr()) ;
+    location_assign_op -> expr = get (Expr, ctx->expr()) ;
 
 
     return (Statement*)location_assign_op.release() ;
@@ -233,67 +233,82 @@ antlrcpp::Any DecafASTBuilder::visitLoc_Array(DecafParser::Loc_ArrayContext *ctx
 }
 
 antlrcpp::Any DecafASTBuilder::visitLen_Expr(DecafParser::Len_ExprContext *ctx) {
-    
+    auto len_expr = make_t (Len_Expr);
+    return (Expr*)len_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitAdd_Op_Expr(DecafParser::Add_Op_ExprContext *ctx) {
-    
+    auto add_op_expr = make_t (Add_Op_Expr);
+    return (Expr*)add_op_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitParen_Expr(DecafParser::Paren_ExprContext *ctx) {
-    
+    auto paren_expr = make_t (Paren_Expr);
+    return (Expr*)paren_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitINT_Expr(DecafParser::INT_ExprContext *ctx) {
-    
+    auto int_expr = make_t (INT_Expr);
+    return (Expr*)int_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLoc_Expr(DecafParser::Loc_ExprContext *ctx) {
-    
+    auto loc_expr = make_t (Loc_Expr);
+    return (Expr*)loc_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitOr_Op_Expr(DecafParser::Or_Op_ExprContext *ctx) {
-    
+    auto loc_expr = make_t (Loc_Expr);
+    return (Expr*)loc_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLONG_Expr(DecafParser::LONG_ExprContext *ctx) {
-    
+    auto long_expr = make_t (LONG_Expr);
+    return (Expr*)long_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitMethod_Call_Expr(DecafParser::Method_Call_ExprContext *ctx) {
-    
+    auto method_call_expr = make_t (Method_Call_Expr);
+    return (Expr*)method_call_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitMul_Op_Expr(DecafParser::Mul_Op_ExprContext *ctx) {
-    
+    auto mul_op_expr = make_t (Mul_Op_Expr);
+    return (Expr*)mul_op_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitEq_Op_Expr(DecafParser::Eq_Op_ExprContext *ctx) {
-    
+    auto eq_op_expr = make_t (Eq_Op_Expr);
+    return (Expr*)eq_op_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitMinus_Expr(DecafParser::Minus_ExprContext *ctx) {
-    
+    auto minus_expr = make_t (Minus_Expr);
+    return (Expr*)minus_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitAnd_Op_Expr(DecafParser::And_Op_ExprContext *ctx) {
-    
+    auto logic_op_expr = make_t (Logic_Op_Expr);
+    return (Expr*)logic_op_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitNot_Expr(DecafParser::Not_ExprContext *ctx) {
-    
+    auto not_expr = make_t (Not_Expr);
+    return (Expr*)not_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitRel_Op_Expr(DecafParser::Rel_Op_ExprContext *ctx) {
-    
+    auto rel_op_expr = make_t (Rel_Op_Expr);
+    return (Expr*)rel_op_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLiteral_Expr(DecafParser::Literal_ExprContext *ctx) {
-    
+    auto literal_expr = make_t (Literal_Expr);
+    return (Expr*)literal_expr.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitExpr_Arg(DecafParser::Expr_ArgContext *ctx) {
-    
+
 }
 
 antlrcpp::Any DecafASTBuilder::visitString_Arg(DecafParser::String_ArgContext *ctx) {
