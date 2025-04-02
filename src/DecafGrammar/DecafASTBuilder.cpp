@@ -327,6 +327,13 @@ antlrcpp::Any DecafASTBuilder::visitLen_Expr(DecafParser::Len_ExprContext *ctx) 
 
 antlrcpp::Any DecafASTBuilder::visitAdd_Op_Expr(DecafParser::Add_Op_ExprContext *ctx) {
     auto add_op_expr = make_t (Add_Op_Expr);
+
+    add_op_expr -> expr_lhs = get (Expr, ctx->expr(0));
+
+    add_op_expr -> bin_op   = get (Bin_Op, ctx->bin_add_op());
+
+    add_op_expr -> expr_rhs = get (Expr, ctx->expr(1));
+
     return (Expr*)add_op_expr.release();
 }
 
