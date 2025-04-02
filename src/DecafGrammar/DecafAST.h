@@ -320,7 +320,7 @@ public:
 class Method_Call_Stmt : public Statement {
 public:
     std::unique_ptr<Id> id;
-    std::vector<Extern_Arg> extern_args;
+    std::vector<std::unique_ptr<Extern_Arg>> extern_args;
     
     Method_Call_Stmt(int row, int col) : Statement(row, col) {}
 

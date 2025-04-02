@@ -177,6 +177,13 @@ antlrcpp::Any DecafASTBuilder::visitLocation_Incr(DecafParser::Location_IncrCont
 
 antlrcpp::Any DecafASTBuilder::visitMethod_Call_Stmt(DecafParser::Method_Call_StmtContext *ctx) {
     auto method_call_stmt = make_t (Method_Call_Stmt);
+
+    method_call_stmt -> id = make_Id();
+
+    for (auto extern_arg_ctx : ctx -> extern_arg()) {
+        method_call_stmt -> extern_args .push_back (get(Extern_Arg,extern_arg_ctx));
+    }
+
     return (Statement*)method_call_stmt.release() ;
 }
 
@@ -314,11 +321,13 @@ antlrcpp::Any DecafASTBuilder::visitLiteral_Expr(DecafParser::Literal_ExprContex
 }
 
 antlrcpp::Any DecafASTBuilder::visitExpr_Arg(DecafParser::Expr_ArgContext *ctx) {
-
+    auto expr_arg = make_t (Expr_Arg);
+    return (Extern_Arg*)expr_arg.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitString_Arg(DecafParser::String_ArgContext *ctx) {
-    
+    auto string_arg = make_t (String_Arg);
+    return (Extern_Arg*)string_arg.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitBin_mul_op(DecafParser::Bin_mul_opContext *ctx) {
