@@ -176,7 +176,7 @@ public:
     }
 };
 
-class Import_Decl : AST_Node {
+class Import_Decl : public AST_Node {
 public:
     std::unique_ptr<Id> id;
 
@@ -185,7 +185,7 @@ public:
     }
 };
 
-class Field_Decl : AST_Node {
+class Field_Decl : public AST_Node {
     // TODO: thing again about this, 
     // but I am planning to add multiaple Field_Decl nodes if they are all delcared on the same line 
 public:
@@ -197,9 +197,9 @@ public:
     }
 };
 
-class Field : AST_Node {};
+class Field : public AST_Node {};
 
-class Id_Field_Decl : Field {
+class Id_Field_Decl : public Field {
 public:
     std::unique_ptr<Id> id;
 
@@ -208,7 +208,7 @@ public:
     }
 };
 
-class Array_Field_Decl : Field {
+class Array_Field_Decl : public Field {
 public:
     std::unique_ptr<Id> id;
     std::unique_ptr<Int_Lit> size;
@@ -218,7 +218,7 @@ public:
     }
 };
 
-class Method_Decl : AST_Node {
+class Method_Decl : public AST_Node {
 public:
     std::unique_ptr<Method_Type> method_type;
     std::unique_ptr<Id> id;
@@ -229,7 +229,7 @@ public:
     }
 };
 
-class Parameter : AST_Node {
+class Parameter : public AST_Node {
 public:
     std::unique_ptr<Field_Type> field_type;
     std::unique_ptr<Id> id;
@@ -239,7 +239,7 @@ public:
     }
 };
 
-class Method_Type : AST_Node {
+class Method_Type : public AST_Node {
 public:
     std::unique_ptr<Type> type;
 
@@ -248,7 +248,7 @@ public:
     }
 };
 
-class Field_Type : AST_Node {
+class Field_Type : public AST_Node {
 public:
     std::unique_ptr<Type> type;
 
@@ -257,7 +257,7 @@ public:
     }
 };
 
-class Block : AST_Node {
+class Block : public AST_Node {
 public:
     std::vector<std::unique_ptr<Field_Decl>> field_decls;
     std::vector<std::unique_ptr<Statement>> statements;
@@ -267,9 +267,9 @@ public:
     }
 };
 
-class Statement : AST_Node {};
+class Statement : public AST_Node {};
 
-class Location_Assign_Op : Statement {
+class Location_Assign_Op : public Statement {
 public:
     std::unique_ptr<Location> location;
     std::unique_ptr<Assign_Op> assign_op;
@@ -280,7 +280,7 @@ public:
     }    
 };
 
-class Location_Incr : Statement {
+class Location_Incr : public Statement {
 public:
     std::unique_ptr<Location> location;
     std::unique_ptr<Increment> increment;
@@ -290,7 +290,7 @@ public:
     }    
 };
 
-class Method_Call_Stmt : Statement {
+class Method_Call_Stmt : public Statement {
 public:
     std::unique_ptr<Id> id;
     std::vector<Extern_Arg> extern_args;
@@ -300,7 +300,7 @@ public:
     }   
 };
 
-class If_Else_Stmt : Statement {
+class If_Else_Stmt : public Statement {
 public:
     std::unique_ptr<Expr> expr_if;
     std::unique_ptr<Block> block_then;
@@ -311,7 +311,7 @@ public:
     }
 };
 
-class For_Stmt : Statement {
+class For_Stmt : public Statement {
 public:
     std::unique_ptr<Id> id;
     std::unique_ptr<Expr> expr_init;
@@ -323,7 +323,7 @@ public:
     }
 };
 
-class While_Stmt : Statement {
+class While_Stmt : public Statement {
 public:
     std::unique_ptr<Expr> expr_cond;
     std::unique_ptr<Block> block;
@@ -333,7 +333,7 @@ public:
     }
 };
 
-class Return_Stmt : Statement {
+class Return_Stmt : public Statement {
 public:
     std::unique_ptr<Expr> expr; // OPTIONAL
 
@@ -342,23 +342,23 @@ public:
     }
 };
 
-class Break_Stmt : Statement {
+class Break_Stmt : public Statement {
 public:
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
 };
 
-class Continue_Stmt : Statement {
+class Continue_Stmt : public Statement {
 public:
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
     }
 };
 
-class For_Update : AST_Node {};
+class For_Update : public AST_Node {};
 
-class For_Upd_Assign_Op : For_Update {
+class For_Upd_Assign_Op : public For_Update {
 public:
     std::unique_ptr<Location> location;
     std::unique_ptr<Assign_Op> assign_Op;
@@ -369,7 +369,7 @@ public:
     }
 };
 
-class For_Upd_Incr : For_Update {
+class For_Upd_Incr : public For_Update {
 public:
     std::unique_ptr<Location> location;
     std::unique_ptr<Increment> increment;
@@ -379,9 +379,9 @@ public:
     }
 };
 
-class Location : AST_Node {};
+class Location : public AST_Node {};
 
-class Loc_Var : Location {
+class Loc_Var : public Location {
 public:
     std::unique_ptr<Id> id;
 
@@ -390,7 +390,7 @@ public:
     }
 };
 
-class Loc_Array : Location {
+class Loc_Array : public Location {
 public:
     std::unique_ptr<Id> id;
     std::unique_ptr<Expr> expr;
@@ -400,16 +400,16 @@ public:
     }
 };
 
-class Expr : AST_Node {
+class Expr : public AST_Node {
     std::unique_ptr<Type> type_t;
 }; // TODO: TYPE??
 
-class Unary_Expr : Expr {
+class Unary_Expr : public Expr {
 public:
     std::unique_ptr<Expr> expr;
 }; 
 
-class Minus_Expr : Unary_Expr {
+class Minus_Expr : public Unary_Expr {
 public:
 
     void accept (Visitor& visitor) override {
@@ -417,16 +417,7 @@ public:
     }
 };
 
-class Not_Expr : Unary_Expr {
-public:
-
-    void accept (Visitor& visitor) override {
-        visitor.visit(*this);
-    }
-};
-
-
-class INT_Expr : Unary_Expr {
+class Not_Expr : public Unary_Expr {
 public:
 
     void accept (Visitor& visitor) override {
@@ -435,15 +426,7 @@ public:
 };
 
 
-class LONG_Expr : Unary_Expr {
-public:
-
-    void accept (Visitor& visitor) override {
-        visitor.visit(*this);
-    }
-};
-
-class Paren_Expr : Unary_Expr {
+class INT_Expr : public Unary_Expr {
 public:
 
     void accept (Visitor& visitor) override {
@@ -452,14 +435,31 @@ public:
 };
 
 
-class Bin_Expr : Expr {
+class LONG_Expr : public Unary_Expr {
+public:
+
+    void accept (Visitor& visitor) override {
+        visitor.visit(*this);
+    }
+};
+
+class Paren_Expr : public Unary_Expr {
+public:
+
+    void accept (Visitor& visitor) override {
+        visitor.visit(*this);
+    }
+};
+
+
+class Bin_Expr : public Expr {
 public:
     std::unique_ptr<Expr> expr_lhs;
     std::unique_ptr<Bin_Op> bin_op;
     std::unique_ptr<Expr> expr_rhs;
 };
 
-class Mul_Op_Expr : Bin_Expr {
+class Mul_Op_Expr : public Bin_Expr {
 public:
 
     void accept (Visitor& visitor) override {
@@ -467,7 +467,7 @@ public:
     }
 };
 
-class Add_Op_Expr : Bin_Expr {
+class Add_Op_Expr : public Bin_Expr {
 public:
 
     void accept (Visitor& visitor) override {
@@ -475,7 +475,7 @@ public:
     }
 };
 
-class Rel_Op_Expr : Bin_Expr {
+class Rel_Op_Expr : public Bin_Expr {
 public:
 
     void accept (Visitor& visitor) override {
@@ -483,7 +483,7 @@ public:
     }
 };
 
-class Eq_Op_Expr : Bin_Expr {
+class Eq_Op_Expr : public Bin_Expr {
 public:
 
     void accept (Visitor& visitor) override {
@@ -491,7 +491,7 @@ public:
     }
 };
 
-class Logic_Op_Expr : Bin_Expr {
+class Logic_Op_Expr : public Bin_Expr {
 public:
 
     void accept (Visitor& visitor) override {
@@ -499,7 +499,7 @@ public:
     }
 };
 
-class Loc_Expr : Expr  {
+class Loc_Expr : public Expr  {
 public:
     std::unique_ptr<Location> location;
 
@@ -508,7 +508,7 @@ public:
     }
 };
 
-class Method_Call_Expr : Expr {
+class Method_Call_Expr : public Expr {
 public:
     std::unique_ptr<Id> id;
     std::unique_ptr<Extern_Arg> exter_args;
@@ -518,7 +518,7 @@ public:
     }
 };
 
-class Literal_Expr : Expr {
+class Literal_Expr : public Expr {
 public:
     std::unique_ptr<Literal> literal;
     
@@ -527,7 +527,7 @@ public:
     }
 };
 
-class Len_Expr : Expr {
+class Len_Expr : public Expr {
 public:
     std::unique_ptr<Id> id;
 
@@ -536,9 +536,9 @@ public:
     }
 };
 
-class Extern_Arg : AST_Node {};
+class Extern_Arg : public AST_Node {};
 
-class Expr_Arg : Extern_Arg {
+class Expr_Arg : public Extern_Arg {
 public:
     std::unique_ptr<Expr> expr;
 
@@ -547,7 +547,7 @@ public:
     }
 };
 
-class String_Arg : Extern_Arg {
+class String_Arg : public Extern_Arg {
 public:
     std::string string_arg;
 
@@ -556,7 +556,7 @@ public:
     }
 };
 
-class Assign_Op : AST_Node {
+class Assign_Op : public AST_Node {
 public:
     enum Type {
         ASSIGN,
@@ -574,7 +574,7 @@ public:
     }
 };
 
-class Increment : AST_Node {
+class Increment : public AST_Node {
 public:
     enum Type {
         INCREMENT,
@@ -587,9 +587,9 @@ public:
     }
 };
 
-class Bin_Op : AST_Node {};
+class Bin_Op : public AST_Node {};
 
-class Mul_Op : Bin_Op {
+class Mul_Op : public Bin_Op {
 public:
     enum Type {
         STAR,
@@ -603,7 +603,7 @@ public:
     }
 };
 
-class Add_Op : Bin_Op {
+class Add_Op : public Bin_Op {
 public:
     enum Type {
         PLUS,
@@ -616,7 +616,7 @@ public:
     }
 };
 
-class Rel_Op : Bin_Op {
+class Rel_Op : public Bin_Op {
 public:
     enum Type {
         LT,
@@ -631,7 +631,7 @@ public:
     }
 };
 
-class Eq_Op : Bin_Op {
+class Eq_Op : public Bin_Op {
 public:
     enum Type {
         EQ,
@@ -644,7 +644,7 @@ public:
     }
 };
 
-class Logic_Op : Bin_Op {
+class Logic_Op : public Bin_Op {
 public:
     enum Type {
         OR,
@@ -657,14 +657,14 @@ public:
     }
 };
 
-class Literal : AST_Node {
+class Literal : public AST_Node {
     // TODO: Don't forget the hex numbers
 public:
     std::string literal;
     std::unique_ptr<Type> type_t;
 };
 
-class Int_Lit : Literal {
+class Int_Lit : public Literal {
 public:
     bool minus;
 
@@ -673,7 +673,7 @@ public:
     }
 };
 
-class Long_Lit : Literal {
+class Long_Lit : public Literal {
 public:
 
     void accept (Visitor& visitor) override {
@@ -681,7 +681,7 @@ public:
     }
 };
 
-class Char_Lit : Literal {
+class Char_Lit : public Literal {
 public:
 
     void accept (Visitor& visitor) override {
@@ -689,7 +689,7 @@ public:
     }
 };
 
-class Bool_Lit : Literal {
+class Bool_Lit : public Literal {
 public:
 
     void accept (Visitor& visitor) override {
@@ -697,7 +697,7 @@ public:
     }
 };
 
-class Type : AST_Node {
+class Type : public AST_Node {
 public:
     enum Type_t {
         Int,
@@ -713,7 +713,7 @@ public:
     }
 };
 
-class Id : AST_Node {
+class Id : public AST_Node {
 public:
     std::string id;
     
