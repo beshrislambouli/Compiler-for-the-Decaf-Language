@@ -407,6 +407,13 @@ antlrcpp::Any DecafASTBuilder::visitMul_Op_Expr(DecafParser::Mul_Op_ExprContext 
 
 antlrcpp::Any DecafASTBuilder::visitEq_Op_Expr(DecafParser::Eq_Op_ExprContext *ctx) {
     auto eq_op_expr = make_t (Eq_Op_Expr);
+
+    eq_op_expr -> expr_lhs = get (Expr, ctx->expr(0));
+
+    eq_op_expr -> bin_op   = get (Bin_Op, ctx->eq_op());
+
+    eq_op_expr -> expr_rhs = get (Expr, ctx->expr(1));
+
     return (Expr*)eq_op_expr.release();
 }
 
@@ -434,6 +441,13 @@ antlrcpp::Any DecafASTBuilder::visitNot_Expr(DecafParser::Not_ExprContext *ctx) 
 
 antlrcpp::Any DecafASTBuilder::visitRel_Op_Expr(DecafParser::Rel_Op_ExprContext *ctx) {
     auto rel_op_expr = make_t (Rel_Op_Expr);
+
+    rel_op_expr -> expr_lhs = get (Expr, ctx->expr(0));
+
+    rel_op_expr -> bin_op   = get (Bin_Op, ctx->rel_op());
+
+    rel_op_expr -> expr_rhs = get (Expr, ctx->expr(1));
+
     return (Expr*)rel_op_expr.release();
 }
 
