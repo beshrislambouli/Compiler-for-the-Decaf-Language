@@ -767,6 +767,8 @@ public:
     std::unique_ptr<Type> type_t;
     
     Literal(int row, int col) : AST_Node(row, col) {}
+
+    Literal(std::string literal, int row, int col) : literal(literal), AST_Node(row, col) {}
 };
 
 class Int_Lit : public Literal {
@@ -774,6 +776,11 @@ public:
     bool minus;
     
     Int_Lit(int row, int col) : Literal(row, col) {}
+
+    Int_Lit(bool minus, std::string literal, int row, int col) 
+    : minus(minus)
+    , Literal(literal, row, col)
+    {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);

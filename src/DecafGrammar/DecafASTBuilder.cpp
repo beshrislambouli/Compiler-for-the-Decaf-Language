@@ -61,11 +61,18 @@ antlrcpp::Any DecafASTBuilder::visitField_decl(DecafParser::Field_declContext *c
 
 antlrcpp::Any DecafASTBuilder::visitId_Field_Decl(DecafParser::Id_Field_DeclContext *ctx) {
     auto id_field_decl = make_t (Id_Field_Decl);
+
+    id_field_decl -> id = make_Id();
+
     return (Field*)id_field_decl.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitArray_Field_Decl(DecafParser::Array_Field_DeclContext *ctx) {
     auto array_field_decl = make_t (Array_Field_Decl);
+
+    array_field_decl -> id = make_Id();
+    array_field_decl -> size = std::make_unique<Int_Lit>(false, ctx->INT_LITERAL()->getText(), ctx->INT_LITERAL()->getSymbol()->getLine(), ctx->INT_LITERAL()->getSymbol()->getCharPositionInLine());
+
     return (Field*)array_field_decl.release();
 }
 
@@ -236,7 +243,7 @@ antlrcpp::Any DecafASTBuilder::visitEq_op(DecafParser::Eq_opContext *ctx) {
 }
 
 antlrcpp::Any DecafASTBuilder::visitInt_Lit(DecafParser::Int_LitContext *ctx) {
-    
+
 }
 
 antlrcpp::Any DecafASTBuilder::visitLong_Lit(DecafParser::Long_LitContext *ctx) {
