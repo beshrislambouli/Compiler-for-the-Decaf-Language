@@ -245,11 +245,23 @@ antlrcpp::Any DecafASTBuilder::visitContinue_Stmt(DecafParser::Continue_StmtCont
 
 antlrcpp::Any DecafASTBuilder::visitFor_Upd_Assign_Op(DecafParser::For_Upd_Assign_OpContext *ctx) {
     auto for_upd_assign_op = make_t (For_Upd_Assign_Op);
+
+    for_upd_assign_op -> location = get(Location, ctx->location());
+
+    for_upd_assign_op -> assign_Op = get(Assign_Op, ctx->assign_op());
+
+    for_upd_assign_op -> expr = get(Expr, ctx->expr());
+
     return (For_Update*)for_upd_assign_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitFor_Upd_Incr(DecafParser::For_Upd_IncrContext *ctx) {
     auto for_upd_incr = make_t (For_Upd_Incr);
+
+    for_upd_incr -> location = get(Location, ctx->location());
+
+    for_upd_incr -> increment= get(Increment, ctx->increment());
+
     return (For_Update*)for_upd_incr.release();
 }
 
