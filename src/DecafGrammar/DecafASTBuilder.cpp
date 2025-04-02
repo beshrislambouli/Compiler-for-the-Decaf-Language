@@ -49,15 +49,24 @@ antlrcpp::Any DecafASTBuilder::visitImport_decl(DecafParser::Import_declContext 
 
 antlrcpp::Any DecafASTBuilder::visitField_decl(DecafParser::Field_declContext *ctx) {
     auto field_decl = make_t (Field_Decl);
+
+    field_decl -> field_type = get(Field_Type,ctx->field_type());
+
+    for (auto field_ctx : ctx -> field() ) {
+        field_decl -> fields.push_back (get(Field,field_ctx));
+    }
+
     return field_decl.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitId_Field_Decl(DecafParser::Id_Field_DeclContext *ctx) {
-    
+    auto id_field_decl = make_t (Id_Field_Decl);
+    return (Field*)id_field_decl.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitArray_Field_Decl(DecafParser::Array_Field_DeclContext *ctx) {
-    
+    auto array_field_decl = make_t (Array_Field_Decl);
+    return (Field*)array_field_decl.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitMethod_decl(DecafParser::Method_declContext *ctx) {
