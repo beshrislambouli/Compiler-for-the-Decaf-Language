@@ -483,21 +483,64 @@ antlrcpp::Any DecafASTBuilder::visitString_Arg(DecafParser::String_ArgContext *c
 
 antlrcpp::Any DecafASTBuilder::visitBin_mul_op(DecafParser::Bin_mul_opContext *ctx) {
     auto bin_mul_op = make_t (Mul_Op);
+
+    if (ctx->STAR()) {
+        bin_mul_op->type = Mul_Op::STAR;
+    } else if (ctx->DIV()) {
+        bin_mul_op->type = Mul_Op::DIV;
+    } else if (ctx->MOD()) {
+        bin_mul_op->type = Mul_Op::MOD;
+    } else {
+        std::cout << "ERROR: DecafASTBuilder::visitBin_mul_op" << std::endl;
+    }
+
+
     return (Bin_Op*)bin_mul_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitBin_add_op(DecafParser::Bin_add_opContext *ctx) {
     auto bin_add_op = make_t (Add_Op);
+
+    if (ctx->PLUS()) {
+        bin_add_op->type = Add_Op::PLUS;
+    } else if (ctx->MINUS()) {
+        bin_add_op->type = Add_Op::MINUS;
+    } else {
+        std::cout << "ERROR: DecafASTBuilder::visitBin_add_op" << std::endl;
+    }
+
     return (Bin_Op*)bin_add_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitRel_op(DecafParser::Rel_opContext *ctx) {
     auto rel_op = make_t (Rel_Op);
+
+    if (ctx->LT()) {
+        rel_op->type = Rel_Op::LT;
+    } else if (ctx->GT()) {
+        rel_op->type = Rel_Op::GT;
+    } else if (ctx->LE()) {
+        rel_op->type = Rel_Op::LE;
+    } else if (ctx->GE()) {
+        rel_op->type = Rel_Op::GE;
+    } else {
+        std::cout << "ERROR: DecafASTBuilder::visitRel_op" << std::endl;
+    }
+
     return (Bin_Op*)rel_op.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitEq_op(DecafParser::Eq_opContext *ctx) {
     auto eq_op = make_t (Eq_Op);
+
+    if (ctx->EQ()) {
+        eq_op->type = Eq_Op::EQ;
+    } else if (ctx->NEQ()) {
+        eq_op->type = Eq_Op::NEQ;
+    } else {
+        std::cout << "ERROR: DecafASTBuilder::visitEq_op" << std::endl;
+    }
+
     return (Bin_Op*)eq_op.release();
 }
 
