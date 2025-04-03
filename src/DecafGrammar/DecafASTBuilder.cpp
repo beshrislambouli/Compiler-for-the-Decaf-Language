@@ -546,20 +546,34 @@ antlrcpp::Any DecafASTBuilder::visitEq_op(DecafParser::Eq_opContext *ctx) {
 
 antlrcpp::Any DecafASTBuilder::visitInt_Lit(DecafParser::Int_LitContext *ctx) {
     auto int_lit = make_t (Int_Lit);
+
+    int_lit->literal = ctx->INT_LITERAL()->getText();
+
+    int_lit->minus = ctx->MINUS() != nullptr;
+
     return (Literal*)int_lit.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitLong_Lit(DecafParser::Long_LitContext *ctx) {
     auto long_lit = make_t (Long_Lit);
+
+    long_lit->literal = ctx->LONG_LITERAL()->getText();
+
     return (Literal*)long_lit.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitChar_Lit(DecafParser::Char_LitContext *ctx) {
     auto char_lit = make_t (Char_Lit);
+    
+    char_lit->literal = ctx->CHAR_LITERAL()->getText();
+
     return (Literal*)char_lit.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitBool_Lit(DecafParser::Bool_LitContext *ctx) {
     auto bool_lit = make_t (Bool_Lit);
+
+    bool_lit->literal = ctx->BOOL_LITERAL()->getText();
+
     return (Literal*)bool_lit.release();
 }
