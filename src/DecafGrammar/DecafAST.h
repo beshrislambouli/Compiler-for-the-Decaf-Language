@@ -822,6 +822,9 @@ public:
         Char,
         Bool,
         Void,
+        Int_Arr,
+        Long_Arr,
+        Bool_Arr,
         Null_Type,
     };
     Type_t type = Null_Type;
