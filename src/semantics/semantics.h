@@ -10,8 +10,10 @@
 #include "DecafPrettyPrinter.h"
 #include "DecafASTBuilder.h"
 #include "antlr4-runtime.h"
+#include "Scope.h"
 
 class Semantics : AST::Visitor {
+    Scope_Stack scope_stack;
     std::stringstream error;
 public:
     int check (std::ifstream& fin, std::ofstream& fout);

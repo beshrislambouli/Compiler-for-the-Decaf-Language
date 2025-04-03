@@ -1,5 +1,7 @@
 #include "semantics.h"
 
+using T_t = AST::Type::Type_t;
+
 int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
     antlr4::ANTLRInputStream input(fin);
     DecafLexer lexer(&input);
@@ -15,16 +17,24 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
     DecafASTBuilder builder;
     std::unique_ptr<AST::Program> ast = std::unique_ptr<AST::Program>(builder.visitProgram(tree).as<AST::Program*>());
 
-    // AST::ASTPrinter printer(fout);
-    // ast -> accept(printer);
+
     ast -> accept(*this);
     
+    std::string err_msg = error.str ();
+
+    if (err_msg .size () > 0 ) {
+        fout << err_msg ;
+        return 1;
+    }
+
     fout << "PASS" << std::endl;
     return 0;
 }
 
 
 void Semantics::visit(AST::Program& node) {
+    scope_stack .add_new_scope();
+
     for (auto& import_decl : node.import_decls ) {
         import_decl -> accept (*this);
     }
@@ -36,9 +46,17 @@ void Semantics::visit(AST::Program& node) {
     for (auto& method_decl : node.method_decls ) {
         method_decl -> accept (*this);
     }
+
+    scope_stack .pop ();
 }
 
 void Semantics::visit(AST::Import_Decl& node) {
+    if (scope_stack.in_current_scope (node.id->id)) {
+        error << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << "Import_Decl: " << node.id->id << " already in Scope" << std::endl;
+    }
+
+    scope_stack .put ( node.id -> id , T_t::Int ) ;
+
     node.id -> accept (*this);
 }
 
