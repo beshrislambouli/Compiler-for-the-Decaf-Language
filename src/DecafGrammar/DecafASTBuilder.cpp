@@ -72,7 +72,7 @@ antlrcpp::Any DecafASTBuilder::visitArray_Field_Decl(DecafParser::Array_Field_De
     auto array_field_decl = make_t (Array_Field_Decl);
 
     array_field_decl -> id = make_Id();
-    array_field_decl -> size = std::make_unique<Int_Lit>(false, ctx->INT_LITERAL()->getText(), ctx->INT_LITERAL()->getSymbol()->getLine(), ctx->INT_LITERAL()->getSymbol()->getCharPositionInLine());
+    array_field_decl -> size = std::make_unique<Int_Lit>(ctx->INT_LITERAL()->getText(), ctx->INT_LITERAL()->getSymbol()->getLine(), ctx->INT_LITERAL()->getSymbol()->getCharPositionInLine());
 
     return (Field*)array_field_decl.release();
 }
@@ -550,8 +550,6 @@ antlrcpp::Any DecafASTBuilder::visitInt_Lit(DecafParser::Int_LitContext *ctx) {
     auto int_lit = make_t (Int_Lit);
 
     int_lit->literal = ctx->INT_LITERAL()->getText();
-
-    int_lit->minus = ctx->MINUS() != nullptr;
 
     return (Literal*)int_lit.release();
 }

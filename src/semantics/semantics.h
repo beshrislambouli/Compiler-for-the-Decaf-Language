@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <string>
+#include <limits>
+#include <stdexcept>
 #include "DecafLexer.h"
 #include "DecafParser.h"
 #include "DecafAST.h"
@@ -9,6 +12,7 @@
 #include "antlr4-runtime.h"
 
 class Semantics : AST::Visitor {
+    std::stringstream error;
 public:
     int check (std::ifstream& fin, std::ofstream& fout);
 

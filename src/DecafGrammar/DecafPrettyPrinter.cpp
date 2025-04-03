@@ -726,7 +726,7 @@ void ASTPrinter::visit(Literal& node) {
 }
 
 void ASTPrinter::visit(Int_Lit& node) {
-    std::string value = (node.minus ? "-" : "") + node.literal;
+    std::string value = node.literal;
     print_node_header(node, "Integer Literal: " + value);
 }
 

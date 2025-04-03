@@ -775,14 +775,11 @@ public:
 };
 
 class Int_Lit : public Literal {
-public:
-    bool minus;
-    
+public:    
     Int_Lit(int row, int col) : Literal(row, col) {}
 
-    Int_Lit(bool minus, std::string literal, int row, int col) 
-    : minus(minus)
-    , Literal(literal, row, col)
+    Int_Lit(std::string literal, int row, int col)
+    : Literal(literal, row, col)
     {}
 
     void accept (Visitor& visitor) override {

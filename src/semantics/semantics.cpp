@@ -15,8 +15,8 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
     DecafASTBuilder builder;
     std::unique_ptr<AST::Program> ast = std::unique_ptr<AST::Program>(builder.visitProgram(tree).as<AST::Program*>());
 
-    AST::ASTPrinter printer(fout);
-    ast -> accept(printer);
+    // AST::ASTPrinter printer(fout);
+    // ast -> accept(printer);
     ast -> accept(*this);
     
     fout << "PASS" << std::endl;
