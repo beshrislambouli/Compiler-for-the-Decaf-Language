@@ -228,7 +228,9 @@ antlrcpp::Any DecafASTBuilder::visitWhile_Stmt(DecafParser::While_StmtContext *c
 antlrcpp::Any DecafASTBuilder::visitReturn_Stmt(DecafParser::Return_StmtContext *ctx) {
     auto return_stmt = make_t (Return_Stmt);
 
-    return_stmt -> expr = get (Expr, ctx->expr());
+    if (ctx->expr()) {
+        return_stmt -> expr = get (Expr, ctx->expr());
+    }
 
     return (Statement*)return_stmt.release();
 }
