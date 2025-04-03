@@ -467,11 +467,17 @@ antlrcpp::Any DecafASTBuilder::visitLiteral_Expr(DecafParser::Literal_ExprContex
 
 antlrcpp::Any DecafASTBuilder::visitExpr_Arg(DecafParser::Expr_ArgContext *ctx) {
     auto expr_arg = make_t (Expr_Arg);
+
+    expr_arg -> expr  = get (Expr, ctx->expr());
+    
     return (Extern_Arg*)expr_arg.release();
 }
 
 antlrcpp::Any DecafASTBuilder::visitString_Arg(DecafParser::String_ArgContext *ctx) {
     auto string_arg = make_t (String_Arg);
+
+    string_arg -> string_arg = ctx->STRING_LITERAL()->getText();
+
     return (Extern_Arg*)string_arg.release();
 }
 
