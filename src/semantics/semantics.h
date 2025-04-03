@@ -12,9 +12,11 @@
 #include "antlr4-runtime.h"
 #include "Scope.h"
 
+using T_t = AST::Type::Type_t;
+
 class Semantics : AST::Visitor {
     Scope_Stack scope_stack;
-    std::stringstream error;
+    std::string error;
 public:
     int check (std::ifstream& fin, std::ofstream& fout);
 

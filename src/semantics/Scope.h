@@ -1,7 +1,9 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <fstream>
 #include <iostream>
+#include <string>
 #include "DecafAST.h"
 
 using T_t = AST::Type::Type_t;
@@ -54,5 +56,15 @@ public:
         }
         stack.pop_back();
     }
+
+    std::string Declare(std::string id, T_t type_t, int row, int col, std::string AST_Node_Type) {
+        std::stringstream error;
+        if (in_current_scope(id)) {
+            error << "Error: " << "Line: " << row << " " << "Col: " << col << " " << AST_Node_Type << " " << id << " already in scope" << std::endl;
+        }
+        put(id, type_t);
+        return error.str();
+    }
+
 };
 

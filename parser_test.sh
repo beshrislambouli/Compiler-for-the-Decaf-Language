@@ -13,7 +13,7 @@ fi
 
 for file in "$directory"/*.dcf; do
     file_name=$(basename "$file")
-    ./run.sh "$file" -t parse
+    ./run.sh "$file" -t inter
     exit_code=$?
 
     if [ "$1" == "legal" ] && [ $exit_code -eq 0 ]; then

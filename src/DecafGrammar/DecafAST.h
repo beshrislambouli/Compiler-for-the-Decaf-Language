@@ -201,12 +201,12 @@ public:
 
 class Field : public AST_Node {
 public:
+    std::unique_ptr<Id> id;
     Field(int row, int col) : AST_Node(row, col) {}
 };
 
 class Id_Field_Decl : public Field {
 public:
-    std::unique_ptr<Id> id;
     
     Id_Field_Decl(int row, int col) : Field(row, col) {}
 
@@ -217,7 +217,6 @@ public:
 
 class Array_Field_Decl : public Field {
 public:
-    std::unique_ptr<Id> id;
     std::unique_ptr<Int_Lit> size;
     
     Array_Field_Decl(int row, int col) : Field(row, col) {}

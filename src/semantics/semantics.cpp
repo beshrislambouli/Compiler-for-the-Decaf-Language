@@ -1,6 +1,9 @@
 #include "semantics.h"
 
-using T_t = AST::Type::Type_t;
+
+#define declare(id, t, s) \
+    error += scope_stack.Declare(id, t, node.row, node.col, s);
+
 
 int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
     antlr4::ANTLRInputStream input(fin);
@@ -20,10 +23,9 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
 
     ast -> accept(*this);
     
-    std::string err_msg = error.str ();
 
-    if (err_msg .size () > 0 ) {
-        fout << err_msg ;
+    if (error .size () > 0 ) {
+        fout << error ;
         return 1;
     }
 
@@ -51,11 +53,7 @@ void Semantics::visit(AST::Program& node) {
 }
 
 void Semantics::visit(AST::Import_Decl& node) {
-    if (scope_stack.in_current_scope (node.id->id)) {
-        error << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << "Import_Decl: " << node.id->id << " already in Scope" << std::endl;
-    }
-
-    scope_stack .put ( node.id -> id , T_t::Int ) ;
+    declare (node.id->id, T_t::Int,"Import_Decl");
 
     node.id -> accept (*this);
 }
@@ -64,6 +62,9 @@ void Semantics::visit(AST::Field_Decl& node) {
     node.field_type -> accept (*this);
 
     for (auto& field : node.fields) {
+
+        declare (field->id->id, node.field_type->type->type, "Field_Decl")
+
         field -> accept (*this);
     }
 }
