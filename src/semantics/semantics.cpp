@@ -4,6 +4,8 @@
 #define declare(id, t, s) \
     error += scope_stack.Declare(id, t, node.row, node.col, s);
 
+#define is_instance_of(uptr, Type) (dynamic_cast<Type*>((uptr).get()) != nullptr)
+
 
 int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
     antlr4::ANTLRInputStream input(fin);
@@ -53,6 +55,7 @@ void Semantics::visit(AST::Program& node) {
 }
 
 void Semantics::visit(AST::Import_Decl& node) {
+    // declaring the imported methods
     declare (node.id->id, T_t::Int,"Import_Decl");
 
     node.id -> accept (*this);
@@ -63,7 +66,13 @@ void Semantics::visit(AST::Field_Decl& node) {
 
     for (auto& field : node.fields) {
 
-        declare (field->id->id, node.field_type->type->type, "Field_Decl")
+        // declaring the fields
+        if (is_instance_of(field,AST::Array_Field_Decl)) {
+            declare (field->id->id, node.field_type->type->type_Arr(), "Field_Decl")
+        } else {
+            declare (field->id->id, node.field_type->type->type, "Field_Decl")
+        }
+        
 
         field -> accept (*this);
     }
@@ -80,11 +89,16 @@ void Semantics::visit(AST::Array_Field_Decl& node) {
 
 void Semantics::visit(AST::Method_Decl& node) {
     node.method_type -> accept(*this);
+
+    scope_stack.add_new_scope();
+
     node.id -> accept(*this);
     for (auto& parameter: node.parameters) {
         parameter -> accept(*this);
     }
     node.block -> accept(*this);
+
+    scope_stack.pop();
 }
 
 void Semantics::visit(AST::Parameter& node) {
