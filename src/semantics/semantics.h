@@ -4,6 +4,7 @@
 #include "DecafLexer.h"
 #include "DecafParser.h"
 #include "DecafAST.h"
+#include "DecafPrettyPrinter.h"
 #include "DecafASTBuilder.h"
 #include "antlr4-runtime.h"
 

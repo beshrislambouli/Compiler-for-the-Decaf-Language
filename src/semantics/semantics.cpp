@@ -7,15 +7,19 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
     tokens.fill();
 
     DecafParser parser(&tokens);
+    DecafParser::ProgramContext* tree = parser.program(); 
     if (parser.getNumberOfSyntaxErrors() > 0) {
         fout << "Parsing ERROR" << std::endl;
         return 1;
     }
-    DecafParser::ProgramContext* tree = parser.program(); 
     DecafASTBuilder builder;
     std::unique_ptr<AST::Program> ast = std::unique_ptr<AST::Program>(builder.visitProgram(tree).as<AST::Program*>());
 
-    ast->accept(*this);
+    AST::ASTPrinter printer(fout);
+
+    ast ->accept(printer);
+
+    // ast->accept(*this);
     fout << "PASS" << std::endl;
     return 0;
 }
@@ -84,15 +88,34 @@ void Semantics::visit(AST::Method_Type& node) {
     node.type -> accept(*this);
 }
 
-void Semantics::visit(AST::Location_Assign_Op& node) {}
+void Semantics::visit(AST::Location_Assign_Op& node) {
+    std::cout << "Location_Assign_Op" << std::endl;
+    node.assign_op -> accept(*this);
+}
 
-void Semantics::visit(AST::Location_Incr& node) {}
+void Semantics::visit(AST::Location_Incr& node) {
+    std::cout << "Location_Incr" << std::endl;
+    node.increment -> accept(*this);
+}
 
-void Semantics::visit(AST::Method_Call_Stmt& node) {}
+void Semantics::visit(AST::Method_Call_Stmt& node) {
+    std::cout << "Method_Call_Stmt" << std::endl;
+    for (auto& u: node.extern_args){
+        u->accept(*this);
+    }
+}
 
-void Semantics::visit(AST::If_Else_Stmt& node) {}
+void Semantics::visit(AST::If_Else_Stmt& node) {
+    std::cout << "If_Else_Stmt" << std::endl;
+}
 
-void Semantics::visit(AST::For_Stmt& node) {}
+void Semantics::visit(AST::For_Stmt& node) {
+    std::cout << "For_Stmt" << std::endl;
+    node.id -> accept(*this);
+    node.expr_init -> accept(*this);
+    node.expr_cond -> accept(*this);
+    node.for_update -> accept(*this);
+}
 
 void Semantics::visit(AST::While_Stmt& node) {}
 
@@ -104,7 +127,9 @@ void Semantics::visit(AST::Continue_Stmt& node) {}
 
 void Semantics::visit(AST::For_Upd_Assign_Op& node) {}
 
-void Semantics::visit(AST::For_Upd_Incr& node) {}
+void Semantics::visit(AST::For_Upd_Incr& node) {
+    std::cout << "For_Upd_Incr" << std::endl;
+}
 
 void Semantics::visit(AST::Loc_Var& node) {}
 
@@ -142,9 +167,13 @@ void Semantics::visit(AST::Expr_Arg& node) {}
 
 void Semantics::visit(AST::String_Arg& node) {}
 
-void Semantics::visit(AST::Assign_Op& node) {}
+void Semantics::visit(AST::Assign_Op& node) {
+    std::cout << node.type << std::endl;
+}
 
-void Semantics::visit(AST::Increment& node) {}
+void Semantics::visit(AST::Increment& node) {
+    std::cout << node.type << std::endl;
+}
 
 void Semantics::visit(AST::Mul_Op& node) {}
 
