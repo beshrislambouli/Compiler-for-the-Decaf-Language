@@ -174,6 +174,13 @@ void Semantics::visit(AST::Location_Incr& node) {
 }
 
 void Semantics::visit(AST::Method_Call_Stmt& node) {
+
+    if ( !scope_stack.is_method(node.id->id) ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id->id << " used in method call but is not method" << std::endl;
+        error += err.str();
+    }
+
     node.id -> accept (*this);
 
     for (auto& extern_arg : node.extern_args) {
@@ -326,11 +333,19 @@ void Semantics::visit(AST::Loc_Expr& node) {
 }
 
 void Semantics::visit(AST::Method_Call_Expr& node) {
-    if ( scope_stack.get_type (node.id->id).value() == T_t::Void ) {
+    if ( !scope_stack.is_method(node.id->id) ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id->id << " used in method call but is not method" << std::endl;
+        error += err.str();
+    }
+
+    if ( scope_stack.is_method(node.id->id) && scope_stack.get_type (node.id->id).value() == T_t::Void ) { // since we know if is a method it is safe to .value() it
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " method " << node.id->id << " used as expr but it does not return a result" << std::endl;
         error += err.str();
     }
+
+
     node.id -> accept (*this);
     for (auto& extern_arg : node.extern_args) {
         extern_arg -> accept (*this);
