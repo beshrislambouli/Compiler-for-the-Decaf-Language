@@ -831,19 +831,6 @@ public:
     Type(int row, int col) : AST_Node(row, col) {}
 
     Type(Type_t type, int row, int col) : type(type), AST_Node(row,col) {}
-
-    Type_t type_Arr () {
-        if ( type == Int ) {
-            return Int_Arr;
-        } else if ( type == Long ) {
-            return Long_Arr;
-        } else if ( type == Bool ) {
-            return Bool_Arr;
-        } else {
-            std::cout << "ERROR: Type-Arr " << std::endl;
-            return Null_Type;
-        }
-    }
     
     void accept (Visitor& visitor) override {
         visitor.visit(*this);

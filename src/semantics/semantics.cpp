@@ -1,8 +1,16 @@
 #include "semantics.h"
 
 
-#define declare(id, t, s) \
-    error += scope_stack.Declare(id, t, node.row, node.col, s);
+#define declare_method(id, type, is_import, parameters, AST_Node_Type) \
+    error += scope_stack.declare_method(id, type, is_import, parameters, node.row, node.col, AST_Node_Type);
+
+#define declare_var(id, type, AST_Node_Type) \
+    error += scope_stack.declare_var(id, type, node.row, node.col, AST_Node_Type);
+
+#define declare_arr(id, type, AST_Node_Type) \
+    error += scope_stack.declare_arr(id, type, node.row, node.col, AST_Node_Type);
+
+
 
 #define is_instance_of(uptr, Type) (dynamic_cast<Type*>((uptr).get()) != nullptr)
 
@@ -37,7 +45,7 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
 
 
 void Semantics::visit(AST::Program& node) {
-    scope_stack .add_new_scope();
+    scope_stack .push_new_scope();
 
     for (auto& import_decl : node.import_decls ) {
         import_decl -> accept (*this);
@@ -47,17 +55,12 @@ void Semantics::visit(AST::Program& node) {
         field_decl -> accept (*this);
     }
 
-    bool correct_main = false;
     for (auto& method_decl : node.method_decls ) {
         method_decl -> accept (*this);
-
-        if (method_decl->id->id == "main" && method_decl->parameters.size () == 0 && method_decl->method_type->type->type == T_t::Void ) {
-            correct_main = 1;
-        }
     }
 
     // making sure there is a main function of type void with no parameters
-    if ( !correct_main ) {
+    if  ( ! ( scope_stack.is_declared("main") && scope_stack.is_method("main") && !scope_stack.is_import("main") && scope_stack.get_type("main") == T_t::Void && scope_stack.get_method_parameters("main").size () == 0 ) ){
         error += "Error: main function is not correct\n";
     }
 
@@ -66,7 +69,7 @@ void Semantics::visit(AST::Program& node) {
 
 void Semantics::visit(AST::Import_Decl& node) {
     // declaring the imported methods
-    declare (node.id->id, T_t::Int,"Import_Decl");
+    declare_method (node.id->id, T_t::Int, true, {}, "Import_Decl");
     node.id -> accept (*this);
 }
 
@@ -77,9 +80,9 @@ void Semantics::visit(AST::Field_Decl& node) {
 
         // declaring the fields
         if (is_instance_of(field,AST::Array_Field_Decl)) {
-            declare (field->id->id, node.field_type->type->type_Arr(), "Field_Decl")
+            declare_arr (field->id->id, node.field_type->type->type, "Field_Decl")
         } else {
-            declare (field->id->id, node.field_type->type->type, "Field_Decl")
+            declare_var (field->id->id, node.field_type->type->type, "Field_Decl")
         }
         
         field -> accept (*this);
@@ -98,28 +101,31 @@ void Semantics::visit(AST::Array_Field_Decl& node) {
 void Semantics::visit(AST::Method_Decl& node) {
     node.method_type -> accept(*this);
 
-    // note that i delcate the method in the global scope and the function scope
+    // note that i declare the method in the global scope and the function scope
 
-    declare (node.id->id, node.method_type->type->type, "Method_Decl");
+    std::vector <T_t> parameters_types ;
+    for (auto& parameter: node.parameters) {
+        parameters_types .push_back (parameter->field_type->type->type);
+    }
 
-    scope_stack.add_new_scope();
+    declare_method (node.id->id, node.method_type->type->type, false, parameters_types, "Method_Decl");
 
-    declare (node.id->id, node.method_type->type->type, "Method_Decl");
+    scope_stack.push_method_scope(node.id->id);
+
+    declare_method (node.id->id, node.method_type->type->type, false, parameters_types, "Method_Decl");
+
+
     node.id -> accept(*this);
-
-
     for (auto& parameter: node.parameters) {
         parameter -> accept(*this);
     }
-
-
     node.block -> accept(*this);
 
     scope_stack.pop();
 }
 
 void Semantics::visit(AST::Parameter& node) {
-    declare (node.id->id, node.field_type->type->type, "Parameter");
+    declare_var (node.id->id, node.field_type->type->type, "Parameter");
     node.field_type -> accept(*this);
     node.id -> accept(*this);
 }
@@ -133,8 +139,6 @@ void Semantics::visit(AST::Field_Type& node) {
 }
 
 void Semantics::visit(AST::Block& node) {
-    // because of method_decl parameters, the scope of block is created before the call of block
-
     for (auto& field_decl : node.field_decls) {
         field_decl -> accept (*this);
     }
@@ -165,12 +169,12 @@ void Semantics::visit(AST::Method_Call_Stmt& node) {
 void Semantics::visit(AST::If_Else_Stmt& node) {
     node.expr_if -> accept (*this);
 
-    scope_stack.add_new_scope();
+    scope_stack.push_new_scope();
     node.block_then -> accept (*this);
     scope_stack.pop();
 
     if (node.block_else) {
-        scope_stack.add_new_scope();
+        scope_stack.push_new_scope();
         node.block_else -> accept (*this);
         scope_stack.pop();
     }
@@ -182,7 +186,7 @@ void Semantics::visit(AST::For_Stmt& node) {
     node.expr_cond -> accept(*this);
     node.for_update -> accept(*this);
 
-    scope_stack.add_new_scope(true);
+    scope_stack.push_loop_scope();
     node.block -> accept(*this);
     scope_stack.pop();
 }
@@ -190,7 +194,7 @@ void Semantics::visit(AST::For_Stmt& node) {
 void Semantics::visit(AST::While_Stmt& node) {
     node.expr_cond -> accept (*this);
 
-    scope_stack.add_new_scope(true);
+    scope_stack.push_loop_scope();
     node.block -> accept (*this);
     scope_stack.pop();
 }
@@ -288,7 +292,7 @@ void Semantics::visit(AST::Loc_Expr& node) {
 }
 
 void Semantics::visit(AST::Method_Call_Expr& node) {
-    if ( scope_stack.get (node.id->id) == T_t::Void ) {
+    if ( scope_stack.get_type (node.id->id).value() == T_t::Void ) {
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " method " << node.id->id << " used as expr but it does not return a result" << std::endl;
         error += err.str();
@@ -368,7 +372,7 @@ void Semantics::visit(AST::Type& node) {
 }
 
 void Semantics::visit(AST::Id& node) {
-    if (! scope_stack.declared (node.id) ) {
+    if (! scope_stack.is_declared (node.id) ) {
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id << " not defined" << std::endl;
         error += err.str();
