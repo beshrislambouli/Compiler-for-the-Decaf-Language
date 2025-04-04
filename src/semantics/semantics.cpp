@@ -36,7 +36,7 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
 }
 
 
-void Semantics::visit(AST::Program& node) { //done 1
+void Semantics::visit(AST::Program& node) {
     scope_stack .add_new_scope();
 
     for (auto& import_decl : node.import_decls ) {
@@ -64,13 +64,13 @@ void Semantics::visit(AST::Program& node) { //done 1
     scope_stack .pop ();
 }
 
-void Semantics::visit(AST::Import_Decl& node) { //done 1
+void Semantics::visit(AST::Import_Decl& node) {
     // declaring the imported methods
     declare (node.id->id, T_t::Int,"Import_Decl");
     node.id -> accept (*this);
 }
 
-void Semantics::visit(AST::Field_Decl& node) { //done 1
+void Semantics::visit(AST::Field_Decl& node) {
     node.field_type -> accept (*this);
 
     for (auto& field : node.fields) {
@@ -86,16 +86,16 @@ void Semantics::visit(AST::Field_Decl& node) { //done 1
     }
 }
 
-void Semantics::visit(AST::Id_Field_Decl& node) { //done 1
+void Semantics::visit(AST::Id_Field_Decl& node) {
     node.id -> accept(*this);
 }
 
-void Semantics::visit(AST::Array_Field_Decl& node) { //done 1
+void Semantics::visit(AST::Array_Field_Decl& node) {
     node.id -> accept(*this);
     node.size -> accept(*this);
 }
 
-void Semantics::visit(AST::Method_Decl& node) { //done 1
+void Semantics::visit(AST::Method_Decl& node) {
     node.method_type -> accept(*this);
 
     // note that i delcate the method in the global scope and the function scope
@@ -118,21 +118,21 @@ void Semantics::visit(AST::Method_Decl& node) { //done 1
     scope_stack.pop();
 }
 
-void Semantics::visit(AST::Parameter& node) { //done 1
+void Semantics::visit(AST::Parameter& node) {
     declare (node.id->id, node.field_type->type->type, "Parameter");
     node.field_type -> accept(*this);
     node.id -> accept(*this);
 }
 
-void Semantics::visit(AST::Method_Type& node) { //done 1
+void Semantics::visit(AST::Method_Type& node) {
     node.type -> accept(*this);
 }
 
-void Semantics::visit(AST::Field_Type& node) { //done 1
+void Semantics::visit(AST::Field_Type& node) {
     node.type -> accept(*this);
 }
 
-void Semantics::visit(AST::Block& node) { //done 1
+void Semantics::visit(AST::Block& node) {
     // because of method_decl parameters, the scope of block is created before the call of block
 
     for (auto& field_decl : node.field_decls) {
@@ -182,7 +182,7 @@ void Semantics::visit(AST::For_Stmt& node) {
     node.expr_cond -> accept(*this);
     node.for_update -> accept(*this);
 
-    scope_stack.add_new_scope();
+    scope_stack.add_new_scope(true);
     node.block -> accept(*this);
     scope_stack.pop();
 }
@@ -190,7 +190,7 @@ void Semantics::visit(AST::For_Stmt& node) {
 void Semantics::visit(AST::While_Stmt& node) {
     node.expr_cond -> accept (*this);
 
-    scope_stack.add_new_scope();
+    scope_stack.add_new_scope(true);
     node.block -> accept (*this);
     scope_stack.pop();
 }
@@ -202,11 +202,15 @@ void Semantics::visit(AST::Return_Stmt& node) {
 }
 
 void Semantics::visit(AST::Break_Stmt& node) {
-
+    if (!scope_stack.is_loop()) {
+        error += "break in non loop\n";
+    }
 }
 
 void Semantics::visit(AST::Continue_Stmt& node) {
-
+    if (!scope_stack.is_loop()) {
+        error += "continue in non loop\n";
+    }
 }
 
 void Semantics::visit(AST::For_Upd_Assign_Op& node) {

@@ -10,8 +10,13 @@ using T_t = AST::Type::Type_t;
 
 
 class Scope {
-    std::unordered_map < std::string, T_t > hash_table;
 public:
+    std::unordered_map < std::string, T_t > hash_table;
+    bool is_loop;
+
+
+    Scope(bool is_loop) : is_loop(is_loop) {}
+
     void put (std::string id, T_t t) {
         if (hash_table.find(id) != hash_table.end()) {
             std::cout << "ERROR: Scope put" << std::endl;
@@ -29,10 +34,26 @@ public:
 class Scope_Stack {
     std::vector <Scope> stack;
 public:
-    void add_new_scope () {
-        stack.push_back (Scope{});
+
+    // stack
+    void add_new_scope (bool is_loop = false) {
+        stack.push_back (Scope{is_loop});
     }
 
+    void pop() {
+        if (stack.size () == 0 ) {
+            std::cout << "ERROR: POP Scope_Stack" << std::endl;
+            return;
+        }
+        stack.pop_back();
+    }
+
+    bool is_loop() {
+        return stack.back().is_loop;
+    }
+
+
+    // scope
     void put (std::string id, T_t t) {
         stack .back ().put (id,t);
     }
@@ -49,13 +70,7 @@ public:
         return stack.back().get(id) != T_t::Null_Type;
     }
 
-    void pop() {
-        if (stack.size () == 0 ) {
-            std::cout << "ERROR: POP Scope_Stack" << std::endl;
-            return;
-        }
-        stack.pop_back();
-    }
+    
 
     std::string Declare(std::string id, T_t type_t, int row, int col, std::string AST_Node_Type) {
         std::stringstream error;
