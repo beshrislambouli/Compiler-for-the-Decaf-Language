@@ -367,6 +367,11 @@ void Semantics::visit(AST::Literal_Expr& node) {
 }
 
 void Semantics::visit(AST::Len_Expr& node) {
+    if (!scope_stack.is_array(node.id->id)) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " len operator must be on an array variable." << std::endl;
+        error += err.str();
+    }
     node.id -> accept (*this);
 }
 
