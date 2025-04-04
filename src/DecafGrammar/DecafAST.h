@@ -163,6 +163,26 @@ public:
     virtual void accept(Visitor& visitor) = 0;
 };
 
+class Type : public AST_Node {
+public:
+    enum Type_t {
+        Int,
+        Long,
+        Bool,
+        Void,
+        Null_Type,
+    };
+    Type_t type = Null_Type;
+    
+    Type(int row, int col) : AST_Node(row, col) {}
+
+    Type(Type_t type, int row, int col) : type(type), AST_Node(row,col) {}
+    
+    void accept (Visitor& visitor) override {
+        visitor.visit(*this);
+    }
+};
+
 class Program : public AST_Node {
 public:
     std::vector<std::unique_ptr<Import_Decl>> import_decls;
@@ -430,7 +450,14 @@ public:
 class Location : public AST_Node {
 public:
     std::unique_ptr<Id> id;
+
+    std::unique_ptr<Type> type_t;
+
     Location(int row, int col) : AST_Node(row, col) {}
+
+    void assign_type(Type::Type_t t) {
+        type_t = std::make_unique<Type>(t, -1,-1);
+    }
 };
 
 class Loc_Var : public Location {
@@ -458,7 +485,11 @@ public:
     std::unique_ptr<Type> type_t;
     
     Expr(int row, int col) : AST_Node(row, col) {}
-}; // TODO: TYPE??
+
+    void assign_type(Type::Type_t t) {
+        type_t = std::make_unique<Type>(t, -1,-1);
+    }
+};
 
 class Unary_Expr : public Expr {
 public:
@@ -770,6 +801,10 @@ public:
     Literal(int row, int col) : AST_Node(row, col) {}
 
     Literal(std::string literal, int row, int col) : literal(literal), AST_Node(row, col) {}
+
+    void assign_type(Type::Type_t t) {
+        type_t = std::make_unique<Type>(t, -1,-1);
+    }
 };
 
 class Int_Lit : public Literal {
@@ -812,28 +847,6 @@ public:
     }
 };
 
-class Type : public AST_Node {
-public:
-    enum Type_t {
-        Int,
-        Long,
-        Bool,
-        Int_Arr,
-        Long_Arr,
-        Bool_Arr,
-        Void,
-        Null_Type,
-    };
-    Type_t type = Null_Type;
-    
-    Type(int row, int col) : AST_Node(row, col) {}
-
-    Type(Type_t type, int row, int col) : type(type), AST_Node(row,col) {}
-    
-    void accept (Visitor& visitor) override {
-        visitor.visit(*this);
-    }
-};
 
 class Id : public AST_Node {
 public:
@@ -847,6 +860,10 @@ public:
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);
+    }
+
+    void assign_type(Type::Type_t t) {
+        type_t = std::make_unique<Type>(t, -1,-1);
     }
 };
 

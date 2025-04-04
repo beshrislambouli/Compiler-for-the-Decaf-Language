@@ -317,6 +317,7 @@ void Semantics::visit(AST::Loc_Var& node) {
         error += err.str();
     }
     node.id -> accept (*this);
+    node.assign_type(node.id->type_t->type);
 }
 
 void Semantics::visit(AST::Loc_Array& node) {
@@ -327,60 +328,78 @@ void Semantics::visit(AST::Loc_Array& node) {
     }
     node.id  -> accept (*this);
     node.expr-> accept (*this);
+
+    node.assign_type(node.id->type_t->type);
 }
 
 void Semantics::visit(AST::Minus_Expr& node) {
     node.expr -> accept (*this);
+    node.assign_type(node.expr->type_t->type);
 }
 
 void Semantics::visit(AST::Not_Expr& node) {
     node.expr -> accept (*this);
+    node.assign_type(T_t::Bool);
 }
 
 void Semantics::visit(AST::INT_Expr& node) {
     node.expr -> accept (*this);
+    node.assign_type(T_t::Int);
 }
 
 void Semantics::visit(AST::LONG_Expr& node) {
     node.expr -> accept (*this);
+    node.assign_type(T_t::Long);
 }
 
 void Semantics::visit(AST::Paren_Expr& node) {
     node.expr -> accept (*this);
+    node.assign_type(node.expr->type_t->type);
 }
 
 void Semantics::visit(AST::Mul_Op_Expr& node) {
     node.expr_lhs -> accept (*this);
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
+
+    node.assign_type(node.expr_lhs->type_t->type);
 }
 
 void Semantics::visit(AST::Add_Op_Expr& node) {
     node.expr_lhs -> accept (*this);
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
+
+    node.assign_type(node.expr_lhs->type_t->type);
 }
 
 void Semantics::visit(AST::Rel_Op_Expr& node) {
     node.expr_lhs -> accept (*this);
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
+
+    node.assign_type(T_t::Bool);
 }
 
 void Semantics::visit(AST::Eq_Op_Expr& node) {
     node.expr_lhs -> accept (*this);
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
+
+    node.assign_type(T_t::Bool);
 }
 
 void Semantics::visit(AST::Logic_Op_Expr& node) {
     node.expr_lhs -> accept (*this);
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
+
+    node.assign_type(T_t::Bool);
 }
 
 void Semantics::visit(AST::Loc_Expr& node) {
     node.location -> accept (*this);
+    node.assign_type(node.location->type_t->type);
 }
 
 void Semantics::visit(AST::Method_Call_Expr& node) {
@@ -388,6 +407,11 @@ void Semantics::visit(AST::Method_Call_Expr& node) {
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id->id << " used in method call but is not method" << std::endl;
         error += err.str();
+    } else {
+        auto t_op = scope_stack.get_type(node.id->id);
+        if (t_op.has_value()) {
+            node.assign_type(t_op.value());
+        }
     }
 
     if ( scope_stack.is_method(node.id->id) && scope_stack.get_type (node.id->id).value() == T_t::Void ) { // since we know if is a method it is safe to .value() it
@@ -405,6 +429,7 @@ void Semantics::visit(AST::Method_Call_Expr& node) {
 
 void Semantics::visit(AST::Literal_Expr& node) {
     node.literal -> accept (*this);
+    node.assign_type(node.literal->type_t->type);
 }
 
 void Semantics::visit(AST::Len_Expr& node) {
@@ -413,6 +438,7 @@ void Semantics::visit(AST::Len_Expr& node) {
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " len operator must be on an array variable." << std::endl;
         error += err.str();
     }
+    node.assign_type(T_t::Int);
     node.id -> accept (*this);
 }
 
@@ -457,19 +483,19 @@ void Semantics::visit(AST::Literal& node) {
 }
 
 void Semantics::visit(AST::Int_Lit& node) {
-
+    node.assign_type(T_t::Int);
 }
 
 void Semantics::visit(AST::Long_Lit& node) {
-
+    node.assign_type(T_t::Long);
 }
 
 void Semantics::visit(AST::Char_Lit& node) {
-
+    node.assign_type(T_t::Int);
 }
 
 void Semantics::visit(AST::Bool_Lit& node) {
-
+    node.assign_type(T_t::Bool);
 }
 
 void Semantics::visit(AST::Type& node) {
@@ -481,5 +507,10 @@ void Semantics::visit(AST::Id& node) {
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id << " not defined" << std::endl;
         error += err.str();
+    } else {
+        auto t = scope_stack.get_type(node.id);
+        if (t.has_value()) {
+            node.assign_type(t.value());
+        }
     }
 }
