@@ -363,5 +363,9 @@ void Semantics::visit(AST::Type& node) {
 }
 
 void Semantics::visit(AST::Id& node) {
-
+    if (! scope_stack.declared (node.id) ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id << " not defined" << std::endl;
+        error += err.str();
+    }
 }

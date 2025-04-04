@@ -59,15 +59,21 @@ public:
     }
 
     T_t get (std::string id) {
-        T_t ans = stack.back().get (id);
-        if ( ans == T_t::Null_Type ) {
-            std::cout << "ERROR: Scope_Stack get" << std::endl;
+        for (int i = stack.size() -1 ; i >= 0 ; i -- ) {
+            T_t ans = stack[i].get (id);
+            if ( ans != T_t::Null_Type ) {
+                return ans;
+            }
         }
-        return ans;
+        return T_t::Null_Type;
     }
 
     bool in_current_scope (std::string id) {
         return stack.back().get(id) != T_t::Null_Type;
+    }
+
+    bool declared (std::string id) {
+        return get(id) != T_t::Null_Type;
     }
 
     
