@@ -175,6 +175,11 @@ void Semantics::visit(AST::Location_Assign_Op& node) {
 }
 
 void Semantics::visit(AST::Location_Incr& node) {
+    if (is_instance_of(node.location,AST::Loc_Var) && !scope_stack.is_var(node.location->id->id)) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.location->id->id << " must be a scalar." << std::endl;
+        error += err.str();
+    }
     node.location  -> accept (*this);
     node.increment -> accept (*this);
 }
@@ -265,12 +270,22 @@ void Semantics::visit(AST::Continue_Stmt& node) {
 }
 
 void Semantics::visit(AST::For_Upd_Assign_Op& node) {
+    if (is_instance_of(node.location,AST::Loc_Var) && !scope_stack.is_var(node.location->id->id)) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.location->id->id << " must be a scalar." << std::endl;
+        error += err.str();
+    }
     node.location -> accept (*this);
     node.assign_Op-> accept (*this);
     node.expr -> accept (*this);
 }
 
 void Semantics::visit(AST::For_Upd_Incr& node) {
+    if (is_instance_of(node.location,AST::Loc_Var) && !scope_stack.is_var(node.location->id->id)) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.location->id->id << " must be a scalar." << std::endl;
+        error += err.str();
+    }
     node.location -> accept (*this);
     node.increment-> accept (*this);
 }
