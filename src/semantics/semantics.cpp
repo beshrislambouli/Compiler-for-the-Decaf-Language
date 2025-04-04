@@ -47,8 +47,18 @@ void Semantics::visit(AST::Program& node) { //done 1
         field_decl -> accept (*this);
     }
 
+    bool correct_main = false;
     for (auto& method_decl : node.method_decls ) {
         method_decl -> accept (*this);
+
+        if (method_decl->id->id == "main" && method_decl->parameters.size () == 0 && method_decl->method_type->type->type == T_t::Void ) {
+            correct_main = 1;
+        }
+    }
+
+    // making sure there is a main function of type void with no parameters
+    if ( !correct_main ) {
+        error += "Error: main function is not correct\n";
     }
 
     scope_stack .pop ();
@@ -87,6 +97,10 @@ void Semantics::visit(AST::Array_Field_Decl& node) { //done 1
 
 void Semantics::visit(AST::Method_Decl& node) { //done 1
     node.method_type -> accept(*this);
+
+    // note that i delcate the method in the global scope and the function scope
+
+    declare (node.id->id, node.method_type->type->type, "Method_Decl");
 
     scope_stack.add_new_scope();
 
