@@ -288,6 +288,11 @@ void Semantics::visit(AST::Loc_Expr& node) {
 }
 
 void Semantics::visit(AST::Method_Call_Expr& node) {
+    if ( scope_stack.get (node.id->id) == T_t::Void ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " method " << node.id->id << " used as expr but it does not return a result" << std::endl;
+        error += err.str();
+    }
     node.id -> accept (*this);
     for (auto& extern_arg : node.extern_args) {
         extern_arg -> accept (*this);
