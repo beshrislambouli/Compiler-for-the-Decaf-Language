@@ -326,8 +326,15 @@ void Semantics::visit(AST::Loc_Array& node) {
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id->id << " used as location array but not an array " << std::endl;
         error += err.str();
     }
+
     node.id  -> accept (*this);
     node.expr-> accept (*this);
+
+    if (node.expr->type_t->type != T_t::Int) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " index must be of type int " << std::endl;
+        error += err.str();
+    }
 
     node.assign_type(node.id->type_t->type);
 }
