@@ -429,13 +429,12 @@ public:
 
 class Location : public AST_Node {
 public:
+    std::unique_ptr<Id> id;
     Location(int row, int col) : AST_Node(row, col) {}
 };
 
 class Loc_Var : public Location {
 public:
-    std::unique_ptr<Id> id;
-    
     Loc_Var(int row, int col) : Location(row, col) {}
 
     void accept (Visitor& visitor) override {
@@ -445,7 +444,6 @@ public:
 
 class Loc_Array : public Location {
 public:
-    std::unique_ptr<Id> id;
     std::unique_ptr<Expr> expr;
     
     Loc_Array(int row, int col) : Location(row, col) {}

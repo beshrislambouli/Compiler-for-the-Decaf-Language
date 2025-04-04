@@ -163,6 +163,12 @@ void Semantics::visit(AST::Block& node) {
 }
 
 void Semantics::visit(AST::Location_Assign_Op& node) {
+    if (is_instance_of(node.location,AST::Loc_Var) && !scope_stack.is_var(node.location->id->id)) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.location->id->id << " must be a scalar." << std::endl;
+        error += err.str();
+    }
+
     node.location -> accept (*this);
     node.assign_op-> accept (*this);
     node.expr -> accept (*this);
@@ -270,7 +276,7 @@ void Semantics::visit(AST::For_Upd_Incr& node) {
 }
 
 void Semantics::visit(AST::Loc_Var& node) {
-    if (!scope_stack.is_var(node.id->id)) {
+    if (!scope_stack.is_var(node.id->id) && !scope_stack.is_array(node.id->id)) { // note that in f (arr) arr is a loc_var so it can be an array
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id->id << " used as location var but not a var " << std::endl;
         error += err.str();
