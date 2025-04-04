@@ -119,7 +119,22 @@ void Semantics::visit(AST::Method_Decl& node) {
     for (auto& parameter: node.parameters) {
         parameter -> accept(*this);
     }
+
     node.block -> accept(*this);
+
+    bool return_exists = false;
+    for (auto& statement : node.block->statements) {
+        if (is_instance_of(statement,AST::Return_Stmt)) {
+            return_exists = true;
+        }
+    }
+
+    // if return_exisits then the return node will take care of it
+    if (!return_exists && node.method_type->type->type != T_t::Void ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " doesn't return value on a non-void function" << std::endl;
+        error += err.str();
+    }
 
     scope_stack.pop();
 }
@@ -200,8 +215,27 @@ void Semantics::visit(AST::While_Stmt& node) {
 }
 
 void Semantics::visit(AST::Return_Stmt& node) {
+
+    auto current_method_id_opt = scope_stack.get_current_method();
+    if (! current_method_id_opt.has_value() || !scope_stack.is_method(current_method_id_opt.value()) ) {
+        std::cout << "ERROR: return in non method\n"; // (should not happen in first place but just checking) 
+    }
+
     if (node.expr) {
+
+        if ( scope_stack.get_type(current_method_id_opt.value()).value() == T_t::Void ) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " return value on void function" << std::endl;
+            error += err.str();
+        }
+
         node.expr -> accept (*this);
+    } else {
+        if ( scope_stack.get_type(current_method_id_opt.value()).value() != T_t::Void ) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " doesn't return value on a non-void function" << std::endl;
+            error += err.str();
+        }
     }
 }
 
