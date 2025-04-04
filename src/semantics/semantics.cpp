@@ -12,7 +12,7 @@
 
 
 
-#define is_instance_of(uptr, Type) (dynamic_cast<Type*>((uptr).get()) != nullptr)
+#define is_instance_of(uptr, Type) (dynamic_cast<Type*>((uptr).get()))
 
 
 int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
@@ -122,20 +122,6 @@ void Semantics::visit(AST::Method_Decl& node) {
 
     node.block -> accept(*this);
 
-    bool return_exists = false;
-    for (auto& statement : node.block->statements) {
-        if (is_instance_of(statement,AST::Return_Stmt)) {
-            return_exists = true;
-        }
-    }
-
-    // if return_exisits then the return node will take care of it
-    if (!return_exists && node.method_type->type->type != T_t::Void ) {
-        std::stringstream err;
-        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " doesn't return value on a non-void function" << std::endl;
-        error += err.str();
-    }
-
     scope_stack.pop();
 }
 
@@ -206,7 +192,7 @@ void Semantics::visit(AST::Method_Call_Stmt& node) {
                 error += err.str();
             }
 
-            // TODO: there have to be a better way
+            // TODO: there has to be a better way
             if (is_instance_of(extern_arg,AST::Expr_Arg)) {
                 
                 AST::Expr_Arg* expr_arg = dynamic_cast<AST::Expr_Arg*>(extern_arg.get());
