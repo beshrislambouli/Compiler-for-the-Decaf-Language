@@ -212,6 +212,8 @@ antlrcpp::Any DecafASTBuilder::visitFor_Stmt(DecafParser::For_StmtContext *ctx) 
 
     for_stmt -> for_update= get (For_Update,ctx->for_update());
 
+    for_stmt -> block = get (Block, ctx->block() );
+
     return (Statement*)for_stmt.release ();
 }
 

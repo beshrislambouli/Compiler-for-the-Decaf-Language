@@ -73,7 +73,6 @@ void Semantics::visit(AST::Field_Decl& node) {
             declare (field->id->id, node.field_type->type->type, "Field_Decl")
         }
         
-
         field -> accept (*this);
     }
 }

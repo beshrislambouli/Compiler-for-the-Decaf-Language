@@ -347,6 +347,7 @@ public:
     std::unique_ptr<Expr> expr_init;
     std::unique_ptr<Expr> expr_cond;
     std::unique_ptr<For_Update> for_update;
+    std::unique_ptr<Block> block;
     
     For_Stmt(int row, int col) : Statement(row, col) {}
 
