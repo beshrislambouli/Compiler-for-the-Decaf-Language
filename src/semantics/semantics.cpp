@@ -221,6 +221,11 @@ void Semantics::visit(AST::Method_Call_Stmt& node) {
 
 void Semantics::visit(AST::If_Else_Stmt& node) {
     node.expr_if -> accept (*this);
+    if (node.expr_if->type_t->type != T_t::Bool) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " if condition must have type bool" << std::endl;
+        error += err.str();
+    }
 
     scope_stack.push_new_scope();
     node.block_then -> accept (*this);
@@ -237,6 +242,11 @@ void Semantics::visit(AST::For_Stmt& node) {
     node.id -> accept(*this);
     node.expr_init -> accept(*this);
     node.expr_cond -> accept(*this);
+    if (node.expr_cond->type_t->type != T_t::Bool) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " for condition must have type bool" << std::endl;
+        error += err.str();
+    }
     node.for_update -> accept(*this);
 
     scope_stack.push_loop_scope();
@@ -246,6 +256,11 @@ void Semantics::visit(AST::For_Stmt& node) {
 
 void Semantics::visit(AST::While_Stmt& node) {
     node.expr_cond -> accept (*this);
+    if (node.expr_cond->type_t->type != T_t::Bool) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " while condition must have type bool" << std::endl;
+        error += err.str();
+    }
 
     scope_stack.push_loop_scope();
     node.block -> accept (*this);
