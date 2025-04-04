@@ -270,10 +270,20 @@ void Semantics::visit(AST::For_Upd_Incr& node) {
 }
 
 void Semantics::visit(AST::Loc_Var& node) {
+    if (!scope_stack.is_var(node.id->id)) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id->id << " used as location var but not a var " << std::endl;
+        error += err.str();
+    }
     node.id -> accept (*this);
 }
 
 void Semantics::visit(AST::Loc_Array& node) {
+    if (!scope_stack.is_array(node.id->id)) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id->id << " used as location array but not an array " << std::endl;
+        error += err.str();
+    }
     node.id  -> accept (*this);
     node.expr-> accept (*this);
 }
