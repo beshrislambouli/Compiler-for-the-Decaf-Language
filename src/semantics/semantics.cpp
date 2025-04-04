@@ -197,6 +197,39 @@ void Semantics::visit(AST::Method_Call_Stmt& node) {
     for (auto& extern_arg : node.extern_args) {
         extern_arg -> accept (*this);
     }
+
+    if (scope_stack.is_method(node.id->id) && !scope_stack.is_import(node.id->id)) {
+        for (auto& extern_arg : node.extern_args) {
+            if (is_instance_of(extern_arg,AST::String_Arg)) {
+                std::stringstream err;
+                err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " string literal may not be used as parameters to non-import methods" << std::endl;
+                error += err.str();
+            }
+
+            if (is_instance_of(extern_arg,AST::Expr_Arg)) {
+                
+                AST::Expr_Arg* expr_arg = dynamic_cast<AST::Expr_Arg*>(extern_arg.get());
+
+                if (is_instance_of(expr_arg->expr,AST::Loc_Expr)) {
+
+                    AST::Loc_Expr* loc_expr = dynamic_cast<AST::Loc_Expr*>(expr_arg->expr.get());
+
+                    if (is_instance_of(loc_expr->location, AST::Loc_Var)) {
+
+                        AST::Loc_Var* loc_var = dynamic_cast<AST::Loc_Var*>(loc_expr->location.get());
+
+                            if ( scope_stack.is_array(loc_var->id->id) ) {
+                                std::stringstream err;
+                                err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " arrays may not be used as parameters to non-import methods" << std::endl;
+                                error += err.str();
+                            }
+
+                    }
+                }
+            }
+
+        }
+    }
 }
 
 void Semantics::visit(AST::If_Else_Stmt& node) {
@@ -291,7 +324,7 @@ void Semantics::visit(AST::For_Upd_Incr& node) {
 }
 
 void Semantics::visit(AST::Loc_Var& node) {
-    if (!scope_stack.is_var(node.id->id) && !scope_stack.is_array(node.id->id)) { // note that in f (arr) arr is a loc_var so it can be an array
+    if (scope_stack.is_declared(node.id->id) && !scope_stack.is_var(node.id->id) && !scope_stack.is_array(node.id->id)) { // note that in f (arr) arr is a loc_var so it can be an array
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id->id << " used as location var but not a var " << std::endl;
         error += err.str();
