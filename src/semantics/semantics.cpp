@@ -206,6 +206,7 @@ void Semantics::visit(AST::Method_Call_Stmt& node) {
                 error += err.str();
             }
 
+            // TODO: there have to be a better way
             if (is_instance_of(extern_arg,AST::Expr_Arg)) {
                 
                 AST::Expr_Arg* expr_arg = dynamic_cast<AST::Expr_Arg*>(extern_arg.get());
