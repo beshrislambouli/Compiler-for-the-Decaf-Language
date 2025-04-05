@@ -96,7 +96,6 @@ void Semantics::visit(AST::Id_Field_Decl& node) {
 void Semantics::visit(AST::Array_Field_Decl& node) {
     node.id -> accept(*this);
     node.size -> accept(*this);
-    std::cout << node.size->literal << std::endl;
     if (node.size->literal == "0") {
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " array size must be positive" << std::endl;
