@@ -328,6 +328,11 @@ void Semantics::visit(AST::Loc_Array& node) {
 
 void Semantics::visit(AST::Minus_Expr& node) {
     node.expr -> accept (*this);
+    if (node.expr->type_t->type != T_t::Long && node.expr->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " unary minus should be used on int or long " << std::endl;
+        error += err.str();
+    }
     node.assign_type(node.expr->type_t->type);
 }
 
@@ -370,6 +375,25 @@ void Semantics::visit(AST::Mul_Op_Expr& node) {
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
 
+    if (node.expr_lhs->type_t->type != T_t::Long && node.expr_lhs->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " arithmetic operations should be used on int or long " << std::endl;
+        error += err.str();
+    }
+
+
+    if (node.expr_rhs->type_t->type != T_t::Long && node.expr_rhs->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " arithmetic operations should be used on int or long " << std::endl;
+        error += err.str();
+    }
+
+    if (node.expr_lhs->type_t->type != node.expr_rhs->type_t->type) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " arithmetic operations operands should have the same type" << std::endl;
+        error += err.str();
+    }
+
     node.assign_type(node.expr_lhs->type_t->type);
 }
 
@@ -378,6 +402,25 @@ void Semantics::visit(AST::Add_Op_Expr& node) {
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
 
+    if (node.expr_lhs->type_t->type != T_t::Long && node.expr_lhs->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " arithmetic operations should be used on int or long " << std::endl;
+        error += err.str();
+    }
+
+
+    if (node.expr_rhs->type_t->type != T_t::Long && node.expr_rhs->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " arithmetic operations should be used on int or long " << std::endl;
+        error += err.str();
+    }
+
+    if (node.expr_lhs->type_t->type != node.expr_rhs->type_t->type) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " arithmetic operations operands should have the same type" << std::endl;
+        error += err.str();
+    }
+
     node.assign_type(node.expr_lhs->type_t->type);
 }
 
@@ -385,6 +428,19 @@ void Semantics::visit(AST::Rel_Op_Expr& node) {
     node.expr_lhs -> accept (*this);
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
+
+    if (node.expr_lhs->type_t->type != T_t::Long && node.expr_lhs->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " relational operators should be used on int or long " << std::endl;
+        error += err.str();
+    }
+
+
+    if (node.expr_rhs->type_t->type != T_t::Long && node.expr_rhs->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " relational operators should be used on int or long " << std::endl;
+        error += err.str();
+    }
 
     node.assign_type(T_t::Bool);
 }
