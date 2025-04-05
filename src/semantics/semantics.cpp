@@ -158,6 +158,27 @@ void Semantics::visit(AST::Location_Assign_Op& node) {
     node.location -> accept (*this);
     node.assign_op-> accept (*this);
     node.expr -> accept (*this);
+
+    if (node.assign_op->type != AST::Assign_Op::Type::ASSIGN) {
+
+        if (node.location->type_t->type != T_t::Int && node.location->type_t->type != T_t::Long) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " assign operation must be a int or long." << std::endl;
+            error += err.str();
+        }
+        if (node.expr->type_t->type != T_t::Int && node.expr->type_t->type != T_t::Long) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " assign operation must be a int or long." << std::endl;
+            error += err.str();
+        }
+
+    }
+    
+    if (node.location->type_t->type != node.expr->type_t->type) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " assignment operation must have same type" << std::endl;
+        error += err.str();
+    }
 }
 
 void Semantics::visit(AST::Location_Incr& node) {
@@ -168,6 +189,11 @@ void Semantics::visit(AST::Location_Incr& node) {
     }
     node.location  -> accept (*this);
     node.increment -> accept (*this);
+    if (node.location->type_t->type != T_t::Int && node.location->type_t->type != T_t::Long) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.location->id->id << " must be a int or long." << std::endl;
+        error += err.str();
+    }
 }
 
 void Semantics::visit(AST::Method_Call_Stmt& node) {
@@ -208,6 +234,14 @@ void Semantics::visit(AST::If_Else_Stmt& node) {
 void Semantics::visit(AST::For_Stmt& node) {
     node.id -> accept(*this);
     node.expr_init -> accept(*this);
+
+    if (node.id->type_t->type != node.expr_init->type_t->type) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " assignment operation must have same type" << std::endl;
+        error += err.str();
+    }
+
+
     node.expr_cond -> accept(*this);
     if (node.expr_cond->type_t->type != T_t::Bool) {
         std::stringstream err;
@@ -285,6 +319,27 @@ void Semantics::visit(AST::For_Upd_Assign_Op& node) {
     node.location -> accept (*this);
     node.assign_Op-> accept (*this);
     node.expr -> accept (*this);
+
+    if (node.assign_Op->type != AST::Assign_Op::Type::ASSIGN) {
+
+        if (node.location->type_t->type != T_t::Int && node.location->type_t->type != T_t::Long) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " assign operation must be a int or long." << std::endl;
+            error += err.str();
+        }
+        if (node.expr->type_t->type != T_t::Int && node.expr->type_t->type != T_t::Long) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " assign operation must be a int or long." << std::endl;
+            error += err.str();
+        }
+
+    }
+    
+    if (node.location->type_t->type != node.expr->type_t->type) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " assignment operation must have same type" << std::endl;
+        error += err.str();
+    }
 }
 
 void Semantics::visit(AST::For_Upd_Incr& node) {
@@ -294,6 +349,11 @@ void Semantics::visit(AST::For_Upd_Incr& node) {
         error += err.str();
     }
     node.location -> accept (*this);
+    if (node.location->type_t->type != T_t::Int && node.location->type_t->type != T_t::Long) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.location->id->id << " must be a int or long." << std::endl;
+        error += err.str();
+    }
     node.increment-> accept (*this);
 }
 
@@ -304,7 +364,7 @@ void Semantics::visit(AST::Loc_Var& node) {
         error += err.str();
     }
     node.id -> accept (*this);
-    // node.assign_type(node.id->type_t->type);
+    node.assign_type(node.id->type_t->type);
 }
 
 void Semantics::visit(AST::Loc_Array& node) {
@@ -522,6 +582,8 @@ void Semantics::visit(AST::Method_Call_Expr& node) {
 
 
     node.id -> accept (*this);
+    node.assign_type(node.id->type_t->type);
+
     scope_stack.is_extern_arg_for_import_method = scope_stack.is_import(node.id->id);
     for (auto& extern_arg : node.extern_args) {
         extern_arg -> accept (*this);
