@@ -4,6 +4,7 @@
 #include <string>
 #include <limits>
 #include <stdexcept>
+#include <cstdint>
 #include "DecafLexer.h"
 #include "DecafParser.h"
 #include "DecafAST.h"

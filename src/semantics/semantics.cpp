@@ -415,6 +415,15 @@ void Semantics::visit(AST::Loc_Array& node) {
 }
 
 void Semantics::visit(AST::Minus_Expr& node) {
+
+    if (is_instance_of(node.expr,AST::Literal_Expr)) {
+        AST::Literal_Expr* literal_expr = dynamic_cast<AST::Literal_Expr*>(node.expr.get());
+        if (literal_expr) {
+            literal_expr -> literal -> minus = true;
+        }
+    }
+
+
     node.expr -> accept (*this);
     if (node.expr->type_t->type != T_t::Long && node.expr->type_t->type != T_t::Int ) {
         std::stringstream err;
@@ -702,10 +711,60 @@ void Semantics::visit(AST::Literal& node) {
 
 void Semantics::visit(AST::Int_Lit& node) {
     node.assign_type(T_t::Int);
+
+    try {
+        std::string num = node.literal;
+
+        int base = 10;
+        if (num.size() > 2 && (num[0] == '0') && num[1] == 'x') {
+            base = 16;
+        }
+
+        std::string full = (node.minus ? "-" : "") + num;
+
+        auto val = std::stoll(full, nullptr, base);
+
+        if (! (val >= std::numeric_limits<int32_t>::min() && val <= std::numeric_limits<int32_t>::max()) ) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " int literal out of bound" << std::endl;
+            error += err.str();
+        }
+    } catch (const std::out_of_range&) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " int literal out of bound" << std::endl;
+        error += err.str();
+    } catch (const std::invalid_argument&) {
+    }
 }
 
 void Semantics::visit(AST::Long_Lit& node) {
     node.assign_type(T_t::Long);
+
+    try {
+        std::string num = node.literal;
+        num.pop_back();
+
+
+        int base = 10;
+        if (num.size() > 2 && (num[0] == '0') && num[1] == 'x') {
+            base = 16;
+        }
+
+        std::string full = (node.minus ? "-" : "") + num;
+
+        auto val = std::stoll(full, nullptr, base);
+
+        if (! (val >= std::numeric_limits<int64_t>::min() && val <= std::numeric_limits<int64_t>::max()) ) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " long literal out of bound" << std::endl;
+            error += err.str();
+        }
+    } catch (const std::out_of_range&) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " long literal out of bound" << std::endl;
+        error += err.str();
+    } catch (const std::invalid_argument&) {
+    }
 }
 
 void Semantics::visit(AST::Char_Lit& node) {

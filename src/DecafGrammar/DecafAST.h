@@ -795,6 +795,7 @@ public:
 class Literal : public AST_Node {
     // TODO: Don't forget the hex numbers
 public:
+    bool minus = false;
     std::string literal="";
     std::unique_ptr<Type> type_t;
     
