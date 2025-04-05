@@ -304,7 +304,7 @@ void Semantics::visit(AST::Loc_Var& node) {
         error += err.str();
     }
     node.id -> accept (*this);
-    node.assign_type(node.id->type_t->type);
+    // node.assign_type(node.id->type_t->type);
 }
 
 void Semantics::visit(AST::Loc_Array& node) {
@@ -449,6 +449,25 @@ void Semantics::visit(AST::Eq_Op_Expr& node) {
     node.expr_lhs -> accept (*this);
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
+
+    if (node.expr_lhs->type_t->type != T_t::Long && node.expr_lhs->type_t->type != T_t::Int && node.expr_lhs->type_t->type != T_t::Bool) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " Equal operations should be used on int, long, or bool " << std::endl;
+        error += err.str();
+    }
+
+    if (node.expr_rhs->type_t->type != T_t::Long && node.expr_rhs->type_t->type != T_t::Int && node.expr_rhs->type_t->type != T_t::Bool) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " Equal operations should be used on int, long, or bool " << std::endl;
+        error += err.str();
+    }
+
+    if (node.expr_lhs->type_t->type != node.expr_rhs->type_t->type) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " Equal operations operands should have the same type" << std::endl;
+        error += err.str();
+    }
+
 
     node.assign_type(T_t::Bool);
 }
@@ -596,6 +615,9 @@ void Semantics::visit(AST::Type& node) {
 
 void Semantics::visit(AST::Id& node) {
     if (! scope_stack.is_declared (node.id) ) {
+
+        node.assign_type(T_t::Null_Type);
+
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " " << node.id << " not defined" << std::endl;
         error += err.str();
