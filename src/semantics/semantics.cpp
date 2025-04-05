@@ -338,6 +338,11 @@ void Semantics::visit(AST::Minus_Expr& node) {
 
 void Semantics::visit(AST::Not_Expr& node) {
     node.expr -> accept (*this);
+    if (node.expr->type_t->type != T_t::Bool ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " Not operation should be used on bool " << std::endl;
+        error += err.str();
+    }
     node.assign_type(T_t::Bool);
 }
 
@@ -476,6 +481,18 @@ void Semantics::visit(AST::Logic_Op_Expr& node) {
     node.expr_lhs -> accept (*this);
     node.bin_op   -> accept (*this);
     node.expr_rhs -> accept (*this);
+
+    if (node.expr_lhs->type_t->type != T_t::Bool) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " logical operations should be used on bool " << std::endl;
+        error += err.str();
+    }
+
+    if (node.expr_rhs->type_t->type != T_t::Bool) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " logical operations should be used on bool " << std::endl;
+        error += err.str();
+    }
 
     node.assign_type(T_t::Bool);
 }
