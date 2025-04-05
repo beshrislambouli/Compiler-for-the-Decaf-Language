@@ -89,7 +89,11 @@ public:
 
 class Scope_Stack {
     std::vector <Scope> stack;
+
 public:
+    //helper var
+    bool is_extern_arg_for_import_method;
+
 
     // stack
     void push_new_scope () {
