@@ -13,8 +13,8 @@ using T_t = AST::Type::Type_t;
 
 class Method {
 public:
-    T_t type; 
-    bool is_import;
+    T_t type=T_t::Null_Type; 
+    bool is_import=false;
     std::vector<T_t> parameters; 
 
     Method () {}
@@ -27,7 +27,7 @@ public:
 
 class Var {
 public:
-    T_t type;
+    T_t type=T_t::Null_Type;
     
     Var (){}
     Var (T_t type) : type(type) {}
@@ -35,7 +35,7 @@ public:
 
 class Arr {
 public:
-    T_t type;
+    T_t type=T_t::Null_Type;
 
     Arr (){}
     Arr (T_t type) : type(type) {}
@@ -46,8 +46,8 @@ using Value = std::variant<Method, Var, Arr>;
 class Scope {
 public:
     std::unordered_map < std::string, Value > hash_table;
-    bool is_loop;
-    std::string current_method;
+    bool is_loop=false;
+    std::string current_method="";
 
     Scope () {}
     Scope (bool is_loop) : is_loop(is_loop) {}
@@ -92,7 +92,7 @@ class Scope_Stack {
 
 public:
     //helper var
-    bool is_extern_arg_for_import_method;
+    bool is_extern_arg_for_import_method=false;
 
 
     // stack

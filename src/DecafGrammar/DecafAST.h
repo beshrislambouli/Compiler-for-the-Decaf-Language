@@ -795,7 +795,7 @@ public:
 class Literal : public AST_Node {
     // TODO: Don't forget the hex numbers
 public:
-    std::string literal;
+    std::string literal="";
     std::unique_ptr<Type> type_t;
     
     Literal(int row, int col) : AST_Node(row, col) {}
@@ -850,7 +850,7 @@ public:
 
 class Id : public AST_Node {
 public:
-    std::string id;
+    std::string id="";
     
     std::unique_ptr<Type> type_t;
     

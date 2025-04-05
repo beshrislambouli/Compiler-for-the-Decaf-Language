@@ -39,7 +39,7 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
         return 1;
     }
 
-    fout << "PASS" << std::endl;
+    // fout << "PASS" << std::endl;
     return 0;
 }
 
@@ -96,6 +96,12 @@ void Semantics::visit(AST::Id_Field_Decl& node) {
 void Semantics::visit(AST::Array_Field_Decl& node) {
     node.id -> accept(*this);
     node.size -> accept(*this);
+    std::cout << node.size->literal << std::endl;
+    if (node.size->literal == "0") {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " array size must be positive" << std::endl;
+        error += err.str();
+    }
 }
 
 void Semantics::visit(AST::Method_Decl& node) {
