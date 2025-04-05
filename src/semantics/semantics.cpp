@@ -338,11 +338,25 @@ void Semantics::visit(AST::Not_Expr& node) {
 
 void Semantics::visit(AST::INT_Expr& node) {
     node.expr -> accept (*this);
+
+    if (node.expr->type_t->type != T_t::Long && node.expr->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " int() operation should be used on int or long " << std::endl;
+        error += err.str();
+    }
+
     node.assign_type(T_t::Int);
 }
 
 void Semantics::visit(AST::LONG_Expr& node) {
     node.expr -> accept (*this);
+
+    if (node.expr->type_t->type != T_t::Long && node.expr->type_t->type != T_t::Int ) {
+        std::stringstream err;
+        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " long() operation should be used on int or long " << std::endl;
+        error += err.str();
+    }
+
     node.assign_type(T_t::Long);
 }
 
