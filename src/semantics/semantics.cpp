@@ -240,18 +240,23 @@ void Semantics::visit(AST::Return_Stmt& node) {
     if (! current_method_id_opt.has_value() || !scope_stack.is_method(current_method_id_opt.value()) ) {
         std::cout << "ERROR: return in non method\n"; // (should not happen in first place but just checking) 
     }
+    auto current_method_return_type = scope_stack.get_type(current_method_id_opt.value()).value();
 
     if (node.expr) {
+        node.expr -> accept (*this);
 
-        if ( scope_stack.get_type(current_method_id_opt.value()).value() == T_t::Void ) {
+        if ( current_method_return_type == T_t::Void ) {
             std::stringstream err;
             err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " return value on void function" << std::endl;
             error += err.str();
+        } else if (current_method_return_type != node.expr->type_t->type) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " return value of different type than the method." << std::endl;
+            error += err.str();
         }
 
-        node.expr -> accept (*this);
     } else {
-        if ( scope_stack.get_type(current_method_id_opt.value()).value() != T_t::Void ) {
+        if ( current_method_return_type != T_t::Void ) {
             std::stringstream err;
             err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " doesn't return value on a non-void function" << std::endl;
             error += err.str();
