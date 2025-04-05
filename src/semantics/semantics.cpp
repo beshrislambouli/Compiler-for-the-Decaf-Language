@@ -216,6 +216,28 @@ void Semantics::visit(AST::Method_Call_Stmt& node) {
         extern_arg -> accept (*this);
     }
     scope_stack.is_extern_arg_for_import_method = false;
+
+    if (scope_stack.is_method(node.id->id) && !scope_stack.is_import(node.id->id)) {
+        std::vector<T_t> req_types = scope_stack.get_method_parameters(node.id->id);
+        if (req_types.size () != node.extern_args.size () ) {
+            std::stringstream err;
+            err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " number of arguments don't match" << std::endl;
+            error += err.str();
+        } else {
+            for (int i = 0 ; i < node.extern_args.size () ; i ++ ) {
+                if (is_instance_of(node.extern_args[i],AST::Expr_Arg)) {
+                    AST::Expr_Arg* expr_arg = dynamic_cast<AST::Expr_Arg*>(node.extern_args[i].get()); // TODO: recheck this or think about another way
+                    
+                    if (expr_arg->expr->type_t->type != req_types [i]) {
+                        std::stringstream err;
+                        err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " argument #" << i + 1 << " has wrong type"<< std::endl;
+                        error += err.str();
+                    }
+                    
+                }
+            }
+        }
+    }
 }
 
 void Semantics::visit(AST::If_Else_Stmt& node) {
