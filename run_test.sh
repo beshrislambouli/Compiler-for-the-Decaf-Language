@@ -27,7 +27,7 @@ for input_file in "$input_dir"/*.dcf; do
     output_file="$output_dir/ans_${file_name}.out"
 
     # Run the run.sh script with input and output files
-    ./run.sh "$input_file" --output "$output_file"
+    ./run.sh "$input_file" -t scan --output "$output_file"
     return_value=$?
 
     # Check if the file name contains "invalid"
