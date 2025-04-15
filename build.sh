@@ -32,6 +32,6 @@ echo "All dependencies are installed. Proceeding with build..."
 
 : ${CMAKE_DIR:=cmake-build}
 
-cmake -D CMAKE_BUILD_TYPE=Debug -S . -B $CMAKE_DIR
-# cmake -D CMAKE_BUILD_TYPE=Release -S . -B $CMAKE_DIR
+# cmake -D CMAKE_BUILD_TYPE=Debug -S . -B $CMAKE_DIR
+cmake -D CMAKE_BUILD_TYPE=Release -S . -B $CMAKE_DIR
 cmake --build $CMAKE_DIR
