@@ -5,6 +5,7 @@
 #include "scanner.h"
 #include "parser.h"
 #include "semantics.h"
+#include "CodeGenerator.h"
 
 namespace decaf {
 
@@ -17,7 +18,7 @@ namespace decaf {
             std::ofstream outputStream= output(CommandLineInterface::outfile);
             
             if (CommandLineInterface::target == CompilerAction::DEFAULT) {
-                CommandLineInterface::target = CompilerAction::INTER;
+                CommandLineInterface::target = CompilerAction::ASSEMBLY;
             }
 
             if (CommandLineInterface::target == CompilerAction::SCAN) {
@@ -30,7 +31,8 @@ namespace decaf {
                 Semantics semantics;
                 return semantics.check(inputStream,outputStream);
             } else if (CommandLineInterface::target == CompilerAction::ASSEMBLY) {
-                return 1;
+                CodeGenerator code_generator;
+                return code_generator.Generate(inputStream,outputStream);
             }
             return 1;
         }

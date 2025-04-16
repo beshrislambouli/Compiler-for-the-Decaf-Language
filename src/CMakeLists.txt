@@ -5,7 +5,8 @@ add_subdirectory(DecafGrammar)
 add_subdirectory(scanner)
 add_subdirectory(parser)
 add_subdirectory(semantics)
+add_subdirectory(CodeGenerator)
 
 
 
-target_link_libraries(DecafCompiler PRIVATE utils DecafGrammar scanner parser semantics)
+target_link_libraries(DecafCompiler PRIVATE utils DecafGrammar scanner parser semantics CodeGenerator)
