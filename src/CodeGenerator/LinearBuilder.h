@@ -1,28 +1,9 @@
-#include <iostream>
-#include <fstream>
-#include <memory>
-#include <string>
-#include <limits>
-#include <stdexcept>
-#include <cstdint>
-#include "DecafLexer.h"
-#include "DecafParser.h"
+#pragma once
 #include "DecafAST.h"
-#include "DecafPrettyPrinter.h"
-#include "DecafASTBuilder.h"
-#include "antlr4-runtime.h"
-#include "Scope.h"
+#include <iostream>
 
-using T_t = AST::Type::Type_t;
-
-class Semantics : AST::Visitor {
+class LinearBuilder : public AST::Visitor {
 public:
-    std::unique_ptr<AST::Program> AST;
-    Scope_Stack scope_stack;
-    std::string error="";
-    
-    int check (std::ifstream& fin, std::ofstream& fout);
-
     void visit(AST::Program& node) override ;
     void visit(AST::Import_Decl& node) override ;
     void visit(AST::Field_Decl& node) override ;

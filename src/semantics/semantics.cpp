@@ -28,10 +28,10 @@ int Semantics::check (std::ifstream& fin, std::ofstream& fout) {
         return 1;
     }
     DecafASTBuilder builder;
-    std::unique_ptr<AST::Program> ast = std::unique_ptr<AST::Program>(builder.visitProgram(tree).as<AST::Program*>());
+    AST = std::unique_ptr<AST::Program>(builder.visitProgram(tree).as<AST::Program*>());
 
 
-    ast -> accept(*this);
+    AST -> accept(*this);
     
 
     if (error .size () > 0 ) {
