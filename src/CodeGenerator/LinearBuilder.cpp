@@ -266,8 +266,91 @@ void MethodBuilder::visit(AST::While_Stmt& node) {
 void MethodBuilder::visit(AST::Return_Stmt& node) {}
 void MethodBuilder::visit(AST::Break_Stmt& node) {}
 void MethodBuilder::visit(AST::Continue_Stmt& node) {}
-void MethodBuilder::visit(AST::For_Upd_Assign_Op& node) {}
-void MethodBuilder::visit(AST::For_Upd_Incr& node) {}
+
+void MethodBuilder::visit(AST::For_Upd_Assign_Op& node) {
+    if (node.assign_Op->type == AST::Assign_Op::ASSIGN ) {
+
+        node.location -> accept(*this);
+        auto dist = cast<Linear::Location>(std::move(utils.ret));
+
+        node.expr -> accept (*this);
+        auto operand = cast<Linear::Operand>(std::move(utils.ret));
+
+        utils.assign(std::move(dist), std::move(operand));
+        return;
+    }
+    
+    node.location -> accept(*this);
+    auto dist = cast<Linear::Location>(std::move(utils.ret));
+
+
+    node.location -> accept(*this);
+    auto operand1 = cast<Linear::Operand>(std::move(utils.ret));
+
+    node.expr -> accept (*this);
+    auto operand2 = cast<Linear::Operand>(std::move(utils.ret));
+
+    Linear::Binary::Op op;
+    switch (node.assign_Op->type)
+    {
+    case AST::Assign_Op::PLUS_ASSIGN:
+        op = Linear::Binary::Plus;
+        break;
+    
+    case AST::Assign_Op::MINUS_ASSIGN:
+        op = Linear::Binary::Minus;
+        break;
+    
+    case AST::Assign_Op::MUL_ASSIGN:
+        op = Linear::Binary::Mul;
+        break;
+    
+    case AST::Assign_Op::DIV_ASSIGN:
+        op = Linear::Binary::Div;
+        break;
+
+    case AST::Assign_Op::MOD_ASSIGN:
+        op = Linear::Binary::Mod;
+        break;
+    
+    default:
+        std::cout << "Error MethodBuilder::visit AST::For_Upd_Assign_Op" << std::endl;
+        break;
+    }
+
+    utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
+}
+void MethodBuilder::visit(AST::For_Upd_Incr& node) {
+    node.location -> accept(*this);
+    auto dist = cast<Linear::Location>(std::move(utils.ret));
+
+
+    node.location -> accept(*this);
+    auto operand1 = cast<Linear::Operand>(std::move(utils.ret));
+
+    
+    auto operand2 = std::make_unique<Linear::Literal>();
+    operand2->type = T(node.location->type_t->type);
+    operand2->id = "1";
+
+    Linear::Binary::Op op;
+    switch (node.increment->type)
+    {
+    case AST::Increment::INCREMENT:
+        op = Linear::Binary::Plus;
+        break;
+    
+    case AST::Increment::DECREMENT:
+        op = Linear::Binary::Minus;
+        break;
+    
+    default:
+        break;
+    }
+
+    utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
+}
+
 void MethodBuilder::visit(AST::Loc_Var& node) {
     auto var = std::make_unique<Linear::Var>();
 
