@@ -1,6 +1,10 @@
 
+#pragma once 
+
 #include <vector>
 #include <string>
+#include <memory>
+
 namespace Linear {
     
 
@@ -66,7 +70,6 @@ public:
 enum Type {
     Int,
     Long,
-    Bool,
     Void
 };
 
@@ -79,8 +82,8 @@ public:
 
 class Program : public Linear {
 public:
-    std::vector<Location> globals;
-    std::vector<Method> methods;
+    std::vector<std::unique_ptr<Location>> globals;
+    std::vector<std::unique_ptr<Method>>   methods;
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -91,8 +94,8 @@ class Method : public Linear {
 public:
     Type type;
     std::string id;
-    std::vector<Location> params;
-    std::vector<Instr> instrs;
+    std::vector<std::unique_ptr<Location>> params;
+    std::vector<std::unique_ptr<Instr>>    instrs;
     
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -104,9 +107,6 @@ class Operand : public Linear {
 public:
     Type type;
     std::string id;
-    void accept(Visitor& visitor) override {
-        visitor.visit(*this);
-    }
 };
 
 class Literal : public Operand {
@@ -132,7 +132,7 @@ public:
 
 class Arr : public Location {
 public:
-    Operand index;
+    std::unique_ptr<Operand> index;
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -144,8 +144,8 @@ class Instr : public Linear {};
 
 class Statement : public Instr {
 public:
-    Operand dist;
-    std::vector<Operand> operands;
+    std::unique_ptr<Operand> dist;
+    std::vector<std::unique_ptr<Operand>> operands;
 };
 
 class Binary : public Statement {
@@ -197,7 +197,7 @@ public:
 
 class Declare : public Helper {
 public:
-    Type type;
+    std::unique_ptr<Location> location;
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -214,8 +214,8 @@ public:
 class Method_call : public Instr {
 public:
     std::string id;
-    Location return_location;
-    std::vector<Operand> args;
+    std::unique_ptr<Location> return_location;
+    std::vector<std::unique_ptr<Operand>> args;
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
@@ -225,7 +225,7 @@ public:
 
 class Return : public Instr {
 public:
-    Operand return_value;
+    std::unique_ptr<Operand> return_value;
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -238,7 +238,7 @@ public:
 
 class J_Cond : public Jump {
 public:
-    Operand condition;
+    std::unique_ptr<Operand> condition;
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -246,7 +246,6 @@ public:
 
 class J_UnCond : public Jump {
 public:
-    Operand condition;
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }

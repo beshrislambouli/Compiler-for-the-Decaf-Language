@@ -1,9 +1,18 @@
 #pragma once
 #include "DecafAST.h"
+#include "Linear.h"
+#include "Utils.h"
 #include <iostream>
-
-class LinearBuilder : public AST::Visitor {
+class LinearBuilder {
 public:
+    std::unique_ptr<Linear::Program> build (std::unique_ptr<AST::Program> program);
+};
+
+class MethodBuilder : public AST::Visitor {
+    Utils utils;
+public:
+    std::unique_ptr<Linear::Method> build (std::unique_ptr<AST::Method_Decl> method);
+
     void visit(AST::Program& node) override ;
     void visit(AST::Import_Decl& node) override ;
     void visit(AST::Field_Decl& node) override ;
@@ -57,4 +66,10 @@ public:
     void visit(AST::Bool_Lit& node) override ;
     void visit(AST::Type& node) override ;
     void visit(AST::Id& node) override ;
+
+    
+    
 };
+
+// helpers
+Linear::Type T(AST::Type::Type_t AST_t);

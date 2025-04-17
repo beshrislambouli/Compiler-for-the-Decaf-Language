@@ -10,6 +10,11 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
 
     LinearBuilder linear_builder;
-    semantics.AST -> accept (linear_builder);
+    std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
+
+    for (auto& method : linear_program->methods) {
+        std::cout << method->id << " " ;
+    }
+    std::cout << std::endl;
     return 1;
 } 
