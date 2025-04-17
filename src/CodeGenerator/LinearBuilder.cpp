@@ -54,7 +54,23 @@ std::unique_ptr<Linear::Method>  MethodBuilder::build (std::unique_ptr<AST::Meth
 
 void MethodBuilder::visit(AST::Program& node) {}
 void MethodBuilder::visit(AST::Import_Decl& node) {}
-void MethodBuilder::visit(AST::Field_Decl& node) {}
+
+void MethodBuilder::visit(AST::Field_Decl& node) {
+
+    for (auto& field : node.fields ) {
+        if ( is_instance_of (field, AST::Id_Field_Decl) ) {
+            utils.declare ( T (node.field_type->type->type), field->id->id);
+        }
+        else if ( is_instance_of (field, AST::Array_Field_Decl ) ) {
+
+            auto array_field_decl = dynamic_cast<AST::Array_Field_Decl*>(field.get());
+            std::string size = array_field_decl -> size -> literal;
+
+            utils.declare ( T (node.field_type->type->type), field->id->id, size);
+        } 
+    }
+    
+}
 void MethodBuilder::visit(AST::Id_Field_Decl& node) {}
 void MethodBuilder::visit(AST::Array_Field_Decl& node) {}
 void MethodBuilder::visit(AST::Method_Decl& node) {}
@@ -68,7 +84,21 @@ void MethodBuilder::visit(AST::Parameter& node) {
     utils.ret = std::move(var);
 }
 
-void MethodBuilder::visit(AST::Block& node) {}
+void MethodBuilder::visit(AST::Block& node) {
+    utils.push_scope();
+
+    for (auto& field_decl : node.field_decls) {
+        field_decl -> accept (*this);
+    }
+
+    for (auto& statement : node.statements) {
+        statement -> accept (*this);
+    }
+
+    utils.pop_scope();
+}
+
+
 void MethodBuilder::visit(AST::Field_Type& node) {}
 void MethodBuilder::visit(AST::Method_Type& node) {}
 void MethodBuilder::visit(AST::Location_Assign_Op& node) {}

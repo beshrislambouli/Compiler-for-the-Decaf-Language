@@ -1,6 +1,7 @@
 #include "CodeGenerator.h"
 #include "semantics.h"
 #include "LinearBuilder.h"
+#include "LinearPrinter.h"
 
 int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
@@ -12,12 +13,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     LinearBuilder linear_builder;
     std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
 
-    for (auto& method : linear_program->methods) {
-        std::cout << method->type << " " << method->id << std::endl;
-        for (auto& location : method->params) {
-            std::cout << location->type << " " << location->id << std::endl;
-        }
-        std::cout << "----" << std::endl;;
-    }
+    Linear::PrettyPrinter printer;
+    linear_program -> accept (printer); 
     return 1;
 } 

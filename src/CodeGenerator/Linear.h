@@ -26,7 +26,7 @@ class Instr;
         class Assign;
 
     class Helper;
-        class Add_Scope;
+        class Push_Scope;
         class Pop_Scope;
         class Declare;
     
@@ -56,7 +56,7 @@ public:
     virtual void visit(Unary& instr) = 0;
     virtual void visit(Assign& instr) = 0;
     virtual void visit(Helper& instr) = 0;
-    virtual void visit(Add_Scope& instr) = 0;
+    virtual void visit(Push_Scope& instr) = 0;
     virtual void visit(Pop_Scope& instr) = 0;
     virtual void visit(Declare& instr) = 0;
     virtual void visit(Label& instr) = 0;
@@ -82,7 +82,7 @@ public:
 
 class Program : public Linear {
 public:
-    std::vector<std::unique_ptr<Location>> globals;
+    std::vector<std::unique_ptr<Declare>> globals;
     std::vector<std::unique_ptr<Method>>   methods;
 
     void accept(Visitor& visitor) override {
@@ -183,7 +183,7 @@ public:
 
 class Helper : public Instr {};
 
-class Add_Scope : public Helper {
+class Push_Scope : public Helper {
 public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
