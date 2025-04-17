@@ -210,7 +210,27 @@ void MethodBuilder::visit(AST::If_Else_Stmt& node) {
     
 }
 void MethodBuilder::visit(AST::For_Stmt& node) {}
-void MethodBuilder::visit(AST::While_Stmt& node) {}
+void MethodBuilder::visit(AST::While_Stmt& node) {
+    std::string while_condition = "while_condition" + utils.get_label();
+    std::string while_body = "while_body" + utils.get_label();
+    std::string while_end = "while_end" + utils.get_label();
+
+    //while condition
+    utils.push_instr(std::make_unique<Linear::Label>(while_condition));
+    node.expr_cond->accept(*this);
+    auto condition = std::move(utils.ret);
+    utils.push_instr(std::make_unique<Linear::J_Cond>(while_body, std::move(condition)));
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(while_end));
+
+    // while body
+    utils.push_instr(std::make_unique<Linear::Label>(while_body));
+    node.block->accept(*this);
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(while_condition));
+
+    
+    utils.push_instr(std::make_unique<Linear::Label>(while_end));
+}
+
 void MethodBuilder::visit(AST::Return_Stmt& node) {}
 void MethodBuilder::visit(AST::Break_Stmt& node) {}
 void MethodBuilder::visit(AST::Continue_Stmt& node) {}
