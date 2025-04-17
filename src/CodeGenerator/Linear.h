@@ -94,8 +94,8 @@ class Method : public Linear {
 public:
     Type type;
     std::string id;
-    std::vector<std::unique_ptr<Var>> params;
-    std::vector<std::unique_ptr<Instr>>    instrs;
+    std::vector<std::unique_ptr<Var>>   params;
+    std::vector<std::unique_ptr<Instr>> instrs;
     
     void accept(Visitor& visitor) override {
         visitor.visit(*this);

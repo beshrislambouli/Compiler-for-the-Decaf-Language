@@ -44,6 +44,10 @@ std::unique_ptr<Linear::Method>  MethodBuilder::build (std::unique_ptr<AST::Meth
 
     method->block->accept(*this);
 
+    for (int i = 0 ; i < utils.instrs.size() ; i ++ ) {
+        linear_method->instrs.push_back (std::move(utils.instrs[i]));
+    }
+
     return linear_method;
 } 
 
