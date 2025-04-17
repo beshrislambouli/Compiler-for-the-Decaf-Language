@@ -196,6 +196,12 @@ public:
         // You'll need to implement proper op string conversion
         switch (unary.op) {
             // Add cases when Op enum is populated
+            case Unary::Minus:
+                out << "- ";
+                break;
+            case Unary::Not:
+                out << "! ";
+                break;
             default: out << "<op> ";
         }
         

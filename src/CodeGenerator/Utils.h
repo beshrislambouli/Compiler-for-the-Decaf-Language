@@ -100,6 +100,6 @@ public:
 
     int tmp_num = 0;
     std::string get_tmp() {
-        return "_" + method_name + "_TMP" + std::to_string(tmp_num++); 
+        return "TMP_" + method_name + "_T" + std::to_string(tmp_num++); 
     }
 };

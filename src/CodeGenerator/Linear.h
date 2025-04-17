@@ -171,6 +171,19 @@ class Statement : public Instr {
 public:
     std::unique_ptr<Location> dist;
     std::vector<std::unique_ptr<Operand>> operands;
+
+    Statement(){}
+    Statement(std::unique_ptr<Location>&& dist, std::unique_ptr<Operand>&& operand1)
+    : dist(std::move(dist))
+    {
+        operands.push_back(std::move(operand1));
+    }
+    Statement(std::unique_ptr<Location>&& dist, std::unique_ptr<Operand>&& operand1, std::unique_ptr<Operand>&& operand2)
+    : dist(std::move(dist))
+    {
+        operands.push_back(std::move(operand1));
+        operands.push_back(std::move(operand2));
+    }
 };
 
 class Binary : public Statement {
@@ -191,9 +204,21 @@ public:
 class Unary : public Statement {
 public:
     enum Op {
-        
+        Minus,
+        Not,
+
     };
     Op op;
+
+    Unary(std::unique_ptr<Location>&& dist, std::unique_ptr<Operand>&& operand1, Op op)
+    : Statement(std::move(dist),std::move(operand1))
+    , op(op)
+    {}
+    Unary(std::unique_ptr<Location>&& dist, std::unique_ptr<Operand>&& operand1, std::unique_ptr<Operand>&& operand2, Op op)
+    : Statement(std::move(dist),std::move(operand1),std::move(operand2))
+    , op(op)
+    {}
+
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
