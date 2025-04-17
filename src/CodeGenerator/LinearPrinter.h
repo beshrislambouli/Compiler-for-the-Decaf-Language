@@ -178,6 +178,30 @@ public:
                 case Binary::Mod:
                     out << " % " ;
                     break;
+                case Binary::LT:
+                    out << " < " ;
+                    break;
+                case Binary::GT:
+                    out << " > " ;
+                    break;
+                case Binary::LE:
+                    out << " <= " ;
+                    break;
+                case Binary::GE:
+                    out << " >= " ;
+                    break;
+                case Binary::EQ:
+                    out << " == " ;
+                    break;
+                case Binary::NEQ:
+                    out << " != " ;
+                    break;
+                case Binary::OR:
+                    out << " || " ;
+                    break;
+                case Binary::AND:
+                    out << " && " ;
+                    break;
                 default: out << " <op> ";
             }
             

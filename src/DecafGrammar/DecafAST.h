@@ -709,18 +709,28 @@ public:
 
 class Bin_Op : public AST_Node {
 public:
+    enum Type {
+        STAR,
+        DIV,
+        MOD,
+        PLUS,
+        MINUS,
+        LT,
+        GT,
+        LE,
+        GE,
+        EQ,
+        NEQ,
+        OR,
+        AND,
+    };
+    Type type;
     Bin_Op(int row, int col) : AST_Node(row, col) {}
+    Bin_Op(Type type, int row, int col) : type(type), AST_Node(row, col) {}
 };
 
 class Mul_Op : public Bin_Op {
 public:
-    enum Type {
-        STAR,
-        DIV,
-        MOD
-    };
-    Type type;
-    
     Mul_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
@@ -730,12 +740,6 @@ public:
 
 class Add_Op : public Bin_Op {
 public:
-    enum Type {
-        PLUS,
-        MINUS,
-    };
-    Type type;
-    
     Add_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
@@ -745,14 +749,6 @@ public:
 
 class Rel_Op : public Bin_Op {
 public:
-    enum Type {
-        LT,
-        GT,
-        LE,
-        GE,
-    };
-    Type type;
-    
     Rel_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
@@ -762,12 +758,6 @@ public:
 
 class Eq_Op : public Bin_Op {
 public:
-    enum Type {
-        EQ,
-        NEQ
-    };
-    Type type;
-    
     Eq_Op(int row, int col) : Bin_Op(row, col) {}
 
     void accept (Visitor& visitor) override {
@@ -776,16 +766,10 @@ public:
 };
 
 class Logic_Op : public Bin_Op {
-public:
-    enum Type {
-        OR,
-        AND
-    };
-    Type type;
-    
+public:    
     Logic_Op(int row, int col) : Bin_Op(row, col) {}
 
-    Logic_Op(Type type, int row, int col) : type(type), Bin_Op(row, col) {}
+    Logic_Op(Type type, int row, int col) : Bin_Op(type,row,col) {}
 
     void accept (Visitor& visitor) override {
         visitor.visit(*this);

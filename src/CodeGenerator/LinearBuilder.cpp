@@ -388,13 +388,13 @@ void MethodBuilder::visit(AST::Minus_Expr& node) {
     node.expr->accept(*this);
     utils.push_instr(
         std::make_unique<Linear::Unary>(
-            std::make_unique<Linear::Var>(T(node.expr->type_t->type),tmp),
+            std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
             std::move(utils.ret),
             Linear::Unary::Minus
         )
     );
 
-    utils.ret = std::make_unique<Linear::Var>(T(node.expr->type_t->type),tmp);
+    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
 }
 
 void MethodBuilder::visit(AST::Not_Expr& node) {
@@ -403,13 +403,13 @@ void MethodBuilder::visit(AST::Not_Expr& node) {
     node.expr->accept(*this);
     utils.push_instr(
         std::make_unique<Linear::Unary>(
-            std::make_unique<Linear::Var>(T(node.expr->type_t->type),tmp),
+            std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
             std::move(utils.ret),
             Linear::Unary::Not
         )
     );
 
-    utils.ret = std::make_unique<Linear::Var>(T(node.expr->type_t->type),tmp);
+    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
 }
 void MethodBuilder::visit(AST::INT_Expr& node) {
     node.expr->accept(*this);
@@ -417,11 +417,98 @@ void MethodBuilder::visit(AST::INT_Expr& node) {
 void MethodBuilder::visit(AST::LONG_Expr& node) {
     node.expr->accept(*this);
 }
-void MethodBuilder::visit(AST::Mul_Op_Expr& node) {}
-void MethodBuilder::visit(AST::Add_Op_Expr& node) {}
-void MethodBuilder::visit(AST::Rel_Op_Expr& node) {}
-void MethodBuilder::visit(AST::Eq_Op_Expr& node) {}
-void MethodBuilder::visit(AST::Logic_Op_Expr& node) {}
+
+void MethodBuilder::visit(AST::Mul_Op_Expr& node) {
+    node.expr_lhs->accept(*this);
+    auto operand1 = std::move(utils.ret);
+
+    node.expr_rhs->accept(*this);
+    auto operand2 = std::move(utils.ret);
+
+    std::string tmp = utils.get_tmp();
+    utils.push_instr(
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
+            std::move(operand1),
+            std::move(operand2),
+            B(node.bin_op->type)
+        )
+    );
+    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
+}
+void MethodBuilder::visit(AST::Add_Op_Expr& node) {
+    node.expr_lhs->accept(*this);
+    auto operand1 = std::move(utils.ret);
+
+    node.expr_rhs->accept(*this);
+    auto operand2 = std::move(utils.ret);
+
+    std::string tmp = utils.get_tmp();
+    utils.push_instr(
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
+            std::move(operand1),
+            std::move(operand2),
+            B(node.bin_op->type)
+        )
+    );
+    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
+}
+void MethodBuilder::visit(AST::Rel_Op_Expr& node) {
+    node.expr_lhs->accept(*this);
+    auto operand1 = std::move(utils.ret);
+
+    node.expr_rhs->accept(*this);
+    auto operand2 = std::move(utils.ret);
+
+    std::string tmp = utils.get_tmp();
+    utils.push_instr(
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
+            std::move(operand1),
+            std::move(operand2),
+            B(node.bin_op->type)
+        )
+    );
+    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
+}
+void MethodBuilder::visit(AST::Eq_Op_Expr& node) {
+    node.expr_lhs->accept(*this);
+    auto operand1 = std::move(utils.ret);
+
+    node.expr_rhs->accept(*this);
+    auto operand2 = std::move(utils.ret);
+
+    std::string tmp = utils.get_tmp();
+    utils.push_instr(
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
+            std::move(operand1),
+            std::move(operand2),
+            B(node.bin_op->type)
+        )
+    );
+    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
+}
+void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
+    node.expr_lhs->accept(*this);
+    auto operand1 = std::move(utils.ret);
+
+    node.expr_rhs->accept(*this);
+    auto operand2 = std::move(utils.ret);
+
+    std::string tmp = utils.get_tmp();
+    utils.push_instr(
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
+            std::move(operand1),
+            std::move(operand2),
+            B(node.bin_op->type)
+        )
+    );
+    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
+}
+
 void MethodBuilder::visit(AST::Loc_Expr& node) {
     node.location->accept(*this);
 }
@@ -468,6 +555,68 @@ Linear::Type T(AST::Type::Type_t AST_t) {
     
     default:
         std::cout << "ERROR T: Null_Type" << std::endl;
+        exit(1);
+        break;
+    }
+}
+
+Linear::Binary::Op B(AST::Bin_Op::Type from) {
+    switch (from)
+    {
+    case AST::Bin_Op::Type::STAR:
+        return Linear::Binary::Mul;
+        break;
+
+    case AST::Bin_Op::Type::DIV:
+        return Linear::Binary::Div;
+        break;
+
+    case AST::Bin_Op::Type::MOD:
+        return Linear::Binary::Mod;
+        break;
+    
+    case AST::Bin_Op::Type::PLUS:
+        return Linear::Binary::Plus;
+        break;
+
+    case AST::Bin_Op::Type::MINUS:
+        return Linear::Binary::Minus;
+        break;
+    
+    case AST::Bin_Op::Type::LT:
+        return Linear::Binary::LT;
+        break;
+    
+    case AST::Bin_Op::Type::GT:
+        return Linear::Binary::GT;
+        break;
+    
+    case AST::Bin_Op::Type::LE:
+        return Linear::Binary::LE;
+        break;
+    
+    case AST::Bin_Op::Type::GE:
+        return Linear::Binary::GE;
+        break;
+    
+    case AST::Bin_Op::Type::EQ:
+        return Linear::Binary::EQ;
+        break;
+    
+    case AST::Bin_Op::Type::NEQ:
+        return Linear::Binary::NEQ;
+        break;
+    
+    case AST::Bin_Op::Type::OR:
+        return Linear::Binary::OR;
+        break;
+    
+    case AST::Bin_Op::Type::AND:
+        return Linear::Binary::AND;
+        break;
+    
+    default:
+        std::cout << "ERROR B: Null_Type" << std::endl;
         exit(1);
         break;
     }

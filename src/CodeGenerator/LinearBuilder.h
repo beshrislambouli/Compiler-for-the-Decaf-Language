@@ -70,3 +70,4 @@ public:
 
 // helpers
 Linear::Type T(AST::Type::Type_t AST_t);
+Linear::Binary::Op B(AST::Bin_Op::Type from);

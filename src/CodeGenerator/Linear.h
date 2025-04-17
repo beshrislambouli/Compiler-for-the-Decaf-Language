@@ -194,8 +194,22 @@ public:
         Mul,
         Div,
         Mod,
+        LT,
+        GT,
+        LE,
+        GE,
+        EQ,
+        NEQ,
+        OR,
+        AND,
     };
     Op op;
+    Binary(){}
+    Binary(std::unique_ptr<Location>&& dist, std::unique_ptr<Operand>&& operand1, std::unique_ptr<Operand>&& operand2, Op op)
+    : Statement(std::move(dist),std::move(operand1),std::move(operand2))
+    , op(op)
+    {}
+
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -212,10 +226,6 @@ public:
 
     Unary(std::unique_ptr<Location>&& dist, std::unique_ptr<Operand>&& operand1, Op op)
     : Statement(std::move(dist),std::move(operand1))
-    , op(op)
-    {}
-    Unary(std::unique_ptr<Location>&& dist, std::unique_ptr<Operand>&& operand1, std::unique_ptr<Operand>&& operand2, Op op)
-    : Statement(std::move(dist),std::move(operand1),std::move(operand2))
     , op(op)
     {}
 
