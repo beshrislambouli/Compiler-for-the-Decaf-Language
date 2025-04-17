@@ -66,9 +66,6 @@ public:
     void visit(AST::Bool_Lit& node) override ;
     void visit(AST::Type& node) override ;
     void visit(AST::Id& node) override ;
-
-    
-    
 };
 
 // helpers

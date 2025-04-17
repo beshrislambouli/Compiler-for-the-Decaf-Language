@@ -5,5 +5,9 @@
 #include <iostream>
 
 class Utils {
-   
+public:
+    std::vector<std::unique_ptr<Linear::Instr>> instrs;
+    std::unique_ptr<Linear::Operand> ret;
+
+    
 };

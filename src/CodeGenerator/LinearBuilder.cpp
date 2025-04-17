@@ -4,15 +4,25 @@
 
 #define is_instance_of(uptr, Type) (dynamic_cast<Type*>((uptr).get()) != nullptr)
 
+template <typename T>
+std::unique_ptr<T> cast (std::unique_ptr<Linear::Operand>&& ret) {
+    if ( is_instance_of (ret, T) ) {
+        T* raw_pointer = dynamic_cast<T*>(ret.get());
+        ret.release();
+        return std::unique_ptr<T>(raw_pointer);
+    }
 
-// helpers
+    std::cout << "Error cast" << std::endl;
+    exit(1);
+} 
+
 
 std::unique_ptr<Linear::Program> LinearBuilder::build (std::unique_ptr<AST::Program> program) {
     auto linear_program = std::make_unique<Linear::Program> ();
 
-    for (int i = 0 ; i < program->method_decls.size () ; i ++ ) {
+    for (int i = 0 ; i < program->method_decls.size() ; i ++ ) {
         MethodBuilder method_builder;
-        auto method = method_builder.build(std::move(program->method_decls[i]));
+        auto method = method_builder.build (std::move(program->method_decls[i]));
         linear_program->methods .push_back (std::move(method));
     }
 
@@ -22,7 +32,15 @@ std::unique_ptr<Linear::Program> LinearBuilder::build (std::unique_ptr<AST::Prog
 std::unique_ptr<Linear::Method>  MethodBuilder::build (std::unique_ptr<AST::Method_Decl> method) {
     auto linear_method = std::make_unique<Linear::Method>();
 
-    linear_method->id = method->id->id;
+    linear_method->type= T(method->method_type->type->type);
+    linear_method->id  = method->id->id;
+
+    for(auto& parameter : method->parameters) {
+        parameter->accept (*this);
+
+        auto var = cast<Linear::Var>(std::move(utils.ret));
+        linear_method->params.push_back (std::move(var));
+    }
 
     return linear_method;
 } 
@@ -34,7 +52,16 @@ void MethodBuilder::visit(AST::Field_Decl& node) {}
 void MethodBuilder::visit(AST::Id_Field_Decl& node) {}
 void MethodBuilder::visit(AST::Array_Field_Decl& node) {}
 void MethodBuilder::visit(AST::Method_Decl& node) {}
-void MethodBuilder::visit(AST::Parameter& node) {}
+
+void MethodBuilder::visit(AST::Parameter& node) {
+    auto var = std::make_unique<Linear::Var>();
+
+    var->type = T (node.field_type->type->type); 
+    var->id = node.id->id;
+    
+    utils.ret = std::move(var);
+}
+
 void MethodBuilder::visit(AST::Block& node) {}
 void MethodBuilder::visit(AST::Field_Type& node) {}
 void MethodBuilder::visit(AST::Method_Type& node) {}
@@ -83,7 +110,7 @@ void MethodBuilder::visit(AST::Type& node) {}
 void MethodBuilder::visit(AST::Id& node) {}
 
 
- Linear::Type T(AST::Type::Type_t AST_t) {
+Linear::Type T(AST::Type::Type_t AST_t) {
         switch (AST_t)
         {
         case AST::Type::Int:
@@ -107,4 +134,4 @@ void MethodBuilder::visit(AST::Id& node) {}
             exit(1);
             break;
         }
-    }
+}

@@ -13,8 +13,11 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
 
     for (auto& method : linear_program->methods) {
-        std::cout << method->id << " " ;
+        std::cout << method->type << " " << method->id << std::endl;
+        for (auto& location : method->params) {
+            std::cout << location->type << " " << location->id << std::endl;
+        }
+        std::cout << "----" << std::endl;;
     }
-    std::cout << std::endl;
     return 1;
 } 
