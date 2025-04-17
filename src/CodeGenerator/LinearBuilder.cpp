@@ -150,7 +150,36 @@ void MethodBuilder::visit(AST::Location_Assign_Op& node) {
     utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
 }
 
-void MethodBuilder::visit(AST::Location_Incr& node) {}
+void MethodBuilder::visit(AST::Location_Incr& node) {
+    node.location -> accept(*this);
+    auto dist = cast<Linear::Location>(std::move(utils.ret));
+
+
+    node.location -> accept(*this);
+    auto operand1 = cast<Linear::Operand>(std::move(utils.ret));
+
+    
+    auto operand2 = std::make_unique<Linear::Literal>();
+    operand2->type = T(node.location->type_t->type);
+    operand2->id = "1";
+
+    Linear::Binary::Op op;
+    switch (node.increment->type)
+    {
+    case AST::Increment::INCREMENT:
+        op = Linear::Binary::Plus;
+        break;
+    
+    case AST::Increment::DECREMENT:
+        op = Linear::Binary::Minus;
+        break;
+    
+    default:
+        break;
+    }
+
+    utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
+}
 void MethodBuilder::visit(AST::Method_Call_Stmt& node) {}
 void MethodBuilder::visit(AST::If_Else_Stmt& node) {}
 void MethodBuilder::visit(AST::For_Stmt& node) {}
