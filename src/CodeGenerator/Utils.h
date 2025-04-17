@@ -55,4 +55,15 @@ public:
 
         instrs.push_back(std::move(instr_assign));
     }
+
+    void binary (std::unique_ptr<Linear::Location>&& dist, std::unique_ptr<Linear::Operand>&& operand1, std::unique_ptr<Linear::Operand>&& operand2, Linear::Binary::Op op) {
+        auto instr_binary = std::make_unique<Linear::Binary>();
+
+        instr_binary->dist = std::move(dist);
+        instr_binary->operands.push_back(std::move(operand1));
+        instr_binary->operands.push_back(std::move(operand2));
+        instr_binary->op = op;
+
+        instrs.push_back(std::move(instr_binary));
+    }
 };

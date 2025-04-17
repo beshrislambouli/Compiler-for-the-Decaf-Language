@@ -106,8 +106,48 @@ void MethodBuilder::visit(AST::Location_Assign_Op& node) {
         auto operand = cast<Linear::Operand>(std::move(utils.ret));
 
         utils.assign(std::move(dist), std::move(operand));
+        return;
     }
     
+    node.location -> accept(*this);
+    auto dist = cast<Linear::Location>(std::move(utils.ret));
+
+
+    node.location -> accept(*this);
+    auto operand1 = cast<Linear::Operand>(std::move(utils.ret));
+
+    node.expr -> accept (*this);
+    auto operand2 = cast<Linear::Operand>(std::move(utils.ret));
+
+    Linear::Binary::Op op;
+    switch (node.assign_op->type)
+    {
+    case AST::Assign_Op::PLUS_ASSIGN:
+        op = Linear::Binary::Plus;
+        break;
+    
+    case AST::Assign_Op::MINUS_ASSIGN:
+        op = Linear::Binary::Minus;
+        break;
+    
+    case AST::Assign_Op::MUL_ASSIGN:
+        op = Linear::Binary::Mul;
+        break;
+    
+    case AST::Assign_Op::DIV_ASSIGN:
+        op = Linear::Binary::Div;
+        break;
+
+    case AST::Assign_Op::MOD_ASSIGN:
+        op = Linear::Binary::Mod;
+        break;
+    
+    default:
+        std::cout << "Error MethodBuilder::visit AST::Location_Assign_Op" << std::endl;
+        break;
+    }
+
+    utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
 }
 
 void MethodBuilder::visit(AST::Location_Incr& node) {}

@@ -153,7 +153,11 @@ public:
 class Binary : public Statement {
 public:
     enum Op {
-
+        Plus,
+        Minus,
+        Mul,
+        Div,
+        Mod,
     };
     Op op;
     void accept(Visitor& visitor) override {

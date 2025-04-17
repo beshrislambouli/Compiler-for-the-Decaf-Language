@@ -163,6 +163,21 @@ public:
             // You'll need to implement proper op string conversion
             switch (binary.op) {
                 // Add cases when Op enum is populated
+                case Binary::Plus:
+                    out << " + " ;
+                    break;
+                case Binary::Minus:
+                    out << " - " ;
+                    break;
+                case Binary::Mul:
+                    out << " * " ;
+                    break;
+                case Binary::Div:
+                    out << " / " ;
+                    break;
+                case Binary::Mod:
+                    out << " % " ;
+                    break;
                 default: out << " <op> ";
             }
             
