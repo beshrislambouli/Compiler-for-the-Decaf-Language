@@ -94,7 +94,7 @@ class Method : public Linear {
 public:
     Type type;
     std::string id;
-    std::vector<std::unique_ptr<Location>> params;
+    std::vector<std::unique_ptr<Var>> params;
     std::vector<std::unique_ptr<Instr>>    instrs;
     
     void accept(Visitor& visitor) override {
@@ -119,7 +119,9 @@ public:
 
 
 
-class Location : public Operand {};
+class Location : public Operand {
+public:
+};
 
 class Var : public Location {
 public:
@@ -144,7 +146,7 @@ class Instr : public Linear {};
 
 class Statement : public Instr {
 public:
-    std::unique_ptr<Operand> dist;
+    std::unique_ptr<Location> dist;
     std::vector<std::unique_ptr<Operand>> operands;
 };
 

@@ -42,6 +42,8 @@ std::unique_ptr<Linear::Method>  MethodBuilder::build (std::unique_ptr<AST::Meth
         linear_method->params.push_back (std::move(var));
     }
 
+    method->block->accept(*this);
+
     return linear_method;
 } 
 
