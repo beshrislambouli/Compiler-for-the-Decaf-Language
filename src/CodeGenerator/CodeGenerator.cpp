@@ -15,5 +15,5 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
     Linear::PrettyPrinter printer;
     linear_program -> accept (printer); 
-    return 1;
+    return 0;
 } 
