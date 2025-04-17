@@ -28,7 +28,6 @@ std::unique_ptr<Linear::Program> LinearBuilder::build (std::unique_ptr<AST::Prog
 
     return linear_program;
 }
-
 std::unique_ptr<Linear::Method>  MethodBuilder::build (std::unique_ptr<AST::Method_Decl> method) {
     auto linear_method = std::make_unique<Linear::Method>();
 
@@ -50,11 +49,8 @@ std::unique_ptr<Linear::Method>  MethodBuilder::build (std::unique_ptr<AST::Meth
 
     return linear_method;
 } 
-
-
 void MethodBuilder::visit(AST::Program& node) {}
 void MethodBuilder::visit(AST::Import_Decl& node) {}
-
 void MethodBuilder::visit(AST::Field_Decl& node) {
 
     for (auto& field : node.fields ) {
@@ -74,7 +70,6 @@ void MethodBuilder::visit(AST::Field_Decl& node) {
 void MethodBuilder::visit(AST::Id_Field_Decl& node) {}
 void MethodBuilder::visit(AST::Array_Field_Decl& node) {}
 void MethodBuilder::visit(AST::Method_Decl& node) {}
-
 void MethodBuilder::visit(AST::Parameter& node) {
     auto var = std::make_unique<Linear::Var>();
 
@@ -83,7 +78,6 @@ void MethodBuilder::visit(AST::Parameter& node) {
     
     utils.ret = std::move(var);
 }
-
 void MethodBuilder::visit(AST::Block& node) {
     utils.push_scope();
 
@@ -101,7 +95,21 @@ void MethodBuilder::visit(AST::Block& node) {
 
 void MethodBuilder::visit(AST::Field_Type& node) {}
 void MethodBuilder::visit(AST::Method_Type& node) {}
-void MethodBuilder::visit(AST::Location_Assign_Op& node) {}
+
+void MethodBuilder::visit(AST::Location_Assign_Op& node) {
+    if (node.assign_op->type == AST::Assign_Op::ASSIGN ) {
+
+        node.location -> accept(*this);
+        auto dist = cast<Linear::Location>(std::move(utils.ret));
+
+        node.expr -> accept (*this);
+        auto operand = cast<Linear::Operand>(std::move(utils.ret));
+
+        utils.assign(std::move(dist), std::move(operand));
+    }
+    
+}
+
 void MethodBuilder::visit(AST::Location_Incr& node) {}
 void MethodBuilder::visit(AST::Method_Call_Stmt& node) {}
 void MethodBuilder::visit(AST::If_Else_Stmt& node) {}
@@ -112,7 +120,14 @@ void MethodBuilder::visit(AST::Break_Stmt& node) {}
 void MethodBuilder::visit(AST::Continue_Stmt& node) {}
 void MethodBuilder::visit(AST::For_Upd_Assign_Op& node) {}
 void MethodBuilder::visit(AST::For_Upd_Incr& node) {}
-void MethodBuilder::visit(AST::Loc_Var& node) {}
+void MethodBuilder::visit(AST::Loc_Var& node) {
+    auto var = std::make_unique<Linear::Var>();
+
+    var->type = T(node.type_t->type);
+    var->id = node.id->id;
+
+    utils.ret = std::move(var);
+}
 void MethodBuilder::visit(AST::Loc_Array& node) {}
 void MethodBuilder::visit(AST::Minus_Expr& node) {}
 void MethodBuilder::visit(AST::Not_Expr& node) {}
@@ -123,7 +138,9 @@ void MethodBuilder::visit(AST::Add_Op_Expr& node) {}
 void MethodBuilder::visit(AST::Rel_Op_Expr& node) {}
 void MethodBuilder::visit(AST::Eq_Op_Expr& node) {}
 void MethodBuilder::visit(AST::Logic_Op_Expr& node) {}
-void MethodBuilder::visit(AST::Loc_Expr& node) {}
+void MethodBuilder::visit(AST::Loc_Expr& node) {
+    node.location->accept(*this);
+}
 void MethodBuilder::visit(AST::Method_Call_Expr& node) {}
 void MethodBuilder::visit(AST::Literal_Expr& node) {}
 void MethodBuilder::visit(AST::Len_Expr& node) {}
@@ -147,27 +164,27 @@ void MethodBuilder::visit(AST::Id& node) {}
 
 
 Linear::Type T(AST::Type::Type_t AST_t) {
-        switch (AST_t)
-        {
-        case AST::Type::Int:
-            return Linear::Int;
-            break;
+    switch (AST_t)
+    {
+    case AST::Type::Int:
+        return Linear::Int;
+        break;
 
-        case AST::Type::Long:
-            return Linear::Long;
-            break;
+    case AST::Type::Long:
+        return Linear::Long;
+        break;
 
-        case AST::Type::Bool:
-            return Linear::Int;
-            break;
-        
-        case AST::Type::Void:
-            return Linear::Void;
-            break;
-        
-        default:
-            std::cout << "ERROR T: Null_Type" << std::endl;
-            exit(1);
-            break;
-        }
+    case AST::Type::Bool:
+        return Linear::Int;
+        break;
+    
+    case AST::Type::Void:
+        return Linear::Void;
+        break;
+    
+    default:
+        std::cout << "ERROR T: Null_Type" << std::endl;
+        exit(1);
+        break;
+    }
 }

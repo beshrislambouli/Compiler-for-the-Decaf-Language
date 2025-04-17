@@ -46,4 +46,13 @@ public:
 
         instrs.push_back(std::move(instr_declare));
     }
+
+    void assign (std::unique_ptr<Linear::Location>&& dist, std::unique_ptr<Linear::Operand>&& operand) {
+        auto instr_assign = std::make_unique<Linear::Assign>();
+
+        instr_assign->dist = std::move(dist);
+        instr_assign->operands.push_back(std::move(operand));
+
+        instrs.push_back(std::move(instr_assign));
+    }
 };
