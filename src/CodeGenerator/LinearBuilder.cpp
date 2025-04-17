@@ -352,14 +352,15 @@ void MethodBuilder::visit(AST::For_Upd_Incr& node) {
 }
 
 void MethodBuilder::visit(AST::Loc_Var& node) {
-    auto var = std::make_unique<Linear::Var>();
-
-    var->type = T(node.type_t->type);
-    var->id = node.id->id;
-
-    utils.ret = std::move(var);
+    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type), node.id->id);
 }
-void MethodBuilder::visit(AST::Loc_Array& node) {}
+void MethodBuilder::visit(AST::Loc_Array& node) {
+    node.expr->accept(*this);
+    auto index = std::move(utils.ret);
+
+    utils.ret = std::make_unique<Linear::Arr>(T(node.type_t->type), node.id->id,std::move(index));
+}
+
 void MethodBuilder::visit(AST::Minus_Expr& node) {}
 void MethodBuilder::visit(AST::Not_Expr& node) {}
 void MethodBuilder::visit(AST::INT_Expr& node) {}

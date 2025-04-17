@@ -151,6 +151,12 @@ class Arr : public Location {
 public:
     std::unique_ptr<Operand> index;
 
+    Arr (){}
+    Arr (Type type, std::string id, std::unique_ptr<Operand>&& index) 
+    : Location(type,id)
+    , index(std::move(index))
+    {}
+
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
