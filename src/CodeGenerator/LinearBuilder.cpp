@@ -182,7 +182,18 @@ void MethodBuilder::visit(AST::Location_Incr& node) {
     utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
 }
 
-void MethodBuilder::visit(AST::Method_Call_Stmt& node) {}
+void MethodBuilder::visit(AST::Method_Call_Stmt& node) {
+    auto instr = std::make_unique<Linear::Method_Call>();
+
+    instr->id = node.id->id;
+
+    for (auto& arg : node.extern_args) {
+        arg -> accept(*this);
+        instr->args.push_back(std::move(utils.ret));
+    }
+
+    utils.push_instr(std::move(instr));
+}
 
 void MethodBuilder::visit(AST::If_Else_Stmt& node) {
     std::string if_then = "if_then" + utils.get_label();
@@ -512,7 +523,23 @@ void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
 void MethodBuilder::visit(AST::Loc_Expr& node) {
     node.location->accept(*this);
 }
-void MethodBuilder::visit(AST::Method_Call_Expr& node) {}
+void MethodBuilder::visit(AST::Method_Call_Expr& node) {
+    auto instr = std::make_unique<Linear::Method_Call>();
+
+    instr->id = node.id->id;
+
+    for (auto& arg : node.extern_args) {
+        arg -> accept(*this);
+        instr->args.push_back(std::move(utils.ret));
+    }
+
+    std::string tmp = utils.get_tmp(); 
+    auto return_location = std::make_unique<Linear::Var>(T(node.id->type_t->type),tmp);
+    instr->return_location = std::move(return_location);
+
+    utils.push_instr(std::move(instr));
+    utils.ret = std::make_unique<Linear::Var>(T(node.id->type_t->type),tmp);
+}
 
 void MethodBuilder::visit(AST::Literal_Expr& node) {
     node.literal->accept(*this);
@@ -522,8 +549,21 @@ void MethodBuilder::visit(AST::Len_Expr& node) {}
 void MethodBuilder::visit(AST::Paren_Expr& node) {
     node.expr->accept(*this);
 }
-void MethodBuilder::visit(AST::Expr_Arg& node) {}
-void MethodBuilder::visit(AST::String_Arg& node) {}
+
+void MethodBuilder::visit(AST::Expr_Arg& node) {
+    node.expr->accept(*this);
+}
+void MethodBuilder::visit(AST::String_Arg& node) {
+    std::string literal = node.string_arg.substr(1,node.string_arg.length()-2);
+    auto string_literal = std::make_unique<Linear::Literal>(
+        Linear::Long,
+        literal
+    );
+    string_literal->is_string = true;
+
+    utils.ret = std::move(string_literal);
+}
+
 void MethodBuilder::visit(AST::Assign_Op& node) {}
 void MethodBuilder::visit(AST::Increment& node) {}
 void MethodBuilder::visit(AST::Mul_Op& node) {}

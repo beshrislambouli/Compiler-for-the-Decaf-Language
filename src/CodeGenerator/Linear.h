@@ -36,7 +36,7 @@ class Instr;
     
     class Jump;
         class J_Cond;
-        class J_Uncond;
+        class J_UnCond;
 
 
 class Visitor {
@@ -64,7 +64,7 @@ public:
     virtual void visit(Return& instr) = 0;
     virtual void visit(Jump& instr) = 0;
     virtual void visit(J_Cond& instr) = 0;
-    virtual void visit(J_Uncond& instr) = 0;
+    virtual void visit(J_UnCond& instr) = 0;
 };
 
 enum Type {
@@ -284,10 +284,10 @@ public:
     }
 };
 
-class Method_call : public Instr {
+class Method_Call : public Instr {
 public:
     std::string id;
-    std::unique_ptr<Location> return_location;
+    std::unique_ptr<Location> return_location; //OPTIONAL
     std::vector<std::unique_ptr<Operand>> args;
 
     void accept(Visitor& visitor) override {

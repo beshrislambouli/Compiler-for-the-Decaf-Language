@@ -274,21 +274,21 @@ public:
     }
     
     void visit(Method_Call& methodCall) override {
-        // out << getIndent();
+        out << getIndent();
         
-        // if (methodCall.return_location) {
-        //     methodCall.return_location->accept(*this);
-        //     out << " = ";
-        // }
+        if (methodCall.return_location) {
+            methodCall.return_location->accept(*this);
+            out << " = ";
+        }
         
-        // out << methodCall.id << "(";
+        out << methodCall.id << "(";
         
-        // for (size_t i = 0; i < methodCall.args.size(); ++i) {
-        //     if (i > 0) out << ", ";
-        //     methodCall.args[i]->accept(*this);
-        // }
+        for (size_t i = 0; i < methodCall.args.size(); ++i) {
+            if (i > 0) out << ", ";
+            methodCall.args[i]->accept(*this);
+        }
         
-        // out << ");\n";
+        out << ");\n";
     }
 
     void visit(Return& ret) override {
@@ -312,8 +312,8 @@ public:
         out << ") goto " << jCond.label << ";\n";
     }
 
-    void visit(J_Uncond& jUncond) override {
-        // out << getIndent() << "goto " << jUncond.label << ";\n";
+    void visit(J_UnCond& jUncond) override {
+        out << getIndent() << "goto " << jUncond.label << ";\n";
     }
 };
 
