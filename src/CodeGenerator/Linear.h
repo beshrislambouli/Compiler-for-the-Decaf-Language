@@ -142,7 +142,9 @@ public:
 };
 
 
-class Instr : public Linear {};
+class Instr : public Linear {
+public:
+};
 
 class Statement : public Instr {
 public:
@@ -212,6 +214,9 @@ public:
 class Label : public Instr {
 public:
     std::string label;
+
+    Label(std::string label) : label(label) {}
+
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -240,11 +245,19 @@ public:
 class Jump : public Instr {
 public:
     std::string label;
+    Jump(std::string label) : label(label) {}
 };
 
 class J_Cond : public Jump {
 public:
     std::unique_ptr<Operand> condition;
+
+
+    J_Cond(std::string label, std::unique_ptr<Operand>&& condition)
+    : Jump (label)
+    , condition(std::move(condition))
+    {}
+
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
@@ -252,6 +265,9 @@ public:
 
 class J_UnCond : public Jump {
 public:
+
+    J_UnCond(std::string label) : Jump(label) {}
+
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }

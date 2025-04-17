@@ -33,6 +33,7 @@ std::unique_ptr<Linear::Method>  MethodBuilder::build (std::unique_ptr<AST::Meth
 
     linear_method->type= T(method->method_type->type->type);
     linear_method->id  = method->id->id;
+    utils.method_name = linear_method->id;
 
     for(auto& parameter : method->parameters) {
         parameter->accept (*this);
@@ -181,7 +182,33 @@ void MethodBuilder::visit(AST::Location_Incr& node) {
     utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
 }
 void MethodBuilder::visit(AST::Method_Call_Stmt& node) {}
-void MethodBuilder::visit(AST::If_Else_Stmt& node) {}
+void MethodBuilder::visit(AST::If_Else_Stmt& node) {
+    std::string if_then = "if_then" + utils.get_label();
+    std::string if_else = "if_else" + utils.get_label();
+    std::string if_end  = "end_if"  + utils.get_label();
+
+
+    // jump condition
+    node.expr_if->accept(*this);
+    auto condition = std::move(utils.ret);
+    utils.push_instr(std::make_unique<Linear::J_Cond>(if_then, std::move(condition)));
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(if_else));
+
+    //then
+    utils.push_instr(std::make_unique<Linear::Label>(if_then));
+    node.block_then->accept(*this);
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(if_end));
+
+
+    //else
+    utils.push_instr(std::make_unique<Linear::Label>(if_else));
+    if (node.block_else) {
+        node.block_else -> accept(*this);
+    }
+
+    utils.push_instr(std::make_unique<Linear::Label>(if_end));
+    
+}
 void MethodBuilder::visit(AST::For_Stmt& node) {}
 void MethodBuilder::visit(AST::While_Stmt& node) {}
 void MethodBuilder::visit(AST::Return_Stmt& node) {}
