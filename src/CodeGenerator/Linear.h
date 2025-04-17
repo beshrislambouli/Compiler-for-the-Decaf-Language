@@ -107,7 +107,14 @@ class Operand : public Linear {
 public:
     Type type;
     std::string id;
+
+    Operand(){}
+    Operand(Type type, std::string id) 
+    : type(type)
+    , id(id)
+    {}
 };
+
 
 class Literal : public Operand {
 public:
@@ -121,12 +128,20 @@ public:
 
 class Location : public Operand {
 public:
+
+    Location(){}
+    Location(Type type, std::string id) 
+    : Operand(type,id)
+    {}
 };
 
 class Var : public Location {
 public:
     bool is_array_var = false;
     
+    Var(){}
+    Var (Type type, std::string id) : Location(type,id){}
+
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }

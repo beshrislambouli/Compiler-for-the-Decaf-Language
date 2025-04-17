@@ -209,7 +209,39 @@ void MethodBuilder::visit(AST::If_Else_Stmt& node) {
     utils.push_instr(std::make_unique<Linear::Label>(if_end));
     
 }
-void MethodBuilder::visit(AST::For_Stmt& node) {}
+void MethodBuilder::visit(AST::For_Stmt& node) {
+    std::string for_condition = "for_condition" + utils.get_label();
+    std::string for_body = "for_body" + utils.get_label();
+    std::string for_update = "for_update" + utils.get_label();
+    std::string for_end = "for_end" + utils.get_label();
+
+
+    // init
+    auto var_init = std::make_unique<Linear::Var>(T(node.id->type_t->type), node.id->id);
+    node.expr_init -> accept(*this);
+    auto operand_init = std::move(utils.ret);
+    utils.assign(std::move(var_init), std::move(operand_init));
+
+    // condition
+    utils.label(for_condition);
+    node.expr_cond->accept(*this);
+    auto condition = std::move(utils.ret);
+    utils.push_instr(std::make_unique<Linear::J_Cond>(for_body, std::move(condition)));
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(for_end));
+
+    // for body
+    utils.label(for_body);
+    node.block->accept(*this);
+
+    // for update
+    utils.label(for_update);
+    node.for_update->accept(*this);
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(for_condition));
+
+    // for end
+    utils.label(for_end);
+}
+
 void MethodBuilder::visit(AST::While_Stmt& node) {
     std::string while_condition = "while_condition" + utils.get_label();
     std::string while_body = "while_body" + utils.get_label();
@@ -227,7 +259,7 @@ void MethodBuilder::visit(AST::While_Stmt& node) {
     node.block->accept(*this);
     utils.push_instr(std::make_unique<Linear::J_UnCond>(while_condition));
 
-    
+
     utils.push_instr(std::make_unique<Linear::Label>(while_end));
 }
 

@@ -72,6 +72,10 @@ public:
         instrs.push_back(std::move(instr_binary));
     }
 
+    void label (std::string label) {
+        push_instr(std::make_unique<Linear::Label>(label));
+    }
+
     int label_num = 0;
     std::string get_label() {
         return "_" + method_name + "_L" + std::to_string(label_num++);
