@@ -257,7 +257,7 @@ public:
 
 class Return : public Instr {
 public:
-    std::unique_ptr<Operand> return_value;
+    std::unique_ptr<Operand> return_value; // OPTIONAL
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }

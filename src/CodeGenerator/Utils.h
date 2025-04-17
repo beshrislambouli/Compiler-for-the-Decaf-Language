@@ -10,6 +10,9 @@ public:
     std::vector<std::unique_ptr<Linear::Instr>> instrs;
     std::unique_ptr<Linear::Operand> ret;
 
+    // the first one for continue and the second one for break
+    std::vector<std::pair<std::string,std::string>> loop_labels;
+
     void push_instr(std::unique_ptr<Linear::Instr>&& instr) {
         instrs.push_back(std::move(instr));
     }
@@ -20,6 +23,20 @@ public:
 
     void pop_scope () {
         instrs.push_back (std::make_unique<Linear::Pop_Scope>());
+    }
+
+    void push_loop_labels(std::string continue_label, std::string break_label) {
+        loop_labels.push_back(std::make_pair(continue_label,break_label));
+    }
+    void pop_loop_labels() {
+        loop_labels.pop_back();
+    }
+
+    std::string continue_label(){
+        return loop_labels.back().first;
+    }
+    std::string break_label(){
+        return loop_labels.back().second;
     }
 
     void declare (Linear::Type type, std::string id) {

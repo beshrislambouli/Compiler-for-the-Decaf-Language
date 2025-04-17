@@ -231,7 +231,9 @@ void MethodBuilder::visit(AST::For_Stmt& node) {
 
     // for body
     utils.label(for_body);
+    utils.push_loop_labels(for_update,for_end);
     node.block->accept(*this);
+    utils.pop_loop_labels();
 
     // for update
     utils.label(for_update);
@@ -256,16 +258,33 @@ void MethodBuilder::visit(AST::While_Stmt& node) {
 
     // while body
     utils.push_instr(std::make_unique<Linear::Label>(while_body));
+    utils.push_loop_labels(while_condition,while_end);
     node.block->accept(*this);
+    utils.pop_loop_labels();
     utils.push_instr(std::make_unique<Linear::J_UnCond>(while_condition));
 
 
     utils.push_instr(std::make_unique<Linear::Label>(while_end));
 }
 
-void MethodBuilder::visit(AST::Return_Stmt& node) {}
-void MethodBuilder::visit(AST::Break_Stmt& node) {}
-void MethodBuilder::visit(AST::Continue_Stmt& node) {}
+void MethodBuilder::visit(AST::Return_Stmt& node) {
+    auto return_instr = std::make_unique<Linear::Return>();
+
+    if (node.expr) {
+        node.expr->accept(*this);
+        return_instr -> return_value = std::move(utils.ret);
+    }
+
+    utils.push_instr(std::move(return_instr));
+}
+
+void MethodBuilder::visit(AST::Break_Stmt& node) {
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(utils.break_label()));
+}
+
+void MethodBuilder::visit(AST::Continue_Stmt& node) {
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(utils.continue_label()));
+}
 
 void MethodBuilder::visit(AST::For_Upd_Assign_Op& node) {
     if (node.assign_Op->type == AST::Assign_Op::ASSIGN ) {
