@@ -637,6 +637,7 @@ public:
 class Len_Expr : public Expr {
 public:
     std::unique_ptr<Id> id;
+    std::string size; // the result of len(id)
     
     Len_Expr(int row, int col) : Expr(row, col) {}
 

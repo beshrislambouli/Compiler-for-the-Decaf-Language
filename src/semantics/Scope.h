@@ -36,9 +36,10 @@ public:
 class Arr {
 public:
     T_t type=T_t::Null_Type;
+    std::string size="-1";
 
     Arr (){}
-    Arr (T_t type) : type(type) {}
+    Arr (T_t type, std::string size) : type(type) , size(size) {}
 };
  
 using Value = std::variant<Method, Var, Arr>;
@@ -73,11 +74,11 @@ public:
         hash_table [id] = Var(type);
     }
 
-    void put_arr(std::string id, T_t type) {
+    void put_arr(std::string id, T_t type, std::string size) {
         
         if ( in_scope (id) ) std::cout << "ERROR: Scope put" << std::endl;
 
-        hash_table [id] = Arr(type);
+        hash_table [id] = Arr(type,size);
     }
 
     // get
@@ -149,9 +150,9 @@ public:
         stack.back().put_var(id, type);
     }
 
-    void put_arr(std::string id, T_t type) {
+    void put_arr(std::string id, T_t type, std::string size) {
         
-        stack.back().put_arr(id, type);
+        stack.back().put_arr(id, type, size);
     }
 
 
@@ -200,6 +201,14 @@ public:
         }
 
         return false;
+    }
+    std::string get_array_size(std::string id) {
+        if (!is_array(id)) return "-1";
+        Value ans = get(id).value();
+        if (std::holds_alternative<Arr>(ans)) {
+            return std::get<Arr>(ans).size;
+        }
+        return "-1";
     }
 
     bool is_var (std::string id) {
@@ -262,12 +271,12 @@ public:
         return error.str();
     }
 
-    std::string declare_arr(std::string id, T_t type_t, int row, int col, std::string AST_Node_Type) {
+    std::string declare_arr(std::string id, T_t type_t, std::string size, int row, int col, std::string AST_Node_Type) {
         std::stringstream error;
         if (in_current_scope(id)) {
             error << "Error: " << "Line: " << row << " " << "Col: " << col << " " << AST_Node_Type << " " << id << " already in scope" << std::endl;
         }
-        put_arr(id, type_t);
+        put_arr(id, type_t, size);
         return error.str();
     }
 

@@ -7,8 +7,8 @@
 #define declare_var(id, type, AST_Node_Type) \
     error += scope_stack.declare_var(id, type, node.row, node.col, AST_Node_Type);
 
-#define declare_arr(id, type, AST_Node_Type) \
-    error += scope_stack.declare_arr(id, type, node.row, node.col, AST_Node_Type);
+#define declare_arr(id, type, sz, AST_Node_Type) \
+    error += scope_stack.declare_arr(id, type, sz, node.row, node.col, AST_Node_Type);
 
 
 
@@ -80,7 +80,11 @@ void Semantics::visit(AST::Field_Decl& node) {
 
         // declaring the fields
         if (is_instance_of(field,AST::Array_Field_Decl)) {
-            declare_arr (field->id->id, node.field_type->type->type, "Field_Decl")
+
+            AST::Array_Field_Decl* array_field_decl = dynamic_cast<AST::Array_Field_Decl*>(field.get());
+            array_field_decl->size -> accept(*this);
+
+            declare_arr (field->id->id, node.field_type->type->type, array_field_decl->size->literal,"Field_Decl")
         } else {
             declare_var (field->id->id, node.field_type->type->type, "Field_Decl")
         }
@@ -95,7 +99,7 @@ void Semantics::visit(AST::Id_Field_Decl& node) {
 
 void Semantics::visit(AST::Array_Field_Decl& node) {
     node.id -> accept(*this);
-    node.size -> accept(*this);
+    // node.size -> accept(*this);
     if (node.size->literal == "0") {
         std::stringstream err;
         err << "Error: " << "Line: " << node.row << " " << "Col: " << node.col << " array size must be positive" << std::endl;
@@ -662,6 +666,7 @@ void Semantics::visit(AST::Len_Expr& node) {
     }
     node.assign_type(T_t::Int);
     node.id -> accept (*this);
+    node.size = scope_stack.get_array_size(node.id->id);
 }
 
 void Semantics::visit(AST::Expr_Arg& node) {

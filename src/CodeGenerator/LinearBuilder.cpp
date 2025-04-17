@@ -545,7 +545,12 @@ void MethodBuilder::visit(AST::Literal_Expr& node) {
     node.literal->accept(*this);
 }
 
-void MethodBuilder::visit(AST::Len_Expr& node) {}
+void MethodBuilder::visit(AST::Len_Expr& node) {
+    utils.ret = std::make_unique<Linear::Literal>(
+        Linear::Int,
+        node.size
+    );
+}
 void MethodBuilder::visit(AST::Paren_Expr& node) {
     node.expr->accept(*this);
 }
@@ -572,6 +577,7 @@ void MethodBuilder::visit(AST::Rel_Op& node) {}
 void MethodBuilder::visit(AST::Eq_Op& node) {}
 void MethodBuilder::visit(AST::Logic_Op& node) {}
 void MethodBuilder::visit(AST::Literal& node) {}
+
 void MethodBuilder::visit(AST::Int_Lit& node) {
     utils.ret = std::make_unique<Linear::Literal>(
         Linear::Int,
