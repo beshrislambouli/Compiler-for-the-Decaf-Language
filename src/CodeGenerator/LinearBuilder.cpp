@@ -513,9 +513,15 @@ void MethodBuilder::visit(AST::Loc_Expr& node) {
     node.location->accept(*this);
 }
 void MethodBuilder::visit(AST::Method_Call_Expr& node) {}
-void MethodBuilder::visit(AST::Literal_Expr& node) {}
+
+void MethodBuilder::visit(AST::Literal_Expr& node) {
+    node.literal->accept(*this);
+}
+
 void MethodBuilder::visit(AST::Len_Expr& node) {}
-void MethodBuilder::visit(AST::Paren_Expr& node) {}
+void MethodBuilder::visit(AST::Paren_Expr& node) {
+    node.expr->accept(*this);
+}
 void MethodBuilder::visit(AST::Expr_Arg& node) {}
 void MethodBuilder::visit(AST::String_Arg& node) {}
 void MethodBuilder::visit(AST::Assign_Op& node) {}
@@ -526,10 +532,40 @@ void MethodBuilder::visit(AST::Rel_Op& node) {}
 void MethodBuilder::visit(AST::Eq_Op& node) {}
 void MethodBuilder::visit(AST::Logic_Op& node) {}
 void MethodBuilder::visit(AST::Literal& node) {}
-void MethodBuilder::visit(AST::Int_Lit& node) {}
-void MethodBuilder::visit(AST::Long_Lit& node) {}
-void MethodBuilder::visit(AST::Char_Lit& node) {}
-void MethodBuilder::visit(AST::Bool_Lit& node) {}
+void MethodBuilder::visit(AST::Int_Lit& node) {
+    utils.ret = std::make_unique<Linear::Literal>(
+        Linear::Int,
+        node.literal
+    );
+}
+void MethodBuilder::visit(AST::Long_Lit& node) {
+    std::string literal = node.literal;
+    literal.pop_back();
+    utils.ret = std::make_unique<Linear::Literal>(
+        Linear::Long,
+        literal
+    );
+}
+void MethodBuilder::visit(AST::Char_Lit& node) {
+    std::string literal = std::to_string((int)node.literal[1]);
+    utils.ret = std::make_unique<Linear::Literal>(
+        Linear::Int,
+        literal
+    );
+}
+void MethodBuilder::visit(AST::Bool_Lit& node) {
+    std::string literal = "";
+    if (node.literal == "true"){
+        literal = "1";
+    } else {
+        literal = "0";
+    }
+    utils.ret = std::make_unique<Linear::Literal>(
+        Linear::Int,
+        literal
+    );
+}
+
 void MethodBuilder::visit(AST::Type& node) {}
 void MethodBuilder::visit(AST::Id& node) {}
 

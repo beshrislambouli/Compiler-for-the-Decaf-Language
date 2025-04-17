@@ -119,6 +119,12 @@ public:
 class Literal : public Operand {
 public:
     bool is_string = false;
+
+    Literal(){}
+    Literal(Type type, std::string id) 
+    : Operand(type,id)
+    {}
+
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
