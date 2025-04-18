@@ -20,6 +20,38 @@ std::unique_ptr<T> cast (std::unique_ptr<Linear::Operand>&& ret) {
 std::unique_ptr<Linear::Program> LinearBuilder::build (std::unique_ptr<AST::Program> program) {
     auto linear_program = std::make_unique<Linear::Program> ();
 
+    for (auto& field_decl : program -> field_decls) {
+        for (auto& field: field_decl->fields ) {
+            auto instr_declare = std::make_unique<Linear::Declare>();
+
+            if (is_instance_of(field,AST::Id_Field_Decl)) {
+                
+                auto var = std::make_unique<Linear::Var>();
+                var->type = T(field_decl->field_type->type->type);
+                var-> id  = field->id->id;
+
+                instr_declare->location = std::move(var);
+            }
+            else if (is_instance_of(field,AST::Array_Field_Decl)) {
+
+                auto arr = std::make_unique<Linear::Arr>();
+                arr->type = T(field_decl->field_type->type->type);
+                arr->id   = field->id->id;
+                
+
+                auto index = std::make_unique<Linear::Literal>();
+                index->type = Linear::Int;
+                auto array_field_decl = dynamic_cast<AST::Array_Field_Decl*>(field.get());
+                std::string size = array_field_decl -> size -> literal;
+                index->id= size;
+
+                arr -> index = std::move(index);
+                instr_declare -> location = std::move(arr);
+            }
+            linear_program->globals.push_back(std::move(instr_declare));
+        }
+    }
+
     for (int i = 0 ; i < program->method_decls.size() ; i ++ ) {
         MethodBuilder method_builder;
         auto method = method_builder.build (std::move(program->method_decls[i]));

@@ -82,7 +82,7 @@ public:
 
 class Program : public Linear {
 public:
-    std::vector<std::unique_ptr<Declare>> globals;
+    std::vector<std::unique_ptr<Declare>>  globals;
     std::vector<std::unique_ptr<Method>>   methods;
 
     void accept(Visitor& visitor) override {
