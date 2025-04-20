@@ -27,7 +27,7 @@ void CodeGenerator::visit(Linear::Program& program) {
     push_scope();
 
     add_instr(".text");
-    
+
     if (program.globals.size()){
         add_instr(".data");
         for (auto& dec : program.globals) {
@@ -36,10 +36,27 @@ void CodeGenerator::visit(Linear::Program& program) {
         add_instr(".text");
     }
 
+    int place_holder_index = asm_code.size();
+    add_comment("no_need_to_alloc_string");
+
     add_instr(".globl main");
     for (auto& method : program.methods) {
         method -> accept(*this);
     }
+
+    if (used_strings.size () > 0 ) {
+        std::string declare_strings = "";
+        for (auto u : used_strings) {
+            std::string label = u.first;
+            std::string content = u.second;
+
+            declare_strings += label + ":\n";
+            declare_strings += "     .string \"" + content + "\"\n";
+            declare_strings += "     .align 4\n";
+        }
+        asm_code[place_holder_index] = declare_strings;
+    }
+
     pop_scope();
 }
 
@@ -104,7 +121,15 @@ void CodeGenerator::visit(Linear::Operand& instr) {
     assert(false);
 }
 void CodeGenerator::visit(Linear::Literal& instr) {
-    ret = "$" + instr.id;
+    if (instr.is_string) {
+        std::string label = ".STR_" + std::to_string(string_label++);
+        used_strings.push_back(std::make_pair(label,instr.id));
+
+        ret = "$" + label;
+    } else {
+        ret = "$" + instr.id;
+    }
+    
 }
 void CodeGenerator::visit(Linear::Location& instr) {
     assert(false);
@@ -320,7 +345,7 @@ void CodeGenerator::visit(Linear::J_UnCond& instr) {
 std::string CodeGenerator::code() {
     std::string x86 = "";
     for (auto u : asm_code) {
-        if (u.back() != ':') x86 += "     ";
+        if (u.back() != ':' && u[0] != '.' ) x86 += "     ";
         x86 += u + '\n';
     }
     return x86;

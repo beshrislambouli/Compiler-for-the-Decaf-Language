@@ -41,9 +41,11 @@ public:
 
 private:
     int stack_offset = 0;
+    int string_label = 0;
     std::string method_name = "";
     std::vector<std::string> asm_code;
     std::vector<Symbol_Table> symbol_table_stack;
+    std::vector<std::pair<std::string,std::string>> used_strings; // (label, content)
 
      // code
     std::string code();
