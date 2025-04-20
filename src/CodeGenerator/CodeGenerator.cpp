@@ -58,7 +58,97 @@ void CodeGenerator::visit(Linear::Instr& instr) {
 void CodeGenerator::visit(Linear::Statement& instr) {
     assert(false);
 }
-void CodeGenerator::visit(Linear::Binary& instr) {}
+void CodeGenerator::visit(Linear::Binary& instr) {
+    auto type = instr.dist ->type;
+    std::string rax = reg_("%rax",type);
+    std::string rbx = reg_("%rbx",type);
+
+    load (instr.operands[0], rax);
+    load (instr.operands[1], rbx);
+
+    bool is_compare = false;
+    switch (instr.op)
+    {
+    case Linear::Binary::Plus: 
+        add_instr( instr_ ("add",type) + rbx + ", " + rax);
+        break;
+    
+    case Linear::Binary::Minus: 
+        add_instr( instr_ ("sub",type) + rbx + ", " + rax);
+        break;
+    
+    case Linear::Binary::Mul: 
+        add_instr( instr_ ("imul",type) + rbx + ", " + rax);
+        break;
+
+    case Linear::Binary::Div: 
+        if (type == Linear::Type::Long) add_instr("cqto");
+        else                            add_instr("cltd");
+        add_instr( instr_ ("idiv",type) + rbx);
+        break;
+
+    case Linear::Binary::Mod: 
+        if (type == Linear::Type::Long) add_instr("cqto");
+        else                            add_instr("cltd");
+        add_instr( instr_ ("idiv",type) + rbx);
+        add_instr( instr_ ("mov",type) + reg_("%rdx",type) + ", " + rax);
+        break;
+    
+    case Linear::Binary::EQ: 
+        add_instr( instr_ ("cmp",type) + rbx + ", " + rax);
+        add_instr("sete %al");
+        is_compare = true;
+        break;
+    
+    case Linear::Binary::NEQ: 
+        add_instr( instr_ ("cmp",type) + rbx + ", " + rax);
+        add_instr("setne %al");
+        is_compare = true;
+        break;
+    
+    case Linear::Binary::LT: 
+        add_instr( instr_ ("cmp",type) + rbx + ", " + rax);
+        add_instr("setl %al");
+        is_compare = true;
+        break;
+    
+    case Linear::Binary::LE: 
+        add_instr( instr_ ("cmp",type) + rbx + ", " + rax);
+        add_instr("setle %al");
+        is_compare = true;
+        break;
+    
+    case Linear::Binary::GT: 
+        add_instr( instr_ ("cmp",type) + rbx + ", " + rax);
+        add_instr("setg %al");
+        is_compare = true;
+        break;
+    
+    case Linear::Binary::GE: 
+        add_instr( instr_ ("cmp",type) + rbx + ", " + rax);
+        add_instr("setge %al");
+        is_compare = true;
+        break;
+    
+    case Linear::Binary::AND: 
+        add_instr( instr_ ("and",type) + rbx + ", " + rax);
+        break;
+
+    case Linear::Binary::OR: 
+        add_instr( instr_ ("or",type) + rbx + ", " + rax);
+        break;
+    
+    default:
+        assert(false);
+        break;
+    }
+
+    if (is_compare) {
+        add_instr ( instr_("movzb",type) + "%al, " + rax);
+    }
+
+    store (rax, instr.dist);
+}
 void CodeGenerator::visit(Linear::Unary& instr) {
     auto type = instr.dist->type;
     std::string reg = reg_("%rax",type);
@@ -88,7 +178,9 @@ void CodeGenerator::visit(Linear::Assign& instr) {
     load (instr.operands[0], "%rax");
     store ("%rax", instr.dist);
 }
-void CodeGenerator::visit(Linear::Helper& instr) {}
+void CodeGenerator::visit(Linear::Helper& instr) {
+    assert(false);
+}
 void CodeGenerator::visit(Linear::Push_Scope& instr) {
     push_scope();
 }
