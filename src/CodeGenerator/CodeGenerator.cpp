@@ -138,7 +138,17 @@ void CodeGenerator::visit(Linear::Var& instr) {
     ret = get_loc(instr.id);
 }
 void CodeGenerator::visit(Linear::Arr& instr) {
-    assert(false);
+
+    // load the index to %rax
+    load (instr.index, "%r10");
+    if (instr.type != Linear::Type::Long ) add_instr("movslq %r10d, %r10");
+
+    Info info = get(instr.id);
+    if (info.is_global) {
+        ret = info.id + "(,%r10," + std::to_string(type_size(info.type)) + ")";
+    } else {
+        ret = std::to_string(info.offset) + "(%rbp,%r10," + std::to_string(type_size(info.type)) + ")";
+    }
 }
 void CodeGenerator::visit(Linear::Instr& instr) {
     assert(false);
