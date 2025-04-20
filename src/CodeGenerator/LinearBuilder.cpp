@@ -426,7 +426,7 @@ void MethodBuilder::visit(AST::Loc_Array& node) {
 }
 
 void MethodBuilder::visit(AST::Minus_Expr& node) {
-    std::string tmp = utils.get_tmp();
+    std::string tmp = utils.get_tmp(T(node.type_t->type));
 
     node.expr->accept(*this);
     utils.push_instr(
@@ -441,7 +441,7 @@ void MethodBuilder::visit(AST::Minus_Expr& node) {
 }
 
 void MethodBuilder::visit(AST::Not_Expr& node) {
-    std::string tmp = utils.get_tmp();
+    std::string tmp = utils.get_tmp(T(node.type_t->type));
 
     node.expr->accept(*this);
     utils.push_instr(
@@ -468,7 +468,7 @@ void MethodBuilder::visit(AST::Mul_Op_Expr& node) {
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);
 
-    std::string tmp = utils.get_tmp();
+    std::string tmp = utils.get_tmp(T(node.type_t->type));
     utils.push_instr(
         std::make_unique<Linear::Binary>(
             std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
@@ -486,7 +486,7 @@ void MethodBuilder::visit(AST::Add_Op_Expr& node) {
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);
 
-    std::string tmp = utils.get_tmp();
+    std::string tmp = utils.get_tmp(T(node.type_t->type));
     utils.push_instr(
         std::make_unique<Linear::Binary>(
             std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
@@ -504,7 +504,7 @@ void MethodBuilder::visit(AST::Rel_Op_Expr& node) {
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);
 
-    std::string tmp = utils.get_tmp();
+    std::string tmp = utils.get_tmp(T(node.type_t->type));
     utils.push_instr(
         std::make_unique<Linear::Binary>(
             std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
@@ -522,7 +522,7 @@ void MethodBuilder::visit(AST::Eq_Op_Expr& node) {
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);
 
-    std::string tmp = utils.get_tmp();
+    std::string tmp = utils.get_tmp(T(node.type_t->type));
     utils.push_instr(
         std::make_unique<Linear::Binary>(
             std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
@@ -540,7 +540,7 @@ void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);
 
-    std::string tmp = utils.get_tmp();
+    std::string tmp = utils.get_tmp(T(node.type_t->type));
     utils.push_instr(
         std::make_unique<Linear::Binary>(
             std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
@@ -565,7 +565,7 @@ void MethodBuilder::visit(AST::Method_Call_Expr& node) {
         instr->args.push_back(std::move(utils.ret));
     }
 
-    std::string tmp = utils.get_tmp(); 
+    std::string tmp = utils.get_tmp(T(node.id->type_t->type)); 
     auto return_location = std::make_unique<Linear::Var>(T(node.id->type_t->type),tmp);
     instr->return_location = std::move(return_location);
 

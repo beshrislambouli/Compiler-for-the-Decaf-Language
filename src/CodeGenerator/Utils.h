@@ -99,7 +99,9 @@ public:
     }
 
     int tmp_num = 0;
-    std::string get_tmp() {
-        return "TMP_" + method_name + "_T" + std::to_string(tmp_num++); 
+    std::string get_tmp(Linear::Type type) {
+        std::string tmp = "TMP_" + method_name + "_T" + std::to_string(tmp_num++); 
+        declare(type,tmp);
+        return tmp;
     }
 };

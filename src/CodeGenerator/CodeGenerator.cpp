@@ -52,10 +52,38 @@ void CodeGenerator::visit(Linear::Var& instr) {
 void CodeGenerator::visit(Linear::Arr& instr) {
     assert(false);
 }
-void CodeGenerator::visit(Linear::Instr& instr) {}
-void CodeGenerator::visit(Linear::Statement& instr) {}
+void CodeGenerator::visit(Linear::Instr& instr) {
+    assert(false);
+}
+void CodeGenerator::visit(Linear::Statement& instr) {
+    assert(false);
+}
 void CodeGenerator::visit(Linear::Binary& instr) {}
-void CodeGenerator::visit(Linear::Unary& instr) {}
+void CodeGenerator::visit(Linear::Unary& instr) {
+    auto type = instr.dist->type;
+    std::string reg = reg_("%rax",type);
+
+    // load to register
+    load (instr.operands[0], reg);
+    
+    switch (instr.op)
+    {
+    case Linear::Unary::Minus:
+        add_instr( instr_ ("neg", type) + reg);
+        break;
+    case Linear::Unary::Not:
+        add_instr( instr_("cmp",type) + "$0, " + reg);
+        add_instr( "sete %al" );
+        add_instr (instr_ ("movzb",type) + "%al, " + reg);
+        break;
+
+    default:
+        assert(false);
+        break;
+    }
+    
+    store (reg, instr.dist);
+}
 void CodeGenerator::visit(Linear::Assign& instr) {
     load (instr.operands[0], "%rax");
     store ("%rax", instr.dist);
