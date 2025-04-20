@@ -32,9 +32,60 @@ void CodeGenerator::visit(Linear::Program& program) {
 }
 
 void CodeGenerator::visit(Linear::Method& method) {
-    for (auto& instr : method.instrs) {
-        instr->accept(*this);
+    
+    method_name = method.id;
+    stack_offset = 0;
+
+    add_instr(method.id + ":");
+    add_instr("pushq %rbp");
+    add_instr("movq %rsp, %rbp");
+
+    int place_holder_index = asm_code.size();
+    add_comment("no_need_to_alloc");
+    
+    // to push a scope
+    method.instrs[0] -> accept(*this);
+
+    std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+    for (int i = 0 ; i < method.params.size () ; i ++ ) {
+        std::unique_ptr<Linear::Var>& param = method.params[i];
+        
+        // declare 
+        put (param->id, param->type);
+
+        // get location on stack
+        std::string loc = get_loc(param->id);
+
+        //move
+        auto type = param->type;
+        if (i < 6) {
+            add_instr( instr_("mov",type) + reg_(param_reg[i],type) + ", " + loc);
+        } else {
+            std::string src = std::to_string (16 + 8 * (i-6)) + "(%rbp)";
+            add_instr( instr_("mov",type) + src + ", " + reg_("%r10",type) );
+            add_instr( instr_("mov",type) + reg_("%r10",type) + ", " + loc );
+        }
+        
     }
+
+    // already pushed the scope
+    for (int i = 1 ; i < method.instrs.size () ; i ++ ) {
+        method.instrs[i] -> accept(*this);
+    }
+
+    stack_offset = abs(stack_offset);
+    if ( stack_offset > 0 ) {
+        if ( stack_offset % 16 != 0 ){
+            stack_offset += (16 - (stack_offset % 16) );
+        }
+        asm_code [place_holder_index] = "subq $" + std::to_string(stack_offset) + ", %rsp";
+    }
+    
+
+    add_instr(".L_" + method_name + "_epilogue:");
+    add_instr("movq %rbp, %rsp");
+    add_instr("popq %rbp");
+    add_instr("ret");
 }
 
 void CodeGenerator::visit(Linear::Operand& instr) {
@@ -198,7 +249,7 @@ void CodeGenerator::visit(Linear::Return& instr) {
     if (instr.return_value) {
         load (instr.return_value, "%rax");
     }
-    add_instr ("jmp .L" + method_name + "_epilogue");
+    add_instr ("jmp .L_" + method_name + "_epilogue");
 }
 void CodeGenerator::visit(Linear::Jump& instr) {
     assert(false);
@@ -221,6 +272,7 @@ void CodeGenerator::visit(Linear::J_UnCond& instr) {
 std::string CodeGenerator::code() {
     std::string x86 = "";
     for (auto u : asm_code) {
+        if (u.back() != ':') x86 += "     ";
         x86 += u + '\n';
     }
     return x86;
