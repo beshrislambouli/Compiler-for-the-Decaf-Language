@@ -102,8 +102,15 @@ void CodeGenerator::visit(Linear::Label& instr) {
     add_instr(instr.label + ":");
 }
 void CodeGenerator::visit(Linear::Method_Call& instr) {}
-void CodeGenerator::visit(Linear::Return& instr) {}
-void CodeGenerator::visit(Linear::Jump& instr) {}
+void CodeGenerator::visit(Linear::Return& instr) {
+    if (instr.return_value) {
+        load (instr.return_value, "%rax");
+    }
+    add_instr ("jmp .L" + method_name + "_epilogue");
+}
+void CodeGenerator::visit(Linear::Jump& instr) {
+    assert(false);
+}
 void CodeGenerator::visit(Linear::J_Cond& instr) {
     auto type = instr.condition->type;
     std::string reg = reg_("%rax",type);
