@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cassert>
 #include "semantics.h"
 #include "Linear.h"
 #include "LinearBuilder.h"
@@ -56,10 +57,13 @@ private:
     void pop_scope ();
     bool is_global ();
     Info get(std::string id);
+    std::string get_loc(std::string id);
     void put(std::string id, Linear::Type type);
 
     //helpers
     int type_size(Linear::Type type);
+    std::string type_suffix(Linear::Type type);
+    int stack_alloc(Linear::Type type);
     std::string instr_ (std::string id,  Linear::Type type);
     std::string reg_   (std::string reg, Linear::Type type);
 };
@@ -67,29 +71,25 @@ private:
 class Info {
 public:
     int offset = 0;
-    bool is_global = false;
-    std::string id = "";
     Linear::Type type;
+    std::string id = "";
+    bool is_global = false;
+ 
+    Info(){}
 
-    Info (int offset, Linear::Type type)
-    : offset(offset)
-    , type(type) 
-    , is_global(false)
-    {}
-
-    Info (int offset, Linear::Type type, std::string id)
+    Info (int offset, Linear::Type type, std::string id, bool is_global)
     : offset(offset)
     , type(type) 
     , id (id)
-    , is_global(true)
+    , is_global(is_global)
     {}
 };
 
 class Symbol_Table { // to use the visit functions
-    bool is_global;
     std::map<std::string,Info> table;
 public:
-    Symbol_Table(bool is_global = false) : is_global(is_global) {}
+    bool is_global;
+    Symbol_Table(bool is_global) : is_global(is_global) {}
 
     bool exist(std::string id) ;
     Info get(std::string id);
