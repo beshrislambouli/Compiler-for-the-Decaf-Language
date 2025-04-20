@@ -25,6 +25,17 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
 void CodeGenerator::visit(Linear::Program& program) {
     push_scope();
+
+    add_instr(".text");
+    if (program.globals.size()){
+        add_instr(".data");
+        for (auto& dec : program.globals) {
+            dec -> accept(*this);
+        }
+        add_instr(".text");
+    }
+
+    add_instr(".globl main");
     for (auto& method : program.methods) {
         method -> accept(*this);
     }
@@ -356,6 +367,10 @@ std::string CodeGenerator::get_loc(std::string id){
 void CodeGenerator::put(std::string id, Linear::Type type){
     assert(symbol_table_stack.size()>0);
     symbol_table_stack.back().put(id,stack_alloc(type),type);
+
+    if (is_global()) {
+        add_instr(".comm " + id + ", " + std::to_string (type_size(type)) + ", " + std::to_string (type_size(type)));
+    }
 }
 
 int CodeGenerator::type_size(Linear::Type type){
