@@ -283,24 +283,28 @@ void CodeGenerator::visit(Linear::Label& instr) {
 }
 void CodeGenerator::visit(Linear::Method_Call& instr) {
     std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
-    int bytes_pushed_to_stack = 0;
+
+    // 16-alignment before call
+    int args_on_stack = std::max (0, (int)instr.args.size() - 6);
+    int extra_bytes_to_align = 0;
+    int bytes_pushed_to_stack = args_on_stack * 8 ;
+    if ((abs(stack_offset) + bytes_pushed_to_stack) % 16 != 0 ) {
+        extra_bytes_to_align = (16 - ((abs(stack_offset) + bytes_pushed_to_stack) % 16));
+        bytes_pushed_to_stack += extra_bytes_to_align;
+    }
+    if ( extra_bytes_to_align > 0 ) {
+        add_instr("subq $" + std::to_string(extra_bytes_to_align) + ", " + "%rsp" );
+    }
 
     // push +6 args to stack
     for (int i = instr.args.size() - 1 ; i >= 6 ; i -- ) {
         load (instr.args[i], "%rax");
         add_instr ("pushq %rax");
-        bytes_pushed_to_stack += 8;
     }
 
     // load args
     for (int i = std::min ((int)instr.args.size()-1,5) ; i >= 0 ; i -- ) {
         load (instr.args[i], param_reg[i]);
-    }
-
-    // 16 alignment before call
-    while ( ( abs(stack_offset) + bytes_pushed_to_stack ) % 16 != 0 ) {
-        add_instr("pushq $0");
-        bytes_pushed_to_stack += 8;
     }
 
     // System V ABI: to use printf
