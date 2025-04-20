@@ -98,12 +98,25 @@ void CodeGenerator::visit(Linear::Pop_Scope& instr) {
 void CodeGenerator::visit(Linear::Declare& instr) {
     put (instr.location->id, instr.location->type);
 }
-void CodeGenerator::visit(Linear::Label& instr) {}
+void CodeGenerator::visit(Linear::Label& instr) {
+    add_instr(instr.label + ":");
+}
 void CodeGenerator::visit(Linear::Method_Call& instr) {}
 void CodeGenerator::visit(Linear::Return& instr) {}
 void CodeGenerator::visit(Linear::Jump& instr) {}
-void CodeGenerator::visit(Linear::J_Cond& instr) {}
-void CodeGenerator::visit(Linear::J_UnCond& instr) {}
+void CodeGenerator::visit(Linear::J_Cond& instr) {
+    auto type = instr.condition->type;
+    std::string reg = reg_("%rax",type);
+    std::string cmp = instr_("cmp", type);
+
+    load(instr.condition, reg);
+
+    add_instr (cmp + "$0, " + reg);
+    add_instr ("jne " + instr.label);
+}
+void CodeGenerator::visit(Linear::J_UnCond& instr) {
+    add_instr("jmp " + instr.label);
+}
 
 
 std::string CodeGenerator::code() {
