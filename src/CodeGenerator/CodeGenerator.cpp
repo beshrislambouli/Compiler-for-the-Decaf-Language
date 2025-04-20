@@ -244,7 +244,40 @@ void CodeGenerator::visit(Linear::Declare& instr) {
 void CodeGenerator::visit(Linear::Label& instr) {
     add_instr(instr.label + ":");
 }
-void CodeGenerator::visit(Linear::Method_Call& instr) {}
+void CodeGenerator::visit(Linear::Method_Call& instr) {
+    std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+    int bytes_pushed_to_stack = 0;
+
+    // push +6 args to stack
+    for (int i = instr.args.size() - 1 ; i >= 6 ; i -- ) {
+        load (instr.args[i], "%rax");
+        add_instr ("pushq %rax");
+        bytes_pushed_to_stack += 8;
+    }
+
+    // load args
+    for (int i = std::min ((int)instr.args.size()-1,5) ; i >= 0 ; i -- ) {
+        load (instr.args[i], param_reg[i]);
+    }
+
+    // 16 alignment before call
+    while ( ( abs(stack_offset) + bytes_pushed_to_stack ) % 16 != 0 ) {
+        add_instr("pushq $0");
+        bytes_pushed_to_stack += 8;
+    }
+
+    add_instr("call " + instr.id) ;
+
+    // clean up
+    if ( bytes_pushed_to_stack > 0 ) {
+        add_instr("addq $" + std::to_string(bytes_pushed_to_stack) + ", " + "%rsp" );
+    }
+
+    // store return value
+    if (instr.return_location){
+        store ("%rax", instr.return_location);
+    }
+}
 void CodeGenerator::visit(Linear::Return& instr) {
     if (instr.return_value) {
         load (instr.return_value, "%rax");
