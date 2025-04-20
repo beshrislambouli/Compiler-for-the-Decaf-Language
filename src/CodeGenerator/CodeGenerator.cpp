@@ -41,7 +41,7 @@ void CodeGenerator::visit(Linear::Operand& instr) {
     assert(false);
 }
 void CodeGenerator::visit(Linear::Literal& instr) {
-    
+    ret = "$" + instr.id;
 }
 void CodeGenerator::visit(Linear::Location& instr) {
     assert(false);
