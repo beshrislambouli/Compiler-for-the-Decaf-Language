@@ -61,6 +61,7 @@ private:
     Info get(std::string id);
     std::string get_loc(std::string id);
     void put(std::string id, Linear::Type type);
+    void put(std::string id, Linear::Type type, std::string size);
 
     //helpers
     int type_size(Linear::Type type);

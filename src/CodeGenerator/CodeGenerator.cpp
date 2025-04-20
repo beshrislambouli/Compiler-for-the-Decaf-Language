@@ -276,7 +276,19 @@ void CodeGenerator::visit(Linear::Pop_Scope& instr) {
     pop_scope();
 }
 void CodeGenerator::visit(Linear::Declare& instr) {
-    put (instr.location->id, instr.location->type);
+    if ( is_instance_of (instr.location, Linear::Var)) {
+
+        put (instr.location->id, instr.location->type);
+
+    } else if ( is_instance_of (instr.location, Linear::Arr) ){
+
+        Linear::Arr* arr = dynamic_cast<Linear::Arr*>(instr.location.get());
+        put (arr->id, arr->type, arr->index->id);
+
+    } else {
+        assert(false);
+    }
+    
 }
 void CodeGenerator::visit(Linear::Label& instr) {
     add_instr(instr.label + ":");
@@ -403,6 +415,21 @@ void CodeGenerator::put(std::string id, Linear::Type type){
 
     if (is_global()) {
         add_instr(".comm " + id + ", " + std::to_string (type_size(type)) + ", " + std::to_string (type_size(type)));
+    }
+}
+void CodeGenerator::put(std::string id, Linear::Type type, std::string size_){
+    int size = std::stoi(size_);
+    assert ( size > 0 );
+
+    int offset = 0;
+    for (int i = 0 ; i < size ; i ++ ) {
+        offset = stack_alloc(type);
+    }
+
+    symbol_table_stack.back().put(id,offset,type);
+
+    if (is_global()) {
+        add_instr(".comm " + id + ", " + std::to_string ( size * type_size(type)) + ", 8");
     }
 }
 
