@@ -27,6 +27,7 @@ void CodeGenerator::visit(Linear::Program& program) {
     push_scope();
 
     add_instr(".text");
+    
     if (program.globals.size()){
         add_instr(".data");
         for (auto& dec : program.globals) {
@@ -276,6 +277,9 @@ void CodeGenerator::visit(Linear::Method_Call& instr) {
         add_instr("pushq $0");
         bytes_pushed_to_stack += 8;
     }
+
+    // System V ABI: to use printf
+    add_instr("movq $0, %rax");
 
     add_instr("call " + instr.id) ;
 
