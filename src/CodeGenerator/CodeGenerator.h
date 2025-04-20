@@ -6,9 +6,11 @@
 #include "Linear.h"
 #include "LinearBuilder.h"
 #include "LinearPrinter.h"
-#include "Assembler.h"
-class CodeGenerator : Linear::Visitor {
-    Assembler assembler;
+
+class Info;
+class Symbol_Table;
+
+class CodeGenerator : public Linear::Visitor {
 public:
     int Generate(std::ifstream& fin, std::ofstream& fout);
 
@@ -35,4 +37,61 @@ public:
     void visit(Linear::Jump& instr) override;
     void visit(Linear::J_Cond& instr) override;
     void visit(Linear::J_UnCond& instr) override;
+
+private:
+    int stack_offset = 0;
+    std::string method_name = "";
+    std::vector<std::string> asm_code;
+    std::vector<Symbol_Table> symbol_table_stack;
+
+     // code
+    std::string code();
+    void add_instr(std::string instr);
+    void add_comment(std::string instr);
+    void load (std::unique_ptr<Linear::Operand> src_operand, std::string dst_reg);
+    void store(std::string src_reg, std::unique_ptr<Linear::Location> dst_loc);
+
+    //symbol table
+    void push_scope();
+    void pop_scope ();
+    bool is_global ();
+    Info get(std::string id);
+    void put(std::string id, Linear::Type type);
+
+    //helpers
+    int type_size(Linear::Type type);
+    std::string instr_ (std::string id,  Linear::Type type);
+    std::string reg_   (std::string reg, Linear::Type type);
+};
+
+class Info {
+public:
+    int offset = 0;
+    bool is_global = false;
+    std::string id = "";
+    Linear::Type type;
+
+    Info (int offset, Linear::Type type)
+    : offset(offset)
+    , type(type) 
+    , is_global(false)
+    {}
+
+    Info (int offset, Linear::Type type, std::string id)
+    : offset(offset)
+    , type(type) 
+    , id (id)
+    , is_global(true)
+    {}
+};
+
+class Symbol_Table { // to use the visit functions
+    bool is_global;
+    std::map<std::string,Info> table;
+public:
+    Symbol_Table(bool is_global = false) : is_global(is_global) {}
+
+    bool exist(std::string id) ;
+    Info get(std::string id);
+    void put(std::string id, int offset, Linear::Type type);
 };
