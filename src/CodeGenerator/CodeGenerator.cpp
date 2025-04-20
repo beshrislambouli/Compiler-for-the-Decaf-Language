@@ -24,9 +24,11 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
 
 void CodeGenerator::visit(Linear::Program& program) {
+    push_scope();
     for (auto& method : program.methods) {
         method -> accept(*this);
     }
+    pop_scope();
 }
 
 void CodeGenerator::visit(Linear::Method& method) {
@@ -35,20 +37,39 @@ void CodeGenerator::visit(Linear::Method& method) {
     }
 }
 
-void CodeGenerator::visit(Linear::Operand& instr) {}
-void CodeGenerator::visit(Linear::Literal& instr) {}
-void CodeGenerator::visit(Linear::Location& instr) {}
-void CodeGenerator::visit(Linear::Var& instr) {}
-void CodeGenerator::visit(Linear::Arr& instr) {}
+void CodeGenerator::visit(Linear::Operand& instr) {
+    assert(false);
+}
+void CodeGenerator::visit(Linear::Literal& instr) {
+    
+}
+void CodeGenerator::visit(Linear::Location& instr) {
+    assert(false);
+}
+void CodeGenerator::visit(Linear::Var& instr) {
+    ret = get_loc(instr.id);
+}
+void CodeGenerator::visit(Linear::Arr& instr) {
+    assert(false);
+}
 void CodeGenerator::visit(Linear::Instr& instr) {}
 void CodeGenerator::visit(Linear::Statement& instr) {}
 void CodeGenerator::visit(Linear::Binary& instr) {}
 void CodeGenerator::visit(Linear::Unary& instr) {}
-void CodeGenerator::visit(Linear::Assign& instr) {}
+void CodeGenerator::visit(Linear::Assign& instr) {
+    load (instr.operands[0], "%rax");
+    store ("%rax", instr.dist);
+}
 void CodeGenerator::visit(Linear::Helper& instr) {}
-void CodeGenerator::visit(Linear::Push_Scope& instr) {}
-void CodeGenerator::visit(Linear::Pop_Scope& instr) {}
-void CodeGenerator::visit(Linear::Declare& instr) {}
+void CodeGenerator::visit(Linear::Push_Scope& instr) {
+    push_scope();
+}
+void CodeGenerator::visit(Linear::Pop_Scope& instr) {
+    pop_scope();
+}
+void CodeGenerator::visit(Linear::Declare& instr) {
+    put (instr.location->id, instr.location->type);
+}
 void CodeGenerator::visit(Linear::Label& instr) {}
 void CodeGenerator::visit(Linear::Method_Call& instr) {}
 void CodeGenerator::visit(Linear::Return& instr) {}
@@ -70,8 +91,14 @@ void CodeGenerator::add_instr(std::string instr) {
 void CodeGenerator::add_comment(std::string instr) {
     asm_code.push_back("# " + instr);
 }
-void CodeGenerator::load (std::unique_ptr<Linear::Operand> src_operand, std::string dst_reg) {}
-void CodeGenerator::store(std::string src_reg, std::unique_ptr<Linear::Location> dst_loc) {}
+void CodeGenerator::load (std::unique_ptr<Linear::Operand>& src_operand, std::string dist_reg) {
+    auto type = src_operand->type;
+    add_instr( instr_("mov",type) + query(src_operand) + ", " + reg_(dist_reg,type) );
+}
+void CodeGenerator::store(std::string src_reg, std::unique_ptr<Linear::Location>& dist_loc) {
+    auto type = dist_loc->type;
+    add_instr( instr_("mov",type) + reg_(src_reg,type) + ", " + query(dist_loc) );
+}
 
 void CodeGenerator::push_scope(){
     bool is_global = symbol_table_stack.size()==0;
@@ -121,11 +148,15 @@ std::string CodeGenerator::type_suffix(Linear::Type type){
     }
 }
 int CodeGenerator::stack_alloc(Linear::Type type) {
-    stack_offset -= type_size(type);
+    int type_size_ = type_size(type);
+    stack_offset -= type_size_;
+    if (abs(stack_offset) % type_size_ != 0 ) {
+        stack_offset -= (type_size_ - (abs(stack_offset) % type_size_));
+    }
     return stack_offset;
 }
 std::string CodeGenerator::instr_ (std::string id,  Linear::Type type){
-    return id + type_suffix(type);
+    return id + type_suffix(type) + " ";
 }
 std::string CodeGenerator::reg_   (std::string reg, Linear::Type type){
     std::string reg_64[16] = {
@@ -151,6 +182,16 @@ std::string CodeGenerator::reg_   (std::string reg, Linear::Type type){
         }
     }
     assert(false);
+}
+
+std::string CodeGenerator::query(std::unique_ptr<Linear::Operand>& operand) {
+    operand->accept(*this);
+    return ret;
+}
+
+std::string CodeGenerator::query(std::unique_ptr<Linear::Location>& operand) {
+    operand->accept(*this);
+    return ret;
 }
 
 bool Symbol_Table::exist(std::string id) {

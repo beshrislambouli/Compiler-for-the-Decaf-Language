@@ -49,8 +49,8 @@ private:
     std::string code();
     void add_instr(std::string instr);
     void add_comment(std::string instr);
-    void load (std::unique_ptr<Linear::Operand> src_operand, std::string dst_reg);
-    void store(std::string src_reg, std::unique_ptr<Linear::Location> dst_loc);
+    void load (std::unique_ptr<Linear::Operand>& src_operand, std::string dist_reg);
+    void store(std::string src_reg, std::unique_ptr<Linear::Location>& dist_loc);
 
     //symbol table
     void push_scope();
@@ -66,6 +66,10 @@ private:
     int stack_alloc(Linear::Type type);
     std::string instr_ (std::string id,  Linear::Type type);
     std::string reg_   (std::string reg, Linear::Type type);
+
+    std::string ret;
+    std::string query(std::unique_ptr<Linear::Operand>& operand);
+    std::string query(std::unique_ptr<Linear::Location>& operand);
 };
 
 class Info {
