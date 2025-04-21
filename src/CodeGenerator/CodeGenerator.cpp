@@ -13,8 +13,8 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     LinearBuilder linear_builder;
     std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
 
-    Linear::PrettyPrinter printer;
-    linear_program -> accept (printer); 
+    // Linear::PrettyPrinter printer;
+    // linear_program -> accept (printer); 
 
     linear_program -> accept (*this);
     fout << code();
@@ -384,7 +384,12 @@ void CodeGenerator::visit(Linear::Declare& instr) {
     
 }
 void CodeGenerator::visit(Linear::Short_Circuit& instr) {
+    load (instr.operand,"%rax");
 
+    std::string to_comp = instr.op == Linear::Binary::OR ? "$1" : "$0";
+    add_instr ( instr_("cmp",instr.operand->type) + to_comp + ", " + reg_("%rax",instr.operand->type) );
+
+    add_instr("je " + instr.label);
 }
 void CodeGenerator::visit(Linear::Label& instr) {
     add_instr(instr.label + ":");
