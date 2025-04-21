@@ -145,34 +145,30 @@ void MethodBuilder::visit(AST::Location_Assign_Op& node) {
     node.location -> accept(*this);
     auto dist = cast<Linear::Location>(std::move(utils.ret));
 
-
-    node.location -> accept(*this);
+    node.expr -> accept (*this);
     auto operand1 = cast<Linear::Operand>(std::move(utils.ret));
 
-    node.expr -> accept (*this);
-    auto operand2 = cast<Linear::Operand>(std::move(utils.ret));
-
-    Linear::Binary::Op op;
+    Linear::Unary::Op op;
     switch (node.assign_op->type)
     {
     case AST::Assign_Op::PLUS_ASSIGN:
-        op = Linear::Binary::Plus;
+        op = Linear::Unary::PLUS_ASSIGN;
         break;
     
     case AST::Assign_Op::MINUS_ASSIGN:
-        op = Linear::Binary::Minus;
+        op = Linear::Unary::MINUS_ASSIGN;
         break;
     
     case AST::Assign_Op::MUL_ASSIGN:
-        op = Linear::Binary::Mul;
+        op = Linear::Unary::MUL_ASSIGN;
         break;
     
     case AST::Assign_Op::DIV_ASSIGN:
-        op = Linear::Binary::Div;
+        op = Linear::Unary::DIV_ASSIGN;
         break;
 
     case AST::Assign_Op::MOD_ASSIGN:
-        op = Linear::Binary::Mod;
+        op = Linear::Unary::MOD_ASSIGN;
         break;
     
     default:
@@ -180,7 +176,7 @@ void MethodBuilder::visit(AST::Location_Assign_Op& node) {
         break;
     }
 
-    utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
+    utils.push_instr(std::make_unique<Linear::Unary>(std::move(dist), std::move(operand1), op));
 }
 
 void MethodBuilder::visit(AST::Location_Incr& node) {
@@ -344,45 +340,41 @@ void MethodBuilder::visit(AST::For_Upd_Assign_Op& node) {
         return;
     }
     
-    node.location -> accept(*this);
+        node.location -> accept(*this);
     auto dist = cast<Linear::Location>(std::move(utils.ret));
 
-
-    node.location -> accept(*this);
+    node.expr -> accept (*this);
     auto operand1 = cast<Linear::Operand>(std::move(utils.ret));
 
-    node.expr -> accept (*this);
-    auto operand2 = cast<Linear::Operand>(std::move(utils.ret));
-
-    Linear::Binary::Op op;
+    Linear::Unary::Op op;
     switch (node.assign_Op->type)
     {
     case AST::Assign_Op::PLUS_ASSIGN:
-        op = Linear::Binary::Plus;
+        op = Linear::Unary::PLUS_ASSIGN;
         break;
     
     case AST::Assign_Op::MINUS_ASSIGN:
-        op = Linear::Binary::Minus;
+        op = Linear::Unary::MINUS_ASSIGN;
         break;
     
     case AST::Assign_Op::MUL_ASSIGN:
-        op = Linear::Binary::Mul;
+        op = Linear::Unary::MUL_ASSIGN;
         break;
     
     case AST::Assign_Op::DIV_ASSIGN:
-        op = Linear::Binary::Div;
+        op = Linear::Unary::DIV_ASSIGN;
         break;
 
     case AST::Assign_Op::MOD_ASSIGN:
-        op = Linear::Binary::Mod;
+        op = Linear::Unary::MOD_ASSIGN;
         break;
     
     default:
-        std::cout << "Error MethodBuilder::visit AST::For_Upd_Assign_Op" << std::endl;
+        std::cout << "Error MethodBuilder::visit AST::Location_Assign_Op" << std::endl;
         break;
     }
 
-    utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
+    utils.push_instr(std::make_unique<Linear::Unary>(std::move(dist), std::move(operand1), op));
 }
 void MethodBuilder::visit(AST::For_Upd_Incr& node) {
     node.location -> accept(*this);

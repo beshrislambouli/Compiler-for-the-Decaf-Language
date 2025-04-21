@@ -52,6 +52,7 @@ private:
     void add_instr(std::string instr);
     void add_comment(std::string instr);
     void load (std::unique_ptr<Linear::Operand>& src_operand, std::string dist_reg);
+    void load (std::unique_ptr<Linear::Location>& src_operand, std::string dist_reg);
     void store(std::string src_reg, std::unique_ptr<Linear::Location>& dist_loc);
 
     //symbol table

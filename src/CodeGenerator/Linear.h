@@ -227,7 +227,11 @@ public:
     enum Op {
         Minus,
         Not,
-
+        PLUS_ASSIGN,
+        MINUS_ASSIGN,
+        MUL_ASSIGN,
+        DIV_ASSIGN,
+        MOD_ASSIGN
     };
     Op op;
 

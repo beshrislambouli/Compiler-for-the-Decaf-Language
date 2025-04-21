@@ -285,20 +285,61 @@ void CodeGenerator::visit(Linear::Binary& instr) {
 }
 void CodeGenerator::visit(Linear::Unary& instr) {
     auto type = instr.dist->type;
-    std::string reg = reg_("%rax",type);
+    std::string rax = reg_("%rax",type);
+    std::string rbx = reg_("%rbx",type);
 
-    // load to register
-    load (instr.operands[0], reg);
     
     switch (instr.op)
     {
     case Linear::Unary::Minus:
-        add_instr( instr_ ("neg", type) + reg);
+        // load to register
+        load (instr.operands[0], rax);
+        add_instr( instr_ ("neg", type) + rax);
         break;
     case Linear::Unary::Not:
-        add_instr( instr_("cmp",type) + "$0, " + reg);
+        // load to register
+        load (instr.operands[0], rax);
+
+        add_instr( instr_("cmp",type) + "$0, " + rax);
         add_instr( "sete %al" );
-        add_instr (instr_ ("movzb",type) + "%al, " + reg);
+        add_instr (instr_ ("movzb",type) + "%al, " + rax);
+        break;
+    
+    case Linear::Unary::PLUS_ASSIGN:
+        load (instr.dist, rax);
+        load (instr.operands[0], rbx);
+        add_instr( instr_ ("add",type) + rbx + ", " + rax);
+        break;
+    
+    case Linear::Unary::MINUS_ASSIGN:
+        load (instr.dist, rax);
+        load (instr.operands[0], rbx);
+        add_instr( instr_ ("sub",type) + rbx + ", " + rax);
+        break;
+    
+    case Linear::Unary::MUL_ASSIGN:
+        load (instr.dist, rax);
+        load (instr.operands[0], rbx);
+        add_instr( instr_ ("imul",type) + rbx + ", " + rax);
+        break;
+    
+    case Linear::Unary::DIV_ASSIGN:
+        load (instr.dist, rax);
+        load (instr.operands[0], rbx);
+
+        if (type == Linear::Type::Long) add_instr("cqto");
+        else                            add_instr("cltd");
+        add_instr( instr_ ("idiv",type) + rbx);
+        break;
+    
+    case Linear::Unary::MOD_ASSIGN:
+        load (instr.dist, rax);
+        load (instr.operands[0], rbx);
+
+        if (type == Linear::Type::Long) add_instr("cqto");
+        else                            add_instr("cltd");
+        add_instr( instr_ ("idiv",type) + rbx);
+        add_instr( instr_ ("mov",type) + reg_("%rdx",type) + ", " + rax);
         break;
 
     default:
@@ -306,7 +347,7 @@ void CodeGenerator::visit(Linear::Unary& instr) {
         break;
     }
     
-    store (reg, instr.dist);
+    store (rax, instr.dist);
 }
 void CodeGenerator::visit(Linear::Assign& instr) {
     load (instr.operands[0], "%rax");
@@ -419,6 +460,10 @@ void CodeGenerator::add_comment(std::string instr) {
     asm_code.push_back("# " + instr);
 }
 void CodeGenerator::load (std::unique_ptr<Linear::Operand>& src_operand, std::string dist_reg) {
+    auto type = src_operand->type;
+    add_instr( instr_("mov",type) + query(src_operand) + ", " + reg_(dist_reg,type) );
+}
+void CodeGenerator::load (std::unique_ptr<Linear::Location>& src_operand, std::string dist_reg) {
     auto type = src_operand->type;
     add_instr( instr_("mov",type) + query(src_operand) + ", " + reg_(dist_reg,type) );
 }
