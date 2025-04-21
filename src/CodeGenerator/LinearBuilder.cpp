@@ -550,8 +550,13 @@ void MethodBuilder::visit(AST::Eq_Op_Expr& node) {
     utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
 }
 void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
+    std::string short_circuit = "short_circuit" + utils.get_label();
+    std::string done_Logic_Op_Expr = "done_Logic_Op_Expr" + utils.get_label();
+
     node.expr_lhs->accept(*this);
     auto operand1 = std::move(utils.ret);
+
+    
 
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);
@@ -565,6 +570,38 @@ void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
             B(node.bin_op->type)
         )
     );
+    utils.push_instr(std::make_unique<Linear::J_UnCond>(done_Logic_Op_Expr));
+
+
+
+    utils.push_instr(std::make_unique<Linear::Label>(short_circuit));
+
+    if ( node.bin_op->type == AST::Bin_Op::AND ) {
+
+        auto instr_assign = std::make_unique<Linear::Assign>();
+
+        instr_assign -> dist = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
+        instr_assign -> operands.push_back (
+            std::make_unique<Linear::Literal>(T(node.type_t->type),"0")
+        );
+
+        utils.push_instr(std::move(instr_assign));
+
+    } else if ( node.bin_op->type == AST::Bin_Op::OR ) {
+        
+        auto instr_assign = std::make_unique<Linear::Assign>();
+
+        instr_assign -> dist = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
+        instr_assign -> operands.push_back (
+            std::make_unique<Linear::Literal>(T(node.type_t->type),"1")
+        );
+
+        utils.push_instr(std::move(instr_assign));
+
+    }
+
+    
+    utils.push_instr(std::make_unique<Linear::Label>(done_Logic_Op_Expr));
     utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
 }
 
