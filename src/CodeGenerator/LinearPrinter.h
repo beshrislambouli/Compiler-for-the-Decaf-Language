@@ -319,7 +319,11 @@ public:
     }
     
     void visit(Short_Circuit& instr) override {
-        out << "SHORT CIRCUIT" << std::endl;
+
+        out << "SHORT CIRCUIT:" << std::endl;
+        out << "jump to " << instr.label << " on" << ( instr.op == Binary::AND ? " AND " : " OR " ); 
+        instr.operand->accept(*this) ;
+        out << std::endl;
     }
 };
 

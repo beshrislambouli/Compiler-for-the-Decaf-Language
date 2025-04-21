@@ -116,7 +116,7 @@ public:
     , id(id)
     {}
 
-    // virtual std::unique_ptr<Operand> get_copy() = 0;
+    virtual std::unique_ptr<Operand> get_copy() = 0;
 };
 
 
@@ -131,6 +131,12 @@ public:
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
+    }
+
+    std::unique_ptr<Operand> get_copy() override {
+        auto ret = std::make_unique<Literal>(type,id);
+        ret -> is_string = is_string;
+        return ret;
     }
 };
 
@@ -156,6 +162,10 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::unique_ptr<Operand> get_copy() override {
+        return std::make_unique<Var>(type,id,is_array_var);
+    }
 };
 
 class Arr : public Location {
@@ -170,6 +180,10 @@ public:
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
+    }
+
+    std::unique_ptr<Operand> get_copy() override {
+        return std::make_unique<Arr>(type,id,std::move(index->get_copy()));
     }
 };
 

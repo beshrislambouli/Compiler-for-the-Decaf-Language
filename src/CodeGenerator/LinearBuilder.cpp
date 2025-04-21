@@ -552,11 +552,12 @@ void MethodBuilder::visit(AST::Eq_Op_Expr& node) {
 void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
     std::string short_circuit = "short_circuit" + utils.get_label();
     std::string done_Logic_Op_Expr = "done_Logic_Op_Expr" + utils.get_label();
-
+    std::string tmp = utils.get_tmp(T(node.type_t->type));
+    
     node.expr_lhs->accept(*this);
     auto operand1 = std::move(utils.ret);
 
-    auto operand1_copy = std::move(utils.ret);
+    auto operand1_copy = operand1->get_copy();
     utils.push_instr(std::make_unique<Linear::Short_Circuit>(
         B(node.bin_op->type),
         short_circuit,
@@ -566,7 +567,7 @@ void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);
 
-    std::string tmp = utils.get_tmp(T(node.type_t->type));
+    
     utils.push_instr(
         std::make_unique<Linear::Binary>(
             std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
