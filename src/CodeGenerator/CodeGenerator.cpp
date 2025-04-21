@@ -383,6 +383,9 @@ void CodeGenerator::visit(Linear::Declare& instr) {
     }
     
 }
+void CodeGenerator::visit(Linear::Short_Circuit& instr) {
+
+}
 void CodeGenerator::visit(Linear::Label& instr) {
     add_instr(instr.label + ":");
 }

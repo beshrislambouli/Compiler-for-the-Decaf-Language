@@ -556,7 +556,12 @@ void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
     node.expr_lhs->accept(*this);
     auto operand1 = std::move(utils.ret);
 
-    
+    auto operand1_copy = std::move(utils.ret);
+    utils.push_instr(std::make_unique<Linear::Short_Circuit>(
+        B(node.bin_op->type),
+        short_circuit,
+        std::move(operand1_copy)
+    ));
 
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);

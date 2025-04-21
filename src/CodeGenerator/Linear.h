@@ -29,7 +29,8 @@ class Instr;
         class Push_Scope;
         class Pop_Scope;
         class Declare;
-    
+
+    class Short_Circuit;
     class Label;
     class Method_Call;
     class Return;
@@ -59,6 +60,7 @@ public:
     virtual void visit(Push_Scope& instr) = 0;
     virtual void visit(Pop_Scope& instr) = 0;
     virtual void visit(Declare& instr) = 0;
+    virtual void visit(Short_Circuit& instr) = 0;
     virtual void visit(Label& instr) = 0;
     virtual void visit(Method_Call& instr) = 0;
     virtual void visit(Return& instr) = 0;
@@ -113,6 +115,8 @@ public:
     : type(type)
     , id(id)
     {}
+
+    // virtual std::unique_ptr<Operand> get_copy() = 0;
 };
 
 
@@ -278,6 +282,24 @@ public:
         visitor.visit(*this);
     }
 }; 
+
+class Short_Circuit : public Instr {
+public:
+    Binary::Op op;
+    std::string label;
+    std::unique_ptr<Operand> operand;
+
+    Short_Circuit(){}
+    Short_Circuit(Binary::Op op, std::string label, std::unique_ptr<Operand>&& operand)
+    : op(op)
+    , label(label)
+    , operand(std::move(operand))
+    {}
+
+    void accept(Visitor& visitor) override {
+        visitor.visit(*this);
+    }
+};
 
 class Label : public Instr {
 public:

@@ -28,6 +28,7 @@ class Instr;
         class Pop_Scope;
         class Declare;
     
+    class Short_Circuit;
     class Label;
     class Method_Call;
     class Return;
@@ -315,6 +316,10 @@ public:
 
     void visit(J_UnCond& jUncond) override {
         out << getIndent() << "goto " << jUncond.label << ";\n";
+    }
+    
+    void visit(Short_Circuit& instr) override {
+        out << "SHORT CIRCUIT" << std::endl;
     }
 };
 
