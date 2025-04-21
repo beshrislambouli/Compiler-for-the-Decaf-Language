@@ -36,6 +36,12 @@ void CodeGenerator::visit(Linear::Program& program) {
         add_instr(".text");
     }
 
+    // error_falloff msg
+    add_instr(".L_falloff_error_msg:");
+    std::string error_msg = "     .string \"Runtime Error: Control fell off end of non-void function.\\n\"";
+    add_instr(error_msg);
+    add_instr("     .align 4");
+
     int place_holder_index = asm_code.size();
     add_comment("no_need_to_alloc_string");
 
@@ -43,6 +49,20 @@ void CodeGenerator::visit(Linear::Program& program) {
     for (auto& method : program.methods) {
         method -> accept(*this);
     }
+
+    // add error_falloff method
+    add_instr("error_falloff:");
+    add_instr("movq $1, %rax"); // sys call write
+    add_instr("movq $2, %rdi"); // fd: stderr
+    add_instr("leaq .L_falloff_error_msg(%rip), %rsi"); // msg
+    add_instr("movq $58, %rdx"); // lenght of the msg
+    add_instr("syscall");
+
+    add_instr("movq $231, %rax"); // sys call exit_group
+    add_instr("movq $-1, %rdi"); // exit code
+    add_instr("syscall");
+    add_instr("hlt");
+
 
     if (used_strings.size () > 0 ) {
         std::string declare_strings = "";
@@ -110,6 +130,10 @@ void CodeGenerator::visit(Linear::Method& method) {
         asm_code [place_holder_index] = "subq $" + std::to_string(stack_offset) + ", %rsp";
     }
     
+
+    if (method.type != Linear::Type::Void) {
+        add_instr("call error_falloff");
+    }
 
     add_instr(".L_" + method_name + "_epilogue:");
     add_instr("movq %rbp, %rsp");
