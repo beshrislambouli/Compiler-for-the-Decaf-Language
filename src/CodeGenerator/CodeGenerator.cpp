@@ -136,10 +136,15 @@ void CodeGenerator::visit(Linear::Method& method) {
     }
     
     add_instr(".L_" + method_name + "_epilogue:");
-    if (method_name=="main") add_instr("movl $0, %eax");
     add_instr("movq %rbp, %rsp");
     add_instr("popq %rbp");
-    add_instr("ret");
+    if ( method_name == "main" ) {
+        add_instr("movq $0, %rdi");
+        add_instr("call exit");
+    } else {
+        add_instr("ret");
+    }
+    
 }
 
 void CodeGenerator::visit(Linear::Operand& instr) {
