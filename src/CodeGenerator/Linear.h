@@ -147,6 +147,7 @@ public:
     
     Var(){}
     Var (Type type, std::string id) : Location(type,id){}
+    Var (Type type, std::string id, bool is_array_var) : Location(type,id), is_array_var(is_array_var) {}
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);

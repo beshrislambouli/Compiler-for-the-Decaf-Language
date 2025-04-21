@@ -135,7 +135,19 @@ void CodeGenerator::visit(Linear::Location& instr) {
     assert(false);
 }
 void CodeGenerator::visit(Linear::Var& instr) {
-    ret = get_loc(instr.id);
+    if (instr.is_array_var) {
+        Info info = get(instr.id);
+
+        if (info.is_global) {
+            ret = "$" + info.id;
+        } else {
+            add_instr("leaq " + get_loc(instr.id) + ", " + "%r11" );
+            ret = "%r11";
+        }
+    } else {
+        ret = get_loc(instr.id);
+    }
+    
 }
 void CodeGenerator::visit(Linear::Arr& instr) {
 

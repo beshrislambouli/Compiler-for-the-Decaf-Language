@@ -462,6 +462,7 @@ public:
 
 class Loc_Var : public Location {
 public:
+    int is_array_var = false;
     Loc_Var(int row, int col) : Location(row, col) {}
 
     void accept (Visitor& visitor) override {

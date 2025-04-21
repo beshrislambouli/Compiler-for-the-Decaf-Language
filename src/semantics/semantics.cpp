@@ -396,6 +396,9 @@ void Semantics::visit(AST::Loc_Var& node) {
     }
     node.id -> accept (*this);
     node.assign_type(node.id->type_t->type);
+    if (scope_stack.is_array(node.id->id)) {
+        node.is_array_var = true;
+    }
 }
 
 void Semantics::visit(AST::Loc_Array& node) {

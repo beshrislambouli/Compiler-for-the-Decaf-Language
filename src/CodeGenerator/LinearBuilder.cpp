@@ -416,7 +416,12 @@ void MethodBuilder::visit(AST::For_Upd_Incr& node) {
 }
 
 void MethodBuilder::visit(AST::Loc_Var& node) {
-    utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type), node.id->id);
+    if (node.is_array_var) {
+        utils.ret = std::make_unique<Linear::Var>(Linear::Type::Long, node.id->id, node.is_array_var);
+    } else {
+        utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type), node.id->id);
+    }
+    
 }
 void MethodBuilder::visit(AST::Loc_Array& node) {
     node.expr->accept(*this);
