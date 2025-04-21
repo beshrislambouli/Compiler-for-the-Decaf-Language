@@ -134,8 +134,9 @@ void CodeGenerator::visit(Linear::Method& method) {
     if (method.type != Linear::Type::Void) {
         add_instr("call error_falloff");
     }
-
+    
     add_instr(".L_" + method_name + "_epilogue:");
+    if (method_name=="main") add_instr("movl $0, %eax");
     add_instr("movq %rbp, %rsp");
     add_instr("popq %rbp");
     add_instr("ret");
