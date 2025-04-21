@@ -455,7 +455,26 @@ void MethodBuilder::visit(AST::INT_Expr& node) {
     node.expr->accept(*this);
 }
 void MethodBuilder::visit(AST::LONG_Expr& node) {
-    node.expr->accept(*this);
+    if (node.expr->type_t->type != AST::Type::Long ) {
+
+        std::string tmp = utils.get_tmp(T(node.type_t->type));
+
+        node.expr->accept(*this);
+        utils.push_instr(
+            std::make_unique<Linear::Unary>(
+                std::make_unique<Linear::Var>(T(node.type_t->type),tmp),
+                std::move(utils.ret),
+                Linear::Unary::LONG_CAST
+            )
+        );
+
+        utils.ret = std::make_unique<Linear::Var>(T(node.type_t->type),tmp);
+
+    } else {
+
+        node.expr->accept(*this);
+        
+    }  
 }
 
 void MethodBuilder::visit(AST::Mul_Op_Expr& node) {

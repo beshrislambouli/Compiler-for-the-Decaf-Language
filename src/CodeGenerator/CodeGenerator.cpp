@@ -296,6 +296,7 @@ void CodeGenerator::visit(Linear::Unary& instr) {
         load (instr.operands[0], rax);
         add_instr( instr_ ("neg", type) + rax);
         break;
+
     case Linear::Unary::Not:
         // load to register
         load (instr.operands[0], rax);
@@ -303,6 +304,11 @@ void CodeGenerator::visit(Linear::Unary& instr) {
         add_instr( instr_("cmp",type) + "$0, " + rax);
         add_instr( "sete %al" );
         add_instr (instr_ ("movzb",type) + "%al, " + rax);
+        break;
+    
+    case Linear::Unary::LONG_CAST:
+        load (instr.operands[0], "%eax"); // instr.operands[0] has to be int from linear builder
+        add_instr("movslq %eax, %rax");
         break;
     
     case Linear::Unary::PLUS_ASSIGN:

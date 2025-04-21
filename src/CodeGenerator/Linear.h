@@ -231,7 +231,8 @@ public:
         MINUS_ASSIGN,
         MUL_ASSIGN,
         DIV_ASSIGN,
-        MOD_ASSIGN
+        MOD_ASSIGN,
+        LONG_CAST,
     };
     Op op;
 
