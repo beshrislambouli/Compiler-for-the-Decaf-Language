@@ -1,6 +1,9 @@
 # Ignore the build directory
 /cmake-build/
 
+# Ignore the tests
+/public-tests/
+
 # Ignore the generated code
 /src/DecafGrammar/generated/
 

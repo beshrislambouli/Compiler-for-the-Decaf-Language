@@ -13,10 +13,9 @@ run_test() {
     gcc -O0 -no-pie out.s -o exc
 
     ./exc > actual_output.txt
+    exit_code=$?
 
-    diff_output=$(diff -u actual_output.txt "$expected_output_file")
-
-    if [[ -z "$diff_output" ]]; then
+    if [[ $exit_code -eq 0 ]] && diff -q actual_output.txt "$expected_output_file" > /dev/null; then
         echo "$filename: PASS"
     else
         echo "$filename: FAIL"
