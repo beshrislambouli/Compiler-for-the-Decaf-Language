@@ -27,6 +27,11 @@ public:
         assert (exist(var));
         return bit [var_to_bit_loc[var]];
     }
+
+    void on_if_exist (std::string var) {
+        if (!exist(var)) return ;
+        bit [var_to_bit_loc[var]] = true;
+    }
 };
 class Dead_Code_Elimination {
     CFG cfg;
@@ -45,9 +50,11 @@ public:
     void apply(){
         fill_set_bit();
 
-        int n_vars = IN.size ();
+        
         int n_bb = cfg.BBs.size ();
-        if (n_vars == 0) return ; // there are no local vars to opt
+        if (n_bb == 0) return ;
+        int n_vars = IN[0].bit.size ();
+        if (n_vars == 0) return ;
 
         // init the use and def
         for (int i = 0 ; i < n_bb ; i ++ ) {
@@ -57,13 +64,30 @@ public:
             std::string dist = instr->get_dist();
             std::vector<std::string> operands = instr->get_operands();
 
-            // std::cout << "dist: " << dist << std::endl;
-            // std::cout << "operands: ";
-            // for (auto& s : operands){
-            //     std::cout << s << " " ;
-            // }
-            // std::cout << std::endl;
+            DEF [i].on_if_exist (dist);
+            for (auto& operand : operands) {
+                USE [i].on_if_exist(operand);
+            }
         }
+
+
+        // cfg.print();
+        
+        // for (int i = 0 ; i < n_bb ; i ++ ) {
+        //     std::cout << "------------" << std::endl;
+        //     std::cout << "BLOCK " << i << std::endl;
+        //     std::cout << "DEF:" << std::endl;
+        //     for (int j = 0 ; j < n_vars ; j ++ ) {
+        //         std::cout << DEF [i].bit[j] ? "1" : "0" ;
+        //     }
+        //     std::cout << std::endl;
+        //     std::cout << "USE:" << std::endl;
+        //     for (int j = 0 ; j < n_vars ; j ++ ) {
+        //         std::cout << USE [i].bit[j] ? "1" : "0" ;
+        //     }
+        //     std::cout << std::endl;
+        //     std::cout << "------------" << std::endl;
+        // }
     }
 
     void fill_set_bit() {
