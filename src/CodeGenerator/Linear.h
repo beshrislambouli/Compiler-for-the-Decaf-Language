@@ -4,6 +4,10 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <cassert>
+
+
+#define is_instance_of(uptr, Type) (dynamic_cast<Type*>((uptr).get()) != nullptr)
 
 namespace Linear {
     
@@ -209,6 +213,18 @@ public:
         operands.push_back(std::move(operand1));
         operands.push_back(std::move(operand2));
     }
+
+    std::string get_dist() override {
+        return dist->id;
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        for (auto& operand : operands) {
+            if (is_instance_of (operand, Literal)) continue;
+            ret .push_back (operand->id);
+        }
+        return ret;
+    }
 };
 
 class Binary : public Statement {
@@ -239,9 +255,6 @@ public:
         visitor.visit(*this);
     }
 
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
-    
 };
 
 class Unary : public Statement {
@@ -266,9 +279,7 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
-    
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
+
 };
 
 
@@ -278,15 +289,13 @@ public:
         visitor.visit(*this);
     }
 
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
 };
 
 
-class Helper : public Instr { // wont really easy them
+class Helper : public Instr { // should not need to use them
 public:
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
+    std::string get_dist() override { assert (false); }
+    std::vector<std::string> get_operands() override { assert (false); }
 };
 
 class Push_Scope : public Helper {
@@ -323,8 +332,13 @@ public:
         visitor.visit(*this);
     }
 
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
+    std::string get_dist() override {
+        return "";
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        return ret;
+    }
 };
 
 class Method_Call : public Instr {
@@ -337,8 +351,21 @@ public:
         visitor.visit(*this);
     }
 
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
+    std::string get_dist() override {
+        if ( return_location ) {
+            return return_location->id;
+        } else {
+            return "";
+        }
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        for (auto& operand : args) {
+            if (is_instance_of (operand, Literal)) continue;
+            ret .push_back (operand->id);
+        }
+        return ret;
+    }
 };
 
 
@@ -349,8 +376,16 @@ public:
         visitor.visit(*this);
     }
 
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
+    std::string get_dist() override {
+        return "";
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        if ( return_value && ! is_instance_of (return_value, Literal)) {
+            ret .push_back (return_value->id);
+        }
+        return ret;
+    }
 };
 
 class Jump : public Instr {
@@ -375,8 +410,16 @@ public:
         visitor.visit(*this);
     }
 
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
+    std::string get_dist() override {
+        return "";
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        if ( ! is_instance_of (condition, Literal)) {
+            ret .push_back (condition->id);
+        }
+        return ret;
+    }
 };
 
 class J_UnCond : public Jump {
@@ -388,8 +431,13 @@ public:
         visitor.visit(*this);
     }
 
-    std::string get_dist() override {}
-    std::vector<std::string> get_operands() override {}
+    std::string get_dist() override {
+        return "";
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        return ret;
+    }
 };
 
 

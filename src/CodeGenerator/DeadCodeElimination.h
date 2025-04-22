@@ -44,14 +44,25 @@ public:
     std::vector <Set_Bit> DEF;
     void apply(){
         fill_set_bit();
+
         int n_vars = IN.size ();
+        int n_bb = cfg.BBs.size ();
         if (n_vars == 0) return ; // there are no local vars to opt
 
         // init the use and def
-        for (int i = 0 ; i < cfg.BBs.size () ; i ++ ) {
+        for (int i = 0 ; i < n_bb ; i ++ ) {
 
             auto& instr = method->instrs[cfg.BBs [i].instr]; // this instr will not be a Helper instr
 
+            std::string dist = instr->get_dist();
+            std::vector<std::string> operands = instr->get_operands();
+
+            // std::cout << "dist: " << dist << std::endl;
+            // std::cout << "operands: ";
+            // for (auto& s : operands){
+            //     std::cout << s << " " ;
+            // }
+            // std::cout << std::endl;
         }
     }
 
