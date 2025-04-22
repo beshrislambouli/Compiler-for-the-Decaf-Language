@@ -89,7 +89,7 @@ public:
     std::vector <Set_Bit> OUT;
     std::vector <Set_Bit> USE;
     std::vector <Set_Bit> DEF;
-    void apply(){
+    bool apply(){
         
         Global_Liveness();
 
@@ -112,6 +112,8 @@ public:
         for (int i = 0 ; i < instr_to_del.size() ; i ++ ) {
             method->instrs.erase (method->instrs.begin() + instr_to_del [i]) ;
         }
+
+        return instr_to_del.size () > 0 ;
     }
 
     void Global_Liveness () {

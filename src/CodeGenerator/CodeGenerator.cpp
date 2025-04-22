@@ -21,8 +21,11 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     Preprocess preprocess;
     linear_program -> accept (preprocess);
     for (auto& method : linear_program->methods) {
-        Dead_Code_Elimination dce (method);
-        dce.apply ();
+        while (true) {
+            Dead_Code_Elimination dce (method);
+            if (! dce.apply () ) break;
+        }
+       
     }
 
     // linear_program -> accept (printer); 
