@@ -32,7 +32,6 @@ public:
     void visit(Linear::Push_Scope& instr) override;
     void visit(Linear::Pop_Scope& instr) override;
     void visit(Linear::Declare& instr) override;
-    void visit(Linear::Short_Circuit& instr) override;
     void visit(Linear::Label& instr) override;
     void visit(Linear::Method_Call& instr) override;
     void visit(Linear::Return& instr) override;

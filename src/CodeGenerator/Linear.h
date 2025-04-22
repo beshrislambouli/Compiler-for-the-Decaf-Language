@@ -30,7 +30,6 @@ class Instr;
         class Pop_Scope;
         class Declare;
 
-    class Short_Circuit;
     class Label;
     class Method_Call;
     class Return;
@@ -60,7 +59,6 @@ public:
     virtual void visit(Push_Scope& instr) = 0;
     virtual void visit(Pop_Scope& instr) = 0;
     virtual void visit(Declare& instr) = 0;
-    virtual void visit(Short_Circuit& instr) = 0;
     virtual void visit(Label& instr) = 0;
     virtual void visit(Method_Call& instr) = 0;
     virtual void visit(Return& instr) = 0;
@@ -297,23 +295,7 @@ public:
     }
 }; 
 
-class Short_Circuit : public Instr {
-public:
-    Binary::Op op;
-    std::string label;
-    std::unique_ptr<Operand> operand;
 
-    Short_Circuit(){}
-    Short_Circuit(Binary::Op op, std::string label, std::unique_ptr<Operand>&& operand)
-    : op(op)
-    , label(label)
-    , operand(std::move(operand))
-    {}
-
-    void accept(Visitor& visitor) override {
-        visitor.visit(*this);
-    }
-};
 
 class Label : public Instr {
 public:
@@ -354,11 +336,13 @@ public:
 
 class J_Cond : public Jump {
 public:
+    std::string jump_on = ""; // "0" or "1"
     std::unique_ptr<Operand> condition;
 
 
-    J_Cond(std::string label, std::unique_ptr<Operand>&& condition)
+    J_Cond(std::string label, std::string jump_on, std::unique_ptr<Operand>&& condition)
     : Jump (label)
+    , jump_on(jump_on)
     , condition(std::move(condition))
     {}
 

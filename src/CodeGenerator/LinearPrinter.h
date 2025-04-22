@@ -28,7 +28,6 @@ class Instr;
         class Pop_Scope;
         class Declare;
     
-    class Short_Circuit;
     class Label;
     class Method_Call;
     class Return;
@@ -318,13 +317,7 @@ public:
         out << getIndent() << "goto " << jUncond.label << ";\n";
     }
     
-    void visit(Short_Circuit& instr) override {
 
-        out << "SHORT CIRCUIT:" << std::endl;
-        out << "jump to " << instr.label << " on" << ( instr.op == Binary::AND ? " AND " : " OR " ); 
-        instr.operand->accept(*this) ;
-        out << std::endl;
-    }
 };
 
 } // namespace Linear

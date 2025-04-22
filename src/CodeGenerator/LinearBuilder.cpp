@@ -232,7 +232,7 @@ void MethodBuilder::visit(AST::If_Else_Stmt& node) {
     // jump condition
     node.expr_if->accept(*this);
     auto condition = std::move(utils.ret);
-    utils.push_instr(std::make_unique<Linear::J_Cond>(if_then, std::move(condition)));
+    utils.push_instr(std::make_unique<Linear::J_Cond>(if_then, "1", std::move(condition)));
     utils.push_instr(std::make_unique<Linear::J_UnCond>(if_else));
 
     //then
@@ -267,7 +267,7 @@ void MethodBuilder::visit(AST::For_Stmt& node) {
     utils.label(for_condition);
     node.expr_cond->accept(*this);
     auto condition = std::move(utils.ret);
-    utils.push_instr(std::make_unique<Linear::J_Cond>(for_body, std::move(condition)));
+    utils.push_instr(std::make_unique<Linear::J_Cond>(for_body, "1", std::move(condition)));
     utils.push_instr(std::make_unique<Linear::J_UnCond>(for_end));
 
     // for body
@@ -294,7 +294,7 @@ void MethodBuilder::visit(AST::While_Stmt& node) {
     utils.push_instr(std::make_unique<Linear::Label>(while_condition));
     node.expr_cond->accept(*this);
     auto condition = std::move(utils.ret);
-    utils.push_instr(std::make_unique<Linear::J_Cond>(while_body, std::move(condition)));
+    utils.push_instr(std::make_unique<Linear::J_Cond>(while_body, "1", std::move(condition)));
     utils.push_instr(std::make_unique<Linear::J_UnCond>(while_end));
 
     // while body
@@ -558,11 +558,9 @@ void MethodBuilder::visit(AST::Logic_Op_Expr& node) {
     auto operand1 = std::move(utils.ret);
 
     auto operand1_copy = operand1->get_copy();
-    utils.push_instr(std::make_unique<Linear::Short_Circuit>(
-        B(node.bin_op->type),
-        short_circuit,
-        std::move(operand1_copy)
-    ));
+    std::string jump_on = ( node.bin_op->type == AST::Bin_Op::AND ) ? "0" : "1" ;
+    utils.push_instr(std::make_unique<Linear::J_Cond>(short_circuit, jump_on, std::move(operand1_copy)));
+    
 
     node.expr_rhs->accept(*this);
     auto operand2 = std::move(utils.ret);

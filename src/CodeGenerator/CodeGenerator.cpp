@@ -389,14 +389,7 @@ void CodeGenerator::visit(Linear::Declare& instr) {
     }
     
 }
-void CodeGenerator::visit(Linear::Short_Circuit& instr) {
-    load (instr.operand,"%rax");
 
-    std::string to_comp = instr.op == Linear::Binary::OR ? "$1" : "$0";
-    add_instr ( instr_("cmp",instr.operand->type) + to_comp + ", " + reg_("%rax",instr.operand->type) );
-
-    add_instr("je " + instr.label);
-}
 void CodeGenerator::visit(Linear::Label& instr) {
     add_instr(instr.label + ":");
 }
@@ -457,8 +450,8 @@ void CodeGenerator::visit(Linear::J_Cond& instr) {
 
     load(instr.condition, reg);
 
-    add_instr (cmp + "$0, " + reg);
-    add_instr ("jne " + instr.label);
+    add_instr (cmp + "$ " + instr.jump_on + ", " + reg);
+    add_instr ("je " + instr.label);
 }
 void CodeGenerator::visit(Linear::J_UnCond& instr) {
     add_instr("jmp " + instr.label);
