@@ -212,7 +212,6 @@ public:
     }
 
     void fill_set_bit() {
-        // TODO: add the params
         // get the local vars
         std::vector<std::string> vars;
         for (auto& instr : method -> instrs ) {

@@ -81,6 +81,9 @@ class Linear {
 public:
     virtual ~Linear() = default;
     virtual void accept(Visitor& visitor) = 0 ;
+    
+    virtual std::string get_dist() = 0;
+    virtual std::vector<std::string> get_operands() = 0;
 };
 
 
@@ -92,6 +95,9 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 class Method : public Linear {
@@ -104,6 +110,9 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 
@@ -140,6 +149,14 @@ public:
         ret -> is_string = is_string;
         return ret;
     }
+
+    std::string get_dist() override {
+        return "";
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        return ret;
+    }
 };
 
 
@@ -168,6 +185,15 @@ public:
     std::unique_ptr<Operand> get_copy() override {
         return std::make_unique<Var>(type,id,is_array_var);
     }
+
+    std::string get_dist() override {
+        return "";
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        ret .push_back (id);
+        return ret;
+    }
 };
 
 class Arr : public Location {
@@ -187,13 +213,25 @@ public:
     std::unique_ptr<Operand> get_copy() override {
         return std::make_unique<Arr>(type,id,std::move(index->get_copy()));
     }
+
+    std::string get_dist() override {
+        return "";
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+
+        ret.push_back (id);
+        
+        std::vector<std::string> tmp = index->get_operands();
+        for (auto u : tmp) ret .push_back (u);
+    
+        return ret;
+    }
 };
 
 
 class Instr : public Linear {
 public:
-    virtual std::string get_dist() = 0;
-    virtual std::vector<std::string> get_operands() = 0;
 };
 
 class Statement : public Instr {
@@ -219,10 +257,19 @@ public:
     }
     std::vector<std::string> get_operands() override {
         std::vector<std::string> ret;
+
         for (auto& operand : operands) {
-            if (is_instance_of (operand, Literal)) continue;
-            ret .push_back (operand->id);
+            std::vector<std::string> tmp = operand->get_operands();
+            for (auto u : tmp) ret .push_back (u);
         }
+
+        // NOTE: you also need to get b,c but not a in a [b[c]] = 2;
+        std::vector<std::string> tmp = dist->get_operands();
+        for (auto u : tmp) {
+            if ( u == dist->id) continue; // don't add a
+            ret .push_back (u);
+        }
+
         return ret;
     }
 };
@@ -361,8 +408,8 @@ public:
     std::vector<std::string> get_operands() override {
         std::vector<std::string> ret;
         for (auto& operand : args) {
-            if (is_instance_of (operand, Literal)) continue;
-            ret .push_back (operand->id);
+            std::vector<std::string> tmp = operand->get_operands();
+            for (auto u : tmp) ret .push_back (u);
         }
         return ret;
     }
@@ -381,8 +428,9 @@ public:
     }
     std::vector<std::string> get_operands() override {
         std::vector<std::string> ret;
-        if ( return_value && ! is_instance_of (return_value, Literal)) {
-            ret .push_back (return_value->id);
+        if ( return_value ) {
+            std::vector<std::string> tmp = return_value->get_operands();
+            for (auto u : tmp) ret .push_back (u);
         }
         return ret;
     }
@@ -415,9 +463,10 @@ public:
     }
     std::vector<std::string> get_operands() override {
         std::vector<std::string> ret;
-        if ( ! is_instance_of (condition, Literal)) {
-            ret .push_back (condition->id);
-        }
+
+        std::vector<std::string> tmp = condition->get_operands();
+        for (auto u : tmp) ret .push_back (u);
+
         return ret;
     }
 };

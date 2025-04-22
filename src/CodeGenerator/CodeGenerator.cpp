@@ -13,13 +13,15 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     LinearBuilder linear_builder;
     std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
 
-    // Linear::PrettyPrinter printer;
+    Linear::PrettyPrinter printer;
     // linear_program -> accept (printer); 
 
     for (auto& method : linear_program->methods) {
         Dead_Code_Elimination dce (method);
         dce.apply ();
     }
+
+    // linear_program -> accept (printer); 
 
     linear_program -> accept (*this);
     fout << code();
