@@ -8,7 +8,7 @@
 #include "LinearBuilder.h"
 #include "LinearPrinter.h"
 #include "DeadCodeElimination.h"
-
+#include "preprocess.h"
 class Info;
 class Symbol_Table;
 
