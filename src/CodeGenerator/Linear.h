@@ -188,6 +188,8 @@ public:
 
 class Instr : public Linear {
 public:
+    virtual std::string get_dist() = 0;
+    virtual std::vector<std::string> get_operands() = 0;
 };
 
 class Statement : public Instr {
@@ -236,6 +238,10 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
+    
 };
 
 class Unary : public Statement {
@@ -260,6 +266,9 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+    
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 
@@ -268,10 +277,17 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 
-class Helper : public Instr {};
+class Helper : public Instr { // wont really easy them
+public:
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
+};
 
 class Push_Scope : public Helper {
 public:
@@ -306,6 +322,9 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 class Method_Call : public Instr {
@@ -317,6 +336,9 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 
@@ -326,6 +348,9 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 class Jump : public Instr {
@@ -349,6 +374,9 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 class J_UnCond : public Jump {
@@ -359,6 +387,9 @@ public:
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }
+
+    std::string get_dist() override {}
+    std::vector<std::string> get_operands() override {}
 };
 
 
