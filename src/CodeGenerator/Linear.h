@@ -327,6 +327,37 @@ public:
         visitor.visit(*this);
     }
 
+    std::string get_dist() override {
+        return dist->id;
+    }
+    std::vector<std::string> get_operands() override { // unary doesn't use statement's one because of a corner case
+        std::vector<std::string> ret;
+
+        for (auto& operand : operands) {
+            std::vector<std::string> tmp = operand->get_operands();
+            for (auto u : tmp) ret .push_back (u);
+        }
+
+        // NOTE: you also need to get b,c but not a in a [b[c]] = 2;
+        std::vector<std::string> tmp = dist->get_operands();
+        for (auto u : tmp) {
+            if ( u == dist->id) continue; // don't add a
+            ret .push_back (u);
+        }
+
+        // NOTE: you also need x in x += 5;
+        if (op == PLUS_ASSIGN || 
+            op == MINUS_ASSIGN ||
+            op == MUL_ASSIGN ||
+            op == DIV_ASSIGN ||
+            op == MOD_ASSIGN 
+        ) {
+            ret .push_back (dist->id);
+        }
+
+        return ret;
+    }
+
 };
 
 
