@@ -20,21 +20,21 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
     Preprocess preprocess;
     linear_program -> accept (preprocess);
-    for (auto& method : linear_program->methods) {
+    // for (auto& method : linear_program->methods) {
         
-        for (int i = 0 ; i < 10 ; i ++ ) {
+    //     for (int i = 0 ; i < 10 ; i ++ ) {
 
-            CSE::Common_Subexpression_Elimination cse(method);
-            cse.apply();
+    //         CSE::Common_Subexpression_Elimination cse(method);
+    //         cse.apply();
 
-            for (int j = 0 ; j < 10 ; j ++ ) {
-                DCE::Dead_Code_Elimination dce (method);
-                if (! dce.apply () ) break;
-            }
+    //         for (int j = 0 ; j < 10 ; j ++ ) {
+    //             DCE::Dead_Code_Elimination dce (method);
+    //             if (! dce.apply () ) break;
+    //         }
 
-        }
+    //     }
         
-    }
+    // }
 
     // linear_program -> accept (printer); 
 
@@ -160,12 +160,8 @@ void CodeGenerator::visit(Linear::Method& method) {
     add_instr(".L_" + method_name + "_epilogue:");
     add_instr("movq %rbp, %rsp");
     add_instr("popq %rbp");
-    if ( method_name == "main" ) {
-        add_instr("movq $0, %rdi");
-        add_instr("call exit");
-    } else {
-        add_instr("ret");
-    }
+    if ( method_name == "main" ) add_instr("movq $0, %rax");
+    add_instr("ret");
     
 }
 
@@ -418,18 +414,6 @@ void CodeGenerator::visit(Linear::Label& instr) {
 void CodeGenerator::visit(Linear::Method_Call& instr) {
     std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
-    // 16-alignment before call
-    int args_on_stack = std::max (0, (int)instr.args.size() - 6);
-    int extra_bytes_to_align = 0;
-    int bytes_pushed_to_stack = args_on_stack * 8 ;
-    if ((abs(stack_offset) + bytes_pushed_to_stack) % 16 != 0 ) {
-        extra_bytes_to_align = (16 - ((abs(stack_offset) + bytes_pushed_to_stack) % 16));
-        bytes_pushed_to_stack += extra_bytes_to_align;
-    }
-    if ( extra_bytes_to_align > 0 ) {
-        add_instr("subq $" + std::to_string(extra_bytes_to_align) + ", " + "%rsp" );
-    }
-
     // push +6 args to stack
     for (int i = instr.args.size() - 1 ; i >= 6 ; i -- ) {
         load (instr.args[i], "%rax");
@@ -440,16 +424,25 @@ void CodeGenerator::visit(Linear::Method_Call& instr) {
     for (int i = std::min ((int)instr.args.size()-1,5) ; i >= 0 ; i -- ) {
         load (instr.args[i], param_reg[i]);
     }
-
+    
     // System V ABI: to use printf
     add_instr("movq $0, %rax");
+
+
+    // 16-alignment before call
+    if (instr.args.size() > 6) {
+        int to_align = ( 16 - ( ( instr.args.size() - 6 ) * 8 ) % 16 ) % 16 ;
+        add_instr("subq $" + std::to_string(to_align) + ", " + "%rsp" );
+    }
 
     add_instr("call " + instr.id) ;
 
     // clean up
-    if ( bytes_pushed_to_stack > 0 ) {
-        add_instr("addq $" + std::to_string(bytes_pushed_to_stack) + ", " + "%rsp" );
+    if (instr.args.size() > 6) {
+        int to_align = ( 16 - ( ( instr.args.size() - 6 ) * 8 ) % 16 ) % 16 ;
+        add_instr("addq $" + std::to_string(to_align) + ", " + "%rsp" );
     }
+
 
     // store return value
     if (instr.return_location){
