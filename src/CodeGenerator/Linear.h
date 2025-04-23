@@ -302,6 +302,57 @@ public:
         visitor.visit(*this);
     }
 
+    std::string hash () {
+        std::string ret = "";
+        ret += operands[0]->id + "_";
+        switch (op) {
+            // Add cases when Op enum is populated
+            case Binary::Plus:
+                ret +="+";
+                break;
+            case Binary::Minus:
+                ret +="-";
+                break;
+            case Binary::Mul:
+                ret +="*";
+                break;
+            case Binary::Div:
+                ret +="/";
+                break;
+            case Binary::Mod:
+                ret +="%";
+                break;
+            case Binary::LT:
+                ret +="<";
+                break;
+            case Binary::GT:
+                ret +=">";
+                break;
+            case Binary::LE:
+                ret +="<=";
+                break;
+            case Binary::GE:
+                ret +=">=";
+                break;
+            case Binary::EQ:
+                ret +="==";
+                break;
+            case Binary::NEQ:
+                ret +="!=";
+                break;
+            case Binary::OR:
+                ret +="||";
+                break;
+            case Binary::AND:
+                ret +="&&";
+                break;
+            default: assert(false);
+        }
+
+        ret += "_" + operands[1]->id;
+
+        return ret;
+    }
 };
 
 class Unary : public Statement {

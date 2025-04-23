@@ -6,6 +6,8 @@
 #include "Linear.h"
 #include "CFG.h"
 
+
+namespace DCE {
 class Set_Bit {
 public:
     int n;
@@ -239,3 +241,4 @@ public:
     }
     
 };
+}

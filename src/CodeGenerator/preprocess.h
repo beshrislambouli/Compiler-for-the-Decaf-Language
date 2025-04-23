@@ -29,7 +29,7 @@ public:
         std::string to = from;
         // already have this , change the name 
         if (name_num.find (from) != name_num.end ()) {
-            to += std::to_string (name_num[from] ++) ;
+            to += "_renamed_" + std::to_string (name_num[from] ++) ;
         } else {
             name_num [from] = 1;
         }

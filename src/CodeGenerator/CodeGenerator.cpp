@@ -15,17 +15,18 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     
 
     Linear::PrettyPrinter printer;
-    // linear_program -> accept (printer); 
+    linear_program -> accept (printer); 
 
 
     Preprocess preprocess;
     linear_program -> accept (preprocess);
     for (auto& method : linear_program->methods) {
-        while (true) {
-            Dead_Code_Elimination dce (method);
-            if (! dce.apply () ) break;
-        }
-       
+        // while (true) {
+        //     DCE::Dead_Code_Elimination dce (method);
+        //     if (! dce.apply () ) break;
+        // }
+       CSE::Common_Subexpression_Elimination cse(method);
+       cse.apply();
     }
 
     // linear_program -> accept (printer); 
