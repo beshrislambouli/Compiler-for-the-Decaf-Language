@@ -236,7 +236,7 @@ public:
 
 class Statement : public Instr {
 public:
-    std::unique_ptr<Location> dist;
+    std::unique_ptr<Operand> dist;
     std::vector<std::unique_ptr<Operand>> operands;
 
     Statement(){}
@@ -443,7 +443,7 @@ public:
 
 class Declare : public Helper {
 public:
-    std::unique_ptr<Location> location;
+    std::unique_ptr<Operand> location;
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
     }

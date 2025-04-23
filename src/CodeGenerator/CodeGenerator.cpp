@@ -15,18 +15,25 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     
 
     Linear::PrettyPrinter printer;
-    linear_program -> accept (printer); 
+    // linear_program -> accept (printer); 
 
 
     Preprocess preprocess;
     linear_program -> accept (preprocess);
     for (auto& method : linear_program->methods) {
-        // while (true) {
-        //     DCE::Dead_Code_Elimination dce (method);
-        //     if (! dce.apply () ) break;
-        // }
-       CSE::Common_Subexpression_Elimination cse(method);
-       cse.apply();
+        
+        for (int i = 0 ; i < 10 ; i ++ ) {
+
+            CSE::Common_Subexpression_Elimination cse(method);
+            cse.apply();
+
+            for (int j = 0 ; j < 10 ; j ++ ) {
+                DCE::Dead_Code_Elimination dce (method);
+                if (! dce.apply () ) break;
+            }
+
+        }
+        
     }
 
     // linear_program -> accept (printer); 
@@ -496,6 +503,10 @@ void CodeGenerator::load (std::unique_ptr<Linear::Location>& src_operand, std::s
     add_instr( instr_("mov",type) + query(src_operand) + ", " + reg_(dist_reg,type) );
 }
 void CodeGenerator::store(std::string src_reg, std::unique_ptr<Linear::Location>& dist_loc) {
+    auto type = dist_loc->type;
+    add_instr( instr_("mov",type) + reg_(src_reg,type) + ", " + query(dist_loc) );
+}
+void CodeGenerator::store(std::string src_reg, std::unique_ptr<Linear::Operand>& dist_loc) {
     auto type = dist_loc->type;
     add_instr( instr_("mov",type) + reg_(src_reg,type) + ", " + query(dist_loc) );
 }

@@ -102,7 +102,73 @@ public:
 
     bool apply () {
         Globa_Available_Expressions () ;
-        return 0;
+
+        int n_bb = cfg.BBs.size () ;
+
+        std::set < std::string > exprs_tmp;
+        std::vector < std::unique_ptr < Linear::Declare >> new_declares ;
+        std::vector < std::pair < int , std::unique_ptr<Linear::Assign> > > new_assigns_instead_of_id;
+        std::vector < std::pair < int , std::unique_ptr<Linear::Assign> > > new_assigns_after_id;
+        for ( int i = 0 ; i < n_bb ; i ++ ) {
+            auto& instr = method -> instrs [cfg.BBs[i].instr];
+
+            if ( ! is_instance_of (instr, Linear::Binary) ) continue;
+            
+            auto binary_ptr = dynamic_cast<Linear::Binary*>(instr.get());
+            std::string instr_expr = binary_ptr->hash();
+            if ( exprs .find (instr_expr) == exprs.end () ) continue;
+
+            std::string instr_expr_tmp = "CSE_TMP_" + instr_expr ;
+
+            if ( IN[i] .get_bit (instr_expr) ) { // expr is available 
+                auto instr_assign = std::make_unique <Linear::Assign> ();
+                instr_assign -> dist = binary_ptr->dist ->get_copy();
+                instr_assign -> operands .push_back (std::make_unique<Linear::Var>(binary_ptr->dist->type, instr_expr_tmp)) ;
+
+                new_assigns_instead_of_id .push_back ( std::make_pair (cfg.BBs[i].instr, std::move (instr_assign)) );
+            } else { // expr is not available
+                auto instr_assign = std::make_unique <Linear::Assign> ();
+                instr_assign -> dist = std::make_unique<Linear::Var>(binary_ptr->dist->type, instr_expr_tmp);
+                instr_assign -> operands .push_back (binary_ptr->dist ->get_copy());
+
+                if ( exprs_tmp .find (instr_expr_tmp) == exprs_tmp .end () ) {
+                    auto instr_declare = std::make_unique<Linear::Declare>();
+                    instr_declare -> location = instr_assign -> dist ->get_copy ();
+
+                    new_declares .push_back (std::move(instr_declare));
+                    exprs_tmp .insert (instr_expr_tmp);
+                }
+
+                new_assigns_after_id .push_back ( std::make_pair (cfg.BBs[i].instr, std::move(instr_assign)) );
+            }
+        }
+
+        // ORDER MATTER HERE !!!
+
+        // new_assigns_instead_of_id
+        for (auto& u : new_assigns_instead_of_id ) {
+            int idx = u.first ;
+            auto& assign = u.second;
+            
+            method -> instrs [idx] = std::move (assign);
+        }
+
+        // new_assigns_after_id
+        sort (new_assigns_after_id.begin(),new_assigns_after_id.end());
+        reverse (new_assigns_after_id.begin(),new_assigns_after_id.end());
+        for (auto& u : new_assigns_after_id ) {
+            int idx = u.first;
+            auto& assign = u.second;  
+
+             method -> instrs .insert (method->instrs.begin() + idx + 1 , std::move (assign)); // NOTE: destroyed the order
+        }
+
+        // new declared 
+        for (auto& decl : new_declares ) {
+            method -> instrs .insert (method->instrs.begin() +1 , std::move (decl)); // declare after the push_scope
+        }
+
+        return new_assigns_instead_of_id.size () > 0 ;
     }
 
     void Globa_Available_Expressions () {
