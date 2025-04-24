@@ -22,15 +22,15 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     linear_program -> accept (preprocess);
     for (auto& method : linear_program->methods) {
         
-        while (true) {
+        for (int i = 0 ; i < 10 ; i ++) {
 
-            // CSE::Common_Subexpression_Elimination cse(method);
-            // cse.apply();
+            CSE::Common_Subexpression_Elimination cse(method);
+            cse.apply();
 
-            // for (int j = 0 ; j < 10 ; j ++ ) {
+            while (true) {
                 DCE::Dead_Code_Elimination dce (method);
                 if (! dce.apply () ) break;
-            // }
+            }
 
         }
         
