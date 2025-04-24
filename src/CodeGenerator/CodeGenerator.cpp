@@ -414,6 +414,12 @@ void CodeGenerator::visit(Linear::Label& instr) {
 void CodeGenerator::visit(Linear::Method_Call& instr) {
     std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
+    // 16-alignment before call
+    if (instr.args.size() > 6) {
+        int to_align = ( 16 - ( ( instr.args.size() - 6 ) * 8 ) % 16 ) % 16 ;
+        add_instr("subq $" + std::to_string(to_align) + ", " + "%rsp" );
+    }
+
     // push +6 args to stack
     for (int i = instr.args.size() - 1 ; i >= 6 ; i -- ) {
         load (instr.args[i], "%rax");
@@ -427,13 +433,6 @@ void CodeGenerator::visit(Linear::Method_Call& instr) {
     
     // System V ABI: to use printf
     add_instr("movq $0, %rax");
-
-
-    // 16-alignment before call
-    if (instr.args.size() > 6) {
-        int to_align = ( 16 - ( ( instr.args.size() - 6 ) * 8 ) % 16 ) % 16 ;
-        add_instr("subq $" + std::to_string(to_align) + ", " + "%rsp" );
-    }
 
     add_instr("call " + instr.id) ;
 
