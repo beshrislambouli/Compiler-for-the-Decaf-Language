@@ -18,8 +18,8 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     // linear_program -> accept (printer); 
 
 
-    Preprocess preprocess;
-    linear_program -> accept (preprocess);
+    // Preprocess preprocess;
+    // linear_program -> accept (preprocess);
     // for (auto& method : linear_program->methods) {
         
     //     for (int i = 0 ; i < 10 ; i ++ ) {
