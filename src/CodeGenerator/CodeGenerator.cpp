@@ -217,7 +217,7 @@ void CodeGenerator::visit(Linear::Statement& instr) {
     assert(false);
 }
 void CodeGenerator::visit(Linear::Binary& instr) {
-    auto type = instr.dist ->type;
+    auto type = instr.operands[0]->type;
     std::string rax = reg_("%rax",type);
     std::string rbx = reg_("%rbx",type);
 
@@ -302,7 +302,8 @@ void CodeGenerator::visit(Linear::Binary& instr) {
     }
 
     if (is_compare) {
-        add_instr ( instr_("movzb",type) + "%al, " + rax);
+        type = instr.dist->type;
+        add_instr ( instr_("movzb",type) + "%al, " + reg_("%rax",type));
     }
 
     store (rax, instr.dist);
@@ -465,7 +466,7 @@ void CodeGenerator::visit(Linear::J_Cond& instr) {
 
     load(instr.condition, reg);
 
-    add_instr (cmp + "$ " + instr.jump_on + ", " + reg);
+    add_instr (cmp + "$" + instr.jump_on + ", " + reg);
     add_instr ("je " + instr.label);
 }
 void CodeGenerator::visit(Linear::J_UnCond& instr) {
