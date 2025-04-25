@@ -27,7 +27,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
             // CSE::Common_Subexpression_Elimination cse(method);
             // cse.apply();
 
-            for (int i = 0 ; i < 10 ; i ++ ) {
+            for (int i = 0 ; i < 100 ; i ++ ) {
                 DCE::Dead_Code_Elimination dce (method);
                 if (! dce.apply () ) break;
             }
