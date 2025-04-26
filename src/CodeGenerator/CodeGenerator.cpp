@@ -16,8 +16,8 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     linear_program -> accept (preprocess);
 
     CFG cfg(linear_program->methods[0]);
-    // cfg.print();
-    ReachingDefinitions::Reaching_Definitions r_d (cfg);
+    // ReachingDefinitions::Reaching_Definitions r_d (cfg);
+    Register_Allocator::RegisterAllocator reg (cfg);
 
     Linear::PrettyPrinter printer;
     // linear_program -> accept (printer); 

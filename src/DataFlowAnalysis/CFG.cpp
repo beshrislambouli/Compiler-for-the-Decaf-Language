@@ -1,5 +1,5 @@
 #include "CFG.h"
-
+#include "ReachingDefinitions.h"
 
 CFG::CFG(std::unique_ptr<Linear::Method>& method) : method(method) {
     

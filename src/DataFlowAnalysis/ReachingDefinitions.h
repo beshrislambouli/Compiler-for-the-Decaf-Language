@@ -1,9 +1,11 @@
+#pragma once
 #include "CFG.h"
 #include "DataFlowAnalysis.h"
 
 namespace ReachingDefinitions {
 
 using Def = int; // instruction index that has the def
+using Use = int; // instruction index that has the use
 using Var = std::string;
 
 
@@ -17,6 +19,7 @@ class Reaching_Definitions {
     // helpers
     std::map <Var, std::vector<Def> > Var_to_Defs;
     std::map <Def, int> Def_to_bit;
+    std::map <Def, std::vector<Use> > Def_To_Uses;
 public:
     Reaching_Definitions(CFG& cfg) : cfg(cfg) {
         Build();
@@ -40,6 +43,43 @@ public:
                                 GEN,
                                 KILL
                                 );
+    }
+
+    std::map <Def, std::vector<Use>>& Def_Use_Chains () {
+        
+        for (auto& BB : cfg.BBs ) {
+            
+            // init reaching value is the IN to this block
+            std::vector <bool> Cur_Reaching;
+            std::vector <bool> place_holder (IN [BB.id].size());
+            for (auto u : IN [BB.id] ) Cur_Reaching .push_back (u);
+
+            for (int i = 0 ; i < BB.instrs.size () ; i ++ ) {
+                auto& instr = cfg.method->instrs [BB.instrs[i]];
+
+                std::vector<Var> vars = instr->get_operands();
+                // for each use, get all its defs, and push this use to the reaching ones
+                for (auto& var : vars) {
+                    for (auto& def : Var_to_Defs [var] ) {
+                        if ( Cur_Reaching [Def_to_bit [def]] == false ) continue;
+
+
+                        if (Def_To_Uses.find (def) == Def_To_Uses.end()) {
+                            std::vector<Use> tmp;
+                            Def_To_Uses [def] = tmp;
+                        }
+
+                        Def_To_Uses [def]. push_back (BB.instrs[i]);
+
+                    }
+                }
+                // update the reaching defs
+                Process_Instr (BB.instrs[i], Cur_Reaching, place_holder);
+            }
+
+        }
+
+        return Def_To_Uses;
     }
 
     void Process_Instr (int def_id, std::vector<bool>& GEN, std::vector<bool>& KILL) {
