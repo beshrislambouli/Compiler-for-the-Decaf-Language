@@ -62,6 +62,7 @@ void CFG::print () {
         std::cout << "Instrs: " << std::endl;
         for (int j = 0 ; j < BBs[i].instrs.size() ; j ++ ) {
             auto& instr = method->instrs [BBs[i].instrs[j]];
+            std::cout << BBs[i].instrs[j] << " " ;
             Linear::PrettyPrinter printer;
             instr -> accept (printer); 
         }

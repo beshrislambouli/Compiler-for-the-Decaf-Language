@@ -2,11 +2,12 @@
 #include <vector>
 #include <set>
 
+namespace DataFlowAnalysis {
 
 class DataFlowAnalysis {
     CFG& cfg;
-    std::vector<std::vector<bool>>  IN  ;
-    std::vector<std::vector<bool>>  OUT ;
+    std::vector<std::vector<bool>>& IN  ;
+    std::vector<std::vector<bool>>& OUT ;
     std::vector<std::vector<bool>>& GEN ;
     std::vector<std::vector<bool>>& KILL;
 public:
@@ -16,7 +17,14 @@ public:
         Liveness_t,
     };
 
-    DataFlowAnalysis(Type type, CFG& cfg, std::vector<std::vector<bool>>& GEN, std::vector<std::vector<bool>>& KILL) : cfg(cfg), GEN(GEN), KILL(KILL){
+    DataFlowAnalysis(   Type type, CFG& cfg, 
+                        std::vector<std::vector<bool>>& IN ,
+                        std::vector<std::vector<bool>>& OUT,
+                        std::vector<std::vector<bool>>& GEN, 
+                        std::vector<std::vector<bool>>& KILL
+                    ) : cfg(cfg), IN (IN), OUT(OUT), GEN(GEN), KILL(KILL)
+    {
+                        
         int N = cfg.BBs.size();
         if (N == 0) return;
         int S = GEN [0].size();
@@ -28,18 +36,16 @@ public:
         for (int i = 0 ; i < N ; i ++ ) todo .insert (i);
         if ( type == Reaching_Definitions_t || type == Available_Expressions_t) todo.erase (0);
         if ( type == Liveness_t ) todo.erase(N-1);
-
         while (todo.size()) {
             int n =  *(todo.begin());
             todo.erase(todo.begin());
-
             if ( type == Reaching_Definitions_t ) {
                 fill (IN[n] ,false);
                 for (auto& parent : cfg.BBs[n].parents) {
                     Union (IN[n], OUT[parent], IN [n]) ;
                 }
 
-                std::vector<bool> old;
+                std::vector<bool> old (S);
                 equal (old, OUT [n]);
                 std::vector<bool> diff = Diff(IN[n], KILL[n]);
                 Union ( GEN [n], diff, OUT[n]);
@@ -57,7 +63,7 @@ public:
                     Intersect (IN[n], OUT[parent], IN [n]) ;
                 }
 
-                std::vector<bool> old;
+                std::vector<bool> old (S);
                 equal (old, OUT [n]);
                 std::vector<bool> diff = Diff(IN[n], KILL[n]);
                 Union ( GEN [n], diff, OUT[n]);
@@ -75,7 +81,7 @@ public:
                     Union (OUT[n], IN [child], OUT [n]) ;
                 }
 
-                std::vector<bool> old;
+                std::vector<bool> old (S);
                 equal (old, IN [n]);
                 std::vector<bool> diff = Diff(OUT[n], KILL[n]);
                 Union ( GEN [n], diff, IN[n]);
@@ -93,16 +99,6 @@ public:
 
     void init (int S, Type type) {
         int N = cfg.BBs.size () ;
-
-        // just fill the vectors
-        for (int i = 0 ; i < N ; i ++ ) {
-            std::vector<bool> tmp;
-            for (int j = 0 ; j < S ; j ++ ) {
-                tmp .push_back (false);
-            }
-            IN .push_back (tmp);
-        }
-
         // init with correct values for type
         int entry = 0;
         int exit = N-1;
@@ -181,8 +177,8 @@ public:
 
     std::vector<bool> Diff (std::vector<bool>& l, std::vector<bool>& r) {
         std::vector<bool> res;
-        assert ( l.size() == r.size() && l.size () == res.size () ) ;
-        for (int i = 0 ; i < res.size() ; i ++ ) {
+        assert ( l.size() == r.size() ) ;
+        for (int i = 0 ; i < l.size() ; i ++ ) {
             res .push_back( l [i] == true && r [i] == false ) ;
         }
         return res;
@@ -194,7 +190,7 @@ public:
         }
     }
     
-    void equal(std::vector<bool>& from, std::vector<bool>& to) {
+    void equal(std::vector<bool>& to, std::vector<bool>& from) {
         assert (from .size() == to.size () );
         for (int i = 0 ; i < to.size () ; i ++ ) {
             to [i] = from [i];
@@ -211,3 +207,4 @@ public:
         return false;
     }
 };
+}

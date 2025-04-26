@@ -423,8 +423,13 @@ public:
 
 class Helper : public Instr { // should not need to use them
 public:
-    std::string get_dist() override { assert (false); }
-    std::vector<std::string> get_operands() override { assert (false); }
+    std::string get_dist() override {
+        return "";
+    }
+    std::vector<std::string> get_operands() override {
+        std::vector<std::string> ret;
+        return ret;
+    }
 };
 
 class Push_Scope : public Helper {

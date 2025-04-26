@@ -12,7 +12,7 @@
 #include "preprocess.h"
 #include "RegisterAllocator.h"
 #include "CFG.h"
-#include "DataFlowAnalysis.h"
+#include "ReachingDefinitions.h"
 class Info;
 class Symbol_Table;
 

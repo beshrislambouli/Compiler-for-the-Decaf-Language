@@ -232,8 +232,8 @@ void MethodBuilder::visit(AST::If_Else_Stmt& node) {
     // jump condition
     node.expr_if->accept(*this);
     auto condition = std::move(utils.ret);
-    utils.push_instr(std::make_unique<Linear::J_Cond>(if_then, "1", std::move(condition)));
-    utils.push_instr(std::make_unique<Linear::J_UnCond>(if_else));
+    utils.push_instr(std::make_unique<Linear::J_Cond>(if_else, "0", std::move(condition)));
+    // utils.push_instr(std::make_unique<Linear::J_UnCond>(if_else));
 
     //then
     utils.push_instr(std::make_unique<Linear::Label>(if_then));
@@ -267,8 +267,8 @@ void MethodBuilder::visit(AST::For_Stmt& node) {
     utils.label(for_condition);
     node.expr_cond->accept(*this);
     auto condition = std::move(utils.ret);
-    utils.push_instr(std::make_unique<Linear::J_Cond>(for_body, "1", std::move(condition)));
-    utils.push_instr(std::make_unique<Linear::J_UnCond>(for_end));
+    utils.push_instr(std::make_unique<Linear::J_Cond>(for_end, "0", std::move(condition)));
+    // utils.push_instr(std::make_unique<Linear::J_UnCond>(for_end));
 
     // for body
     utils.label(for_body);
@@ -294,8 +294,8 @@ void MethodBuilder::visit(AST::While_Stmt& node) {
     utils.push_instr(std::make_unique<Linear::Label>(while_condition));
     node.expr_cond->accept(*this);
     auto condition = std::move(utils.ret);
-    utils.push_instr(std::make_unique<Linear::J_Cond>(while_body, "1", std::move(condition)));
-    utils.push_instr(std::make_unique<Linear::J_UnCond>(while_end));
+    utils.push_instr(std::make_unique<Linear::J_Cond>(while_end, "1", std::move(condition)));
+    // utils.push_instr(std::make_unique<Linear::J_UnCond>(while_end));
 
     // while body
     utils.push_instr(std::make_unique<Linear::Label>(while_body));
