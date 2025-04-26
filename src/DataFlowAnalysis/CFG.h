@@ -4,7 +4,6 @@
 #include <iostream>
 #include <map>
 #include "Linear.h"
-#include "CFG.h"
 
 #define is_instance_of(uptr, Type) (dynamic_cast<Type*>((uptr).get()) != nullptr)
 

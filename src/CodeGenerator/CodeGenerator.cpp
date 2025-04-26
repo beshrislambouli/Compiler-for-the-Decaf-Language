@@ -22,6 +22,8 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     linear_program -> accept (preprocess);
 
     RegisterAllocator reg;
+    CFG cfg(linear_program->methods[0]);
+    cfg.print();
     // for (auto& method : linear_program->methods) {
         
     //     // for (int i = 0 ; i < 10 ; i ++) {
