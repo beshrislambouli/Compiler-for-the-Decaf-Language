@@ -10,6 +10,7 @@
 #include "DeadCodeElimination.h"
 #include "Common_Subexpression_Elimination.h"
 #include "preprocess.h"
+#include "RegisterAllocator.h"
 class Info;
 class Symbol_Table;
 

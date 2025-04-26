@@ -12,3 +12,4 @@ target_include_directories(CodeGenerator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # Link against DecafGrammar to access DecafLexer.h and DecafParser.h
 target_link_libraries(CodeGenerator PUBLIC DecafGrammar)
 target_link_libraries(CodeGenerator PUBLIC semantics)
+target_link_libraries(CodeGenerator PUBLIC RegisterAllocator)

@@ -19,7 +19,9 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
 
     Preprocess preprocess;
-    // linear_program -> accept (preprocess);
+    linear_program -> accept (preprocess);
+
+    RegisterAllocator reg;
     // for (auto& method : linear_program->methods) {
         
     //     // for (int i = 0 ; i < 10 ; i ++) {
