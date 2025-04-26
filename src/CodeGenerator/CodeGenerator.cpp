@@ -12,18 +12,13 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
     LinearBuilder linear_builder;
     std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
-    
-
-    Linear::PrettyPrinter printer;
-    // linear_program -> accept (printer); 
-
-
     Preprocess preprocess;
     linear_program -> accept (preprocess);
 
-    RegisterAllocator reg;
-    CFG cfg(linear_program->methods[0]);
-    cfg.print();
+
+
+    Linear::PrettyPrinter printer;
+    // linear_program -> accept (printer); 
     // for (auto& method : linear_program->methods) {
         
     //     // for (int i = 0 ; i < 10 ; i ++) {
