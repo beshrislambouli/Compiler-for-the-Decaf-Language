@@ -28,8 +28,8 @@ public:
 
 
 class CFG {
-    std::unique_ptr<Linear::Method>& method;
 public:
+    std::unique_ptr<Linear::Method>& method;
     std::vector<Basic_Block> BBs;
     CFG(std::unique_ptr<Linear::Method>& method);
     void add_directed_edge (int bb_from, int bb_to);
