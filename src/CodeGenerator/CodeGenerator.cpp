@@ -19,22 +19,22 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
 
     Preprocess preprocess;
-    // linear_program -> accept (preprocess);
-    // for (auto& method : linear_program->methods) {
+    linear_program -> accept (preprocess);
+    for (auto& method : linear_program->methods) {
         
-    //     // for (int i = 0 ; i < 10 ; i ++) {
+        // for (int i = 0 ; i < 10 ; i ++) {
 
-    //         // CSE::Common_Subexpression_Elimination cse(method);
-    //         // cse.apply();
+            // CSE::Common_Subexpression_Elimination cse(method);
+            // cse.apply();
 
-    //         for (int i = 0 ; i < 10 ; i ++ ) {
-    //             DCE::Dead_Code_Elimination dce (method);
-    //             if (! dce.apply () ) break;
-    //         }
+            for (int i = 0 ; i < 100 ; i ++ ) {
+                DCE::Dead_Code_Elimination dce (method);
+                if (! dce.apply () ) break;
+            }
 
-    //     // }
+        // }
         
-    // }
+    }
 
     // linear_program -> accept (printer); 
 
