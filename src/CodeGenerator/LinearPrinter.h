@@ -96,8 +96,10 @@ public:
         
         out << ") {\n";
         indent();
-        
+
+        int t = 0 ;
         for (auto& instr : method.instrs) {
+            out << t++ << " ";
             instr->accept(*this);
         }
         

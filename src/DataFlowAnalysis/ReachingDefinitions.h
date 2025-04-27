@@ -45,7 +45,7 @@ public:
                                 );
     }
 
-    std::map <Def, std::vector<Use>>& Def_Use_Chains () {
+    std::map <Def, std::vector<Use>> Def_Use_Chains () {
         
         for (auto& BB : cfg.BBs ) {
             
@@ -59,6 +59,8 @@ public:
 
                 std::vector<Var> vars = instr->get_operands();
                 // for each use, get all its defs, and push this use to the reaching ones
+                // note: this way if a use doesn't have a def it won't be in a chain
+                // this is ok because it's either a global -> will not rename, or a non-defined local -> undefined
                 for (auto& var : vars) {
                     for (auto& def : Var_to_Defs [var] ) {
                         if ( Cur_Reaching [Def_to_bit [def]] == false ) continue;
