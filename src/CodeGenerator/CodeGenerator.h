@@ -7,7 +7,7 @@
 #include "Linear.h"
 #include "LinearBuilder.h"
 #include "LinearPrinter.h"
-// #include "DeadCodeElimination.h"
+#include "DeadCodeElimination.h"
 // #include "Common_Subexpression_Elimination.h"
 #include "preprocess.h"
 #include "RegisterAllocator.h"

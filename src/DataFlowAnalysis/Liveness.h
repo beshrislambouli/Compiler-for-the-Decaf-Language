@@ -7,6 +7,7 @@ namespace Liveness{
 using Var = std::string;
 
 class Liveness {
+public:
     CFG& cfg;
     std::vector<std::vector<bool>> IN;
     std::vector<std::vector<bool>> OUT;
@@ -16,7 +17,7 @@ class Liveness {
     //helpers
     std::map <Var, int> Var_to_bit;
 
-public:
+
     Liveness (CFG& cfg) : cfg(cfg) {
         Build ();
         DataFlowAnalysis::DataFlowAnalysis DFS (  
@@ -33,13 +34,14 @@ public:
         Build_Vars(); // collect all ids and assign a bit
 
         for (auto& BB : cfg.BBs) {
-            Process_Block_Before_Index (BB, -1, GEN[BB.id], KILL[BB.id]);
+            Process_Block_Before_Index (BB.id, -1, GEN[BB.id], KILL[BB.id]);
         }
 
 
     }
 
-    void Process_Block_Before_Index(Basic_Block& BB, int index, std::vector<bool>& GEN, std::vector<bool>& KILL) {
+    void Process_Block_Before_Index(int BB_id, int index, std::vector<bool>& GEN, std::vector<bool>& KILL) {
+        auto& BB = cfg.BBs[BB_id];
         // process all instrs in bb before index
         for (int i = BB.instrs.size () - 1 ; i > index ; i -- ) {
             // get all the vars that get defined in the block before this instr
