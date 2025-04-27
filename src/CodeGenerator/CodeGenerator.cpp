@@ -335,43 +335,6 @@ void CodeGenerator::visit(Linear::Unary& instr) {
         load (instr.operands[0], "%eax"); // instr.operands[0] has to be int from linear builder
         add_instr("movslq %eax, %rax");
         break;
-    
-    case Linear::Unary::PLUS_ASSIGN:
-        load (instr.dist, rax);
-        load (instr.operands[0], rbx);
-        add_instr( instr_ ("add",type) + rbx + ", " + rax);
-        break;
-    
-    case Linear::Unary::MINUS_ASSIGN:
-        load (instr.dist, rax);
-        load (instr.operands[0], rbx);
-        add_instr( instr_ ("sub",type) + rbx + ", " + rax);
-        break;
-    
-    case Linear::Unary::MUL_ASSIGN:
-        load (instr.dist, rax);
-        load (instr.operands[0], rbx);
-        add_instr( instr_ ("imul",type) + rbx + ", " + rax);
-        break;
-    
-    case Linear::Unary::DIV_ASSIGN:
-        load (instr.dist, rax);
-        load (instr.operands[0], rbx);
-
-        if (type == Linear::Type::Long) add_instr("cqto");
-        else                            add_instr("cltd");
-        add_instr( instr_ ("idiv",type) + rbx);
-        break;
-    
-    case Linear::Unary::MOD_ASSIGN:
-        load (instr.dist, rax);
-        load (instr.operands[0], rbx);
-
-        if (type == Linear::Type::Long) add_instr("cqto");
-        else                            add_instr("cltd");
-        add_instr( instr_ ("idiv",type) + rbx);
-        add_instr( instr_ ("mov",type) + reg_("%rdx",type) + ", " + rax);
-        break;
 
     default:
         assert(false);
