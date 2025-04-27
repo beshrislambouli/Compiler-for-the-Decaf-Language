@@ -201,7 +201,7 @@ void CodeGenerator::visit(Linear::Arr& instr) {
 
     // load the index to %rax
     load (instr.index, "%r10");
-    if (instr.type != Linear::Type::Long ) add_instr("movslq %r10d, %r10");
+    if (instr.index->type != Linear::Type::Long ) add_instr("movslq %r10d, %r10");
 
     Info info = get(instr.id);
     if (info.is_global) {
