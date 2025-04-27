@@ -12,32 +12,29 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
     LinearBuilder linear_builder;
     std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
+
+    Linear::PrettyPrinter printer;
+    linear_program -> accept (printer);
+
+    // RENAMING 
+    // (1) rename so that no two ids have the same name any where
     Preprocess preprocess;
     linear_program -> accept (preprocess);
 
-    CFG cfg(linear_program->methods[0]);
-    // ReachingDefinitions::Reaching_Definitions r_d (cfg);
-    Register_Allocator::RegisterAllocator reg (cfg);
+    // (2) rename according to webs
 
-    Linear::PrettyPrinter printer;
-    // linear_program -> accept (printer); 
-    // for (auto& method : linear_program->methods) {
-        
-    //     // for (int i = 0 ; i < 10 ; i ++) {
+    // (a) collect globals so i don't rename them
+    std::vector <std::string> globals;
+    for (auto& dec : linear_program ->globals) {
+        globals .push_back (dec->location->id);
+    }
+    // (b) use webs to rename each method
+    for (auto& method : linear_program ->methods) {
+        CFG cfg (method);
+        Register_Allocator::RegisterAllocator reg (globals, cfg);
+    }
 
-    //         // CSE::Common_Subexpression_Elimination cse(method);
-    //         // cse.apply();
-
-    //         for (int i = 0 ; i < 10 ; i ++ ) {
-    //             DCE::Dead_Code_Elimination dce (method);
-    //             if (! dce.apply () ) break;
-    //         }
-
-    //     // }
-        
-    // }
-
-    // linear_program -> accept (printer); 
+    linear_program -> accept (printer);
 
     linear_program -> accept (*this);
     fout << code();

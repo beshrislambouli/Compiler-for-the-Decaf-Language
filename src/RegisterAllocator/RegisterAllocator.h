@@ -44,17 +44,141 @@ public:
     }
 };
 
+class Edit_Instr : public Linear::Visitor {   
+public:
+    enum Type {
+        DEF,
+        USE,
+    };
+    Type type;
+    Var original_id;
+    Var new_id;
+    Edit_Instr (Type type, Var original_id, Var new_id) 
+    : type(type) 
+    , original_id (original_id)
+    , new_id (new_id)
+    {}
+    
+    // the main idea is to dive into the operand only if it's relevant to the type,
+    // operand shouldn't think about DEF/USE cause it doesn't have the context
+
+    void edit_stmt (Linear::Statement& instr) {
+        if (type == Type::DEF) {
+            // this if is important since you don't want to visit an arr
+            // that visits an index -> get changed in DEF
+            if ( is_instance_of (instr.dist, Linear::Var)) {
+                instr.dist -> accept (*this);
+            }
+        }
+        if (type == Type::USE) {
+            for (auto& operand : instr.operands) {
+                operand -> accept (*this);
+            }
+
+            // need to edit c in a[b[c]] = 5;
+            // this if is important since you don't want to visit a def var in use
+            if (is_instance_of (instr.dist, Linear::Arr)) {
+                instr.dist ->accept (*this);
+            }
+        }
+    }
+    
+    void visit(Linear::Binary& instr) override {
+        edit_stmt (instr);
+    }
+    void visit(Linear::Unary& instr) override {
+        edit_stmt (instr);
+    }
+    void visit(Linear::Assign& instr) override {
+        edit_stmt (instr);
+    }
+    void visit(Linear::Method_Call& instr) override {
+        if (type == Type::DEF) {
+            // return location is an var from linear builder so need to check for arr
+            if (instr.return_location) {
+                instr.return_location -> accept (*this);
+            }
+        }
+        if (type == Type::USE) {
+            for (auto& arg : instr.args) {
+                arg -> accept (*this);
+            }
+        }
+    }
+    void visit(Linear::Return& instr) override {
+        if (type == Type::DEF) {
+            return ;
+        }
+        if (type == Type::USE) {
+            if (instr.return_value) {
+                instr.return_value -> accept (*this);
+            }
+        }
+    }
+    void visit(Linear::J_Cond& instr) override {
+        if (type == Type::DEF) {
+            return ;
+        }
+        if (type == Type::USE) {
+            instr.condition -> accept (*this);
+        }
+    }
+
+    void visit(Linear::Var& instr) override {
+        if ( instr.id == original_id ) {
+            instr.id = new_id;
+        }
+    }
+    void visit(Linear::Arr& instr) override {
+        // we don't change names of arrays, so we only go to index
+        instr.index -> accept(*this);
+    }
+
+    // NOTE: only instrs with def/uses will be called
+    void visit(Linear::Program& program) override {}
+    void visit(Linear::Method& method) override {}
+    void visit(Linear::Operand& instr) override {}
+    void visit(Linear::Literal& instr) override {}
+    void visit(Linear::Location& instr) override {}
+    void visit(Linear::Instr& instr) override {}
+    void visit(Linear::Statement& instr) override {}
+    void visit(Linear::Helper& instr) override {}
+    void visit(Linear::Push_Scope& instr) override {}
+    void visit(Linear::Pop_Scope& instr) override {}
+    void visit(Linear::Declare& instr) override {}
+    void visit(Linear::Label& instr) override {}
+    void visit(Linear::Jump& instr) override {}
+    void visit(Linear::J_UnCond& instr) override {}
+};
 
 class RegisterAllocator {
     CFG& cfg;
     std::vector<Web> webs;
 
 public:
-    RegisterAllocator (CFG& cfg) : cfg(cfg) {
-        Build_Webs ();
+    RegisterAllocator (std::vector<Var> Globals, CFG& cfg) : cfg(cfg) {
+
+        std::set<Var> Ignore;
+        // (a) ignore the globals
+        for (auto var : Globals) {
+            Ignore .insert (var);
+        }
+        // (b) ignore the local arrays
+        for (auto& instr : cfg.method -> instrs) {
+            if ( ! is_instance_of (instr, Linear::Declare) ) continue;
+
+            auto declare_ptr = dynamic_cast<Linear::Declare*>(instr.get());
+            if ( is_instance_of (declare_ptr->location, Linear::Arr) ) {
+                Ignore .insert (declare_ptr->location->id);
+            }
+        }
+        
+        
+        Build_Webs (Ignore);
+        Install_Webs ();
     }
 
-    void Build_Webs () {
+    void Build_Webs (std::set<Var>& Ignore) {
         ReachingDefinitions::Reaching_Definitions r_d (cfg);
         std::map <Def, std::vector<Use>> Chains = r_d.Def_Use_Chains();
 
@@ -63,17 +187,21 @@ public:
         std::vector <bool>got_merged;
         for (auto& chain : Chains ) {
             Def def = chain.first;
-            // get the dist from the instr at Def as the original_id         
-            cur_webs   .push_back (Web (cfg.method->instrs [def]->get_dist()));
+            Var var = cfg.method->instrs [def]->get_dist();
+            if ( Ignore .find (var) == Ignore .end () ) continue;
+
+            // Create a web for this var   
+            cur_webs   .push_back (Web (var));
             got_merged .push_back (false); 
 
+            // Add the chain's def and uses
             cur_webs.back() .add_def (def);
             for (auto use : chain.second) {
                 cur_webs.back() .add_use (use);
             }
         }
 
-
+        // merge
         for (int i = 0 ; i < cur_webs.size () ; i ++ ) {
             if (got_merged [i]) continue;
 
@@ -103,9 +231,30 @@ public:
             }
         }
 
+        // move to global webs
         for (int i = 0 ; i < cur_webs.size () ; i ++ ) {
             if (got_merged [i]) continue;
             webs .push_back (std::move(cur_webs[i]));
+        }
+    }
+
+    void Install_Webs () {
+        int counter = 0 ;
+        for (auto& web : webs) {
+            web. new_id = "V_Reg_" + std::to_string (counter++);
+            
+            for (auto& def : web.defs) {
+                Edit_Instr edit_instr (Edit_Instr::Type::DEF, web.original_id, web.new_id);
+
+                auto& instr = cfg.method->instrs[def];
+                instr -> accept (edit_instr);
+            }
+            for (auto& use : web.uses) {
+                Edit_Instr edit_instr (Edit_Instr::Type::USE, web.original_id, web.new_id);
+
+                auto& instr = cfg.method->instrs[use];
+                instr -> accept (edit_instr);
+            }
         }
     }
 };
