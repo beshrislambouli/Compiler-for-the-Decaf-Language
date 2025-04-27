@@ -35,6 +35,22 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
 
         // EDIT THE DECLARES
+
+        // First, collect any id used anywhere (you don't want to delete decls for those vars)
+        // vars that are not V_reg are those that have a use before any def
+        std::set<std::string> ids;
+        for (auto& instr : method->instrs) {
+            std::string dist = instr->get_dist();
+            std::vector<std::string> operands = instr->get_operands();
+
+            ids .insert (dist);
+            for (auto& operand : operands) {
+                ids .insert (operand);
+            }
+        } 
+
+        // Now collect all the defs for unused vars anymore, record their type so that the new
+        // V_reg get the correct type
         std::vector<int> declare_to_del;
         std::map <std::string, Linear::Type> original_id_to_type;
         for (int i = 0 ; i < cfg.method->instrs.size () ; i ++ ) {
@@ -49,14 +65,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
             // while all local vars should be renamed in theory
             // you still need this is because there might be a declare to a var that get used before a def -> not in webs
             // changing the declare name would make a use of a var without a declare
-            bool got_changed = false;
-            for (auto& web : reg.webs) {
-                if (web.original_id == original_id) {
-                    got_changed = true;
-                    break;
-                }
-            }
-            if (!got_changed) continue;
+            if ( ids.find (original_id) != ids.end() ) continue;
 
             declare_to_del .push_back (i);
             original_id_to_type [original_id] = type;
