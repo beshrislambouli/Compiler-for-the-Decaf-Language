@@ -1,6 +1,7 @@
 #pragma once
 #include "Linear.h"
 #include <iostream>
+#include <algorithm>
 #include "CFG.h"
 #include <vector>
 #include "ReachingDefinitions.h"
@@ -41,6 +42,20 @@ public:
     }
     void add_use ( Use use ) {
         uses. push_back (use);
+    }
+
+    void print () {
+        std::cout << "ID: " << original_id << std::endl;
+
+        std::cout << "DEFS: " << std::endl;
+        for (auto def : defs ) std::cout << def << " " ;
+        std::cout << std::endl;
+
+        std::cout << "USES: " << std::endl;
+        for (auto use : defs ) std::cout << use << " " ;
+        std::cout << std::endl;
+
+        std::cout << "---------------" << std::endl;
     }
 };
 
@@ -125,6 +140,8 @@ public:
     }
 
     void visit(Linear::Var& instr) override {
+        if (instr.is_array_var) return;
+
         if ( instr.id == original_id ) {
             instr.id = new_id;
         }
@@ -152,10 +169,10 @@ public:
 };
 
 class RegisterAllocator {
+public:
     CFG& cfg;
     std::vector<Web> webs;
 
-public:
     RegisterAllocator (std::vector<Var> Globals, CFG& cfg) : cfg(cfg) {
 
         std::set<Var> Ignore;
@@ -188,7 +205,7 @@ public:
         for (auto& chain : Chains ) {
             Def def = chain.first;
             Var var = cfg.method->instrs [def]->get_dist();
-            if ( Ignore .find (var) == Ignore .end () ) continue;
+            if ( Ignore .find (var) != Ignore .end () ) continue;
 
             // Create a web for this var   
             cur_webs   .push_back (Web (var));
@@ -256,6 +273,8 @@ public:
                 instr -> accept (edit_instr);
             }
         }
+        // note: you still need to edit declares, but this should happen in the very end because it will break the cfg 
+        // because you will need to add/del insts -> miss the order
     }
 };
 }

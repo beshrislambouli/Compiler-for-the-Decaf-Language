@@ -14,7 +14,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
 
     Linear::PrettyPrinter printer;
-    linear_program -> accept (printer);
+    // linear_program -> accept (printer);
 
     // RENAMING 
     // (1) rename so that no two ids have the same name any where
@@ -32,9 +32,57 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     for (auto& method : linear_program ->methods) {
         CFG cfg (method);
         Register_Allocator::RegisterAllocator reg (globals, cfg);
+
+
+        // EDIT THE DECLARES
+        std::vector<int> declare_to_del;
+        std::map <std::string, Linear::Type> original_id_to_type;
+        for (int i = 0 ; i < cfg.method->instrs.size () ; i ++ ) {
+            auto& instr = cfg.method->instrs[i];
+            if ( !is_instance_of (instr, Linear::Declare) ) continue;
+
+            auto declare_ptr = dynamic_cast<Linear::Declare*>(instr.get());
+            if ( !is_instance_of (declare_ptr->location, Linear::Var) ) ;
+            std::string original_id =  declare_ptr->location->id;
+            Linear::Type type = declare_ptr->location->type;
+            
+            // while all local vars should be renamed in theory
+            // you still need this is because there might be a declare to a var that get used before a def -> not in webs
+            // changing the declare name would make a use of a var without a declare
+            bool got_changed = false;
+            for (auto& web : reg.webs) {
+                if (web.original_id == original_id) {
+                    got_changed = true;
+                    break;
+                }
+            }
+            if (!got_changed) continue;
+
+            declare_to_del .push_back (i);
+            original_id_to_type [original_id] = type;
+        }
+
+        std::sort    (declare_to_del.begin(), declare_to_del.end());
+        std::reverse (declare_to_del.begin(), declare_to_del.end());
+        
+        // del old declared
+        for (auto idx : declare_to_del) method->instrs.erase (method->instrs.begin() + idx) ;
+        
+        // add the webs' ones
+        for (auto& web : reg.webs) {
+            
+            auto var = std::make_unique <Linear::Var>();
+            var ->id = web.new_id;
+            var ->type = original_id_to_type [web.original_id];
+
+            auto declare = std::make_unique <Linear::Declare>();
+            declare->location = std::move(var);
+
+            method -> instrs .insert (method->instrs.begin() +1 , std::move (declare)); // declare after the push_scope
+        }
     }
 
-    linear_program -> accept (printer);
+    // linear_program -> accept (printer);
 
     linear_program -> accept (*this);
     fout << code();
