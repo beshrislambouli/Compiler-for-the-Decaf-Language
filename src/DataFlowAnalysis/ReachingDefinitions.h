@@ -47,6 +47,13 @@ public:
 
     std::map <Def, std::vector<Use>> Def_Use_Chains () {
         
+        for (auto u: Def_to_bit) {
+            Def def = u.first;
+            std::vector<Use> tmp;
+            Def_To_Uses [def] = tmp;
+        }
+
+
         for (auto& BB : cfg.BBs ) {
             
             // init reaching value is the IN to this block
@@ -56,24 +63,28 @@ public:
 
             for (int i = 0 ; i < BB.instrs.size () ; i ++ ) {
                 auto& instr = cfg.method->instrs [BB.instrs[i]];
+                
+                std::cout << "Cur_Reaching" << std::endl;
+                for (auto u: Cur_Reaching) std::cout << u ? "1" : "0" ;
+                std::cout << std::endl;
+                
+                Linear::PrettyPrinter printer;
+                instr->accept(printer);
 
                 std::vector<Var> vars = instr->get_operands();
                 // for each use, get all its defs, and push this use to the reaching ones
                 // note: this way if a use doesn't have a def it won't be in a chain
                 // this is ok because it's either a global -> will not rename, or a non-defined local -> undefined
                 for (auto& var : vars) {
+                    std::cout << "VAR: " << var << std::endl;
                     for (auto& def : Var_to_Defs [var] ) {
+                        std::cout << "DEF: " << def << " " ;
                         if ( Cur_Reaching [Def_to_bit [def]] == false ) continue;
-
-
-                        if (Def_To_Uses.find (def) == Def_To_Uses.end()) {
-                            std::vector<Use> tmp;
-                            Def_To_Uses [def] = tmp;
-                        }
 
                         Def_To_Uses [def]. push_back (BB.instrs[i]);
 
                     }
+                    std::cout << std::endl;
                 }
                 // update the reaching defs
                 Process_Instr (BB.instrs[i], Cur_Reaching, place_holder);
