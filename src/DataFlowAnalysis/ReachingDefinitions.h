@@ -23,6 +23,14 @@ class Reaching_Definitions {
 public:
     Reaching_Definitions(CFG& cfg) : cfg(cfg) {
         Build();
+        DataFlowAnalysis::DataFlowAnalysis DFS (  
+                DataFlowAnalysis::DataFlowAnalysis::Reaching_Definitions_t,
+                cfg,
+                IN,
+                OUT,
+                GEN,
+                KILL
+            );
     }
 
     
@@ -34,17 +42,49 @@ public:
                 Process_Instr (BB.instrs [i], GEN[BB.id], KILL[BB.id]);
             }
         }
-
-        
-        DataFlowAnalysis::DataFlowAnalysis DFS (  DataFlowAnalysis::DataFlowAnalysis::Reaching_Definitions_t,
-                                cfg,
-                                IN,
-                                OUT,
-                                GEN,
-                                KILL
-                                );
     }
 
+    void Process_Instr (int def_id, std::vector<bool>& GEN, std::vector<bool>& KILL) {
+        auto& instr = cfg.method->instrs [def_id];
+        std::string dist = instr->get_dist();
+        if (dist == "") return ;
+
+        for (auto def : Var_to_Defs [dist]) {
+            int bit = Def_to_bit [def] ;
+            if (def == def_id) {
+                GEN [bit] = true;
+                KILL[bit] = false;
+            } else {
+                GEN [bit] = false;
+                KILL[bit] = true;
+            }
+        }
+    }
+    
+    void Build_Defs(){
+        Def def_counter = 0 ;
+        for (int i = 0 ; i < cfg.method->instrs.size() ; i ++ ) {
+            auto& instr = cfg.method->instrs [i];
+
+            std::string dist = instr->get_dist();
+            if (dist == "") continue;
+            if (Var_to_Defs.find (dist) == Var_to_Defs.end()) {
+                std::vector<Def> tmp;
+                Var_to_Defs [dist] = tmp;
+            }
+
+            Var_to_Defs [dist] .push_back (i);
+            Def_to_bit  [i] = def_counter ++;
+        } 
+        for (int i = 0 ; i < cfg.BBs.size() ; i ++ ) {
+            std::vector <bool> tmp(def_counter, false);
+            IN  .push_back (tmp);
+            OUT .push_back (tmp);
+            GEN .push_back (tmp);
+            KILL.push_back (tmp);
+        }
+    }
+    
     std::map <Def, std::vector<Use>> Def_Use_Chains () {
         
         for (auto u: Def_to_bit) {
@@ -95,46 +135,6 @@ public:
         return Def_To_Uses;
     }
 
-    void Process_Instr (int def_id, std::vector<bool>& GEN, std::vector<bool>& KILL) {
-        auto& instr = cfg.method->instrs [def_id];
-        std::string dist = instr->get_dist();
-        if (dist == "") return ;
-
-        for (auto def : Var_to_Defs [dist]) {
-            int bit = Def_to_bit [def] ;
-            if (def == def_id) {
-                GEN [bit] = true;
-                KILL[bit] = false;
-            } else {
-                GEN [bit] = false;
-                KILL[bit] = true;
-            }
-        }
-    }
-
-    void Build_Defs(){
-        Def def_counter = 0 ;
-        for (int i = 0 ; i < cfg.method->instrs.size() ; i ++ ) {
-            auto& instr = cfg.method->instrs [i];
-
-            std::string dist = instr->get_dist();
-            if (dist == "") continue;
-            if (Var_to_Defs.find (dist) == Var_to_Defs.end()) {
-                std::vector<Def> tmp;
-                Var_to_Defs [dist] = tmp;
-            }
-
-            Var_to_Defs [dist] .push_back (i);
-            Def_to_bit  [i] = def_counter ++;
-        } 
-        for (int i = 0 ; i < cfg.BBs.size() ; i ++ ) {
-            std::vector <bool> tmp(def_counter, false);
-            IN  .push_back (tmp);
-            OUT .push_back (tmp);
-            GEN .push_back (tmp);
-            KILL.push_back (tmp);
-        }
-    }
 
     void print () {
         cfg.print();

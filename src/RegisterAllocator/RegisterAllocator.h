@@ -5,6 +5,7 @@
 #include "CFG.h"
 #include <vector>
 #include "ReachingDefinitions.h"
+#include "Liveness.h"
 
 namespace Register_Allocator {
     using Def = int; // instruction index that has the def

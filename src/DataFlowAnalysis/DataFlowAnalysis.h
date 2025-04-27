@@ -1,3 +1,4 @@
+#pragma once
 #include "CFG.h"
 #include <vector>
 #include <set>
