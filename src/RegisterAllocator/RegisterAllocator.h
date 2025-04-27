@@ -29,8 +29,8 @@ public:
     std::vector <Move> moves;
 
     // graph 
-    std::vector <int> adj;
-    std::vector <int> del;
+    std::set <int> adj;
+    std::set <int> del;
 
     // color
     int color = -1;
@@ -44,8 +44,11 @@ public:
     void add_use ( Use use ) {
         uses. push_back (use);
     }
+    void add_adj (int adj_web) {
+        adj .insert (adj_web);
+    }
 
-    void print () {
+    void print_def_use () {
         std::cout << "ID: " << original_id << std::endl;
 
         std::cout << "DEFS: " << std::endl;
@@ -53,7 +56,17 @@ public:
         std::cout << std::endl;
 
         std::cout << "USES: " << std::endl;
-        for (auto use : defs ) std::cout << use << " " ;
+        for (auto use : uses ) std::cout << use << " " ;
+        std::cout << std::endl;
+
+        std::cout << "---------------" << std::endl;
+    }
+
+    void print_adj () {
+        std::cout << "old_id: " << original_id << " new_id: " << new_id << std::endl;
+
+        std::cout << "Adj: " << std::endl;
+        for (auto web : adj ) std::cout << web << " " ;
         std::cout << std::endl;
 
         std::cout << "---------------" << std::endl;
@@ -193,7 +206,37 @@ public:
         
         
         Build_Webs (Ignore);
-        Install_Webs ();
+        Build_Interference ();
+    }
+
+    void Build_Interference () {
+        Liveness::Liveness liveness(cfg);
+        for (auto& BB: cfg.BBs) {
+            std::vector<bool> live = liveness.OUT[BB.id];
+
+            for (int i = BB.instrs.size() - 1 ; i >= 0 ; liveness.Process_Instr (BB, i, live), i --) {
+                auto& instr = cfg.method->instrs [BB.instrs[i]];
+                Var dist = instr -> get_dist();
+                if (dist == "" || !is_V_Reg (dist) ) continue;
+
+                int web1_id = V_Reg_Web (dist);
+                for (auto& u : liveness.Var_to_bit) {
+                    Var var = u.first;
+                    int bit = u.second;
+
+                    if (var == "" || !is_V_Reg (var) || live [bit] == false) continue;
+
+                    int web2_id = V_Reg_Web (var);
+                    add_edge (web1_id, web2_id);
+                }
+            }
+        }
+    }
+
+    void add_edge (int web1_id, int web2_id) {
+        if (web1_id == web2_id) return ;
+        webs [web1_id] . add_adj (web2_id);
+        webs [web2_id] . add_adj (web1_id);
     }
 
     void Build_Webs (std::set<Var>& Ignore) {
@@ -261,8 +304,9 @@ public:
             if (got_merged [i]) continue;
             webs .push_back (std::move(cur_webs[i]));
         }
-    }
 
+        Install_Webs ();
+    }
     void Install_Webs () {
         int counter = 0 ;
         for (auto& web : webs) {
@@ -285,6 +329,29 @@ public:
         }
         // note: you still need to edit declares, but this should happen in the very end because it will break the cfg 
         // because you will need to add/del insts -> miss the order
+    }
+
+
+
+    // helpers
+    bool is_V_Reg (Var id) {
+        for (auto& web : webs ) {
+            if (web.new_id == id) {
+                return true;
+            } 
+        }
+        return false;
+    }
+    int V_Reg_Web (Var id) {
+        assert (is_V_Reg(id));
+        int idx = 0;
+        for (auto& web : webs){
+            if (web.new_id == id) {
+                return idx;
+            }
+            idx ++;
+        }
+        assert (false);
     }
 };
 }

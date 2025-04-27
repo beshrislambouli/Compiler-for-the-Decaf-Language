@@ -77,6 +77,19 @@ public:
         }
     }
 
+    void Process_Instr (Basic_Block& BB, int idx_in_bb, std::vector<bool>& live) {
+        auto& instr = cfg.method->instrs [BB.instrs[idx_in_bb]];
+
+        Var dist = instr->get_dist();
+        std::vector<Var> operands = instr->get_operands();
+
+        // ORDER MATTER HERE
+        live [Var_to_bit[dist]] = false;
+        for (auto& operand : operands) {
+            live [Var_to_bit[operand]] = true;
+        }
+    } 
+
     void Build_Vars() {
         
         // collect all ids and assign a bit for them
