@@ -47,9 +47,23 @@ public:
     void add_adj (int adj_web) {
         adj .insert (adj_web);
     }
+    void del_adj (int adj_web) {
+        adj .erase (adj_web);
+        del .insert(adj_web);
+    }
+    void restore () {
+        for (auto u : del ) {
+            adj.insert (u);
+        }
+        del.clear();
+    }
+    double get_cost (){
+        return defs.size() + uses.size();
+    }
 
-    void print_def_use () {
-        std::cout << "ID: " << original_id << std::endl;
+    void print () {
+        std::cout << "old_id: " << original_id << " new_id: " << new_id << std::endl;
+        std::cout << "COLOR: " << color << " SPILLED: " << spilled << std::endl; 
 
         std::cout << "DEFS: " << std::endl;
         for (auto def : defs ) std::cout << def << " " ;
@@ -58,12 +72,6 @@ public:
         std::cout << "USES: " << std::endl;
         for (auto use : uses ) std::cout << use << " " ;
         std::cout << std::endl;
-
-        std::cout << "---------------" << std::endl;
-    }
-
-    void print_adj () {
-        std::cout << "old_id: " << original_id << " new_id: " << new_id << std::endl;
 
         std::cout << "Adj: " << std::endl;
         for (auto web : adj ) std::cout << web << " " ;
@@ -207,7 +215,88 @@ public:
         
         Build_Webs (Ignore);
         Build_Interference ();
+        Color (3);
     }
+
+
+    void Color (int k) {
+
+        // classify nodes
+        std::set <int> web_less_k;
+        std::set <int> web_more_k;
+        for (int i = 0 ; i < webs.size() ; i ++ ) {
+            if (webs[i].adj.size () >= k){
+                web_more_k .insert (i);
+            } else {
+                web_less_k .insert (i);
+            }
+        }
+        
+        // fill stack 
+        std::vector <int> stack;
+        while (web_less_k.size () > 0 || web_more_k .size () > 0 ) {
+            if (web_less_k.size()>0){
+                int node = * (web_less_k.begin());
+                web_less_k .erase (node);
+
+                stack.push_back (node);
+                
+                for (auto adj_id : webs[node].adj) {
+                    auto& adj_web = webs [adj_id];
+
+                    adj_web.del_adj (node);
+                    if (adj_web.adj.size () == k-1) {
+                        web_more_k .erase (adj_id);
+                        web_less_k .insert(adj_id);
+                    }
+                }
+            } else if (web_more_k.size()>0) {
+                int to_spill_id = -1;
+                double min_cost = 1e9;
+                for (auto web_id : web_more_k) {
+                    double cur_cost = webs [web_id].get_cost() / (double)(webs [web_id].adj.size());
+                    if (cur_cost < min_cost) {
+                        min_cost = cur_cost;
+                        to_spill_id = web_id;
+                    }
+                }
+                assert (to_spill_id != -1);
+
+                web_more_k.erase (to_spill_id);
+                web_less_k.insert(to_spill_id);
+            }
+        }
+
+        // return the del to adj
+        for (auto& web : webs) {
+            web.restore ();
+        }
+
+        // color
+        while (stack.size()) {
+            int node = stack.back () ;
+            auto& web = webs [node];
+            stack.pop_back();
+
+            std::set<int> taken_colors;
+            for (auto u : web.adj) {
+                taken_colors .insert (webs[u].color);
+            }
+
+            bool to_spill = true;
+            for (int c = 0 ; c < k ; c ++ ) {
+                if ( taken_colors.find (c) == taken_colors.end () ) {
+                    web. color = c;
+                    to_spill = false;
+                    break;
+                }
+            }
+
+            web. spilled = to_spill;
+        }
+
+    }
+
 
     void Build_Interference () {
         Liveness::Liveness liveness(cfg);
