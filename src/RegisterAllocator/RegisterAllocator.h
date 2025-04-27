@@ -198,15 +198,14 @@ public:
     void Build_Webs (std::set<Var>& Ignore) {
         ReachingDefinitions::Reaching_Definitions r_d (cfg);
         std::map <Def, std::vector<Use>> Chains = r_d.Def_Use_Chains();
-        r_d.print();
 
-        for (auto chain : Chains) {
-            std::cout << "DEF: " << chain.first << std::endl;
-            for (auto use : chain.second) {
-                std::cout << use << " " ;
-            }
-            std::cout << std::endl;
-        }
+        // for (auto chain : Chains) {
+        //     std::cout << "DEF: " << chain.first << std::endl;
+        //     for (auto use : chain.second) {
+        //         std::cout << use << " " ;
+        //     }
+        //     std::cout << std::endl;
+        // }
         // fill the local webs (which are chains for now) preparing to merging
         std::vector <Web> cur_webs ;
         std::vector <bool>got_merged;
@@ -267,7 +266,7 @@ public:
         int counter = 0 ;
         for (auto& web : webs) {
             web. new_id = "V_Reg_" + std::to_string (counter++);
-            web.print();
+            // web.print();
 
 
             for (auto& def : web.defs) {

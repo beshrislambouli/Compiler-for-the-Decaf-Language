@@ -14,7 +14,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     std::unique_ptr<Linear::Program> linear_program = linear_builder.build (std::move(semantics.AST));
 
     Linear::PrettyPrinter printer;
-    linear_program -> accept (printer);
+    // linear_program -> accept (printer);
 
     // RENAMING 
     // (1) rename so that no two ids have the same name any where
@@ -82,7 +82,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
         }
     }
 
-    linear_program -> accept (printer);
+    // linear_program -> accept (printer);
 
     linear_program -> accept (*this);
     fout << code();
