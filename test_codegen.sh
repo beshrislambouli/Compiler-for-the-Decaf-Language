@@ -12,10 +12,10 @@ run_test() {
     ./run.sh -t assembly "$input_file" -o out.s
     gcc -O0 -no-pie out.s -o exc
 
-    ./exc > actual_output.txt
+    ./exc > actual_output.tmp
     exit_code=$?
 
-    if [[ $exit_code -eq 0 ]] && diff -q actual_output.txt "$expected_output_file" > /dev/null; then
+    if [[ $exit_code -eq 0 ]] && diff -q actual_output.tmp "$expected_output_file" > /dev/null; then
         echo "$filename: PASS"
     else
         echo "$filename: FAIL"

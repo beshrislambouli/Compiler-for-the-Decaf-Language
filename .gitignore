@@ -26,7 +26,6 @@ Thumbs.db
 # Ignore logs and other temp files
 *.log
 *.tmp
-*.txt
 
 # Ignore asm and exc
 *.s
