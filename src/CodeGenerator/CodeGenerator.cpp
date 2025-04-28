@@ -316,20 +316,16 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         break;
 
     case Linear::Binary::Div: 
-        add_instr("pushq %rdx");
         if (type == Linear::Type::Long) add_instr("cqto");
         else                            add_instr("cltd");
         add_instr( instr_ ("idiv",type) + rbx);
-        add_instr("popq %rdx");
         break;
 
     case Linear::Binary::Mod: 
-        add_instr("pushq %rdx");
         if (type == Linear::Type::Long) add_instr("cqto");
         else                            add_instr("cltd");
         add_instr( instr_ ("idiv",type) + rbx);
         add_instr( instr_ ("mov",type) + reg_("%rdx",type) + ", " + rax);
-        add_instr("popq %rdx");
         break;
     
     case Linear::Binary::EQ: 
