@@ -36,6 +36,10 @@ public:
     int color = -1;
     bool spilled = false;
 
+    // for precoloring
+    bool is_arg = false;
+    int arg_num = -1;
+
     Web (Var original_id) : original_id(original_id) {}
 
     void add_def ( Def def ) {
@@ -430,6 +434,16 @@ public:
         for (auto& web : webs) {
             web. new_id = "V_Reg_" + std::to_string (counter++);
             // web.print();
+
+            // check if arg and add the arg num
+            std::string prefix = "FUNC_ARG_";
+            if (web.original_id.compare(0, prefix.size(), prefix) == 0) {
+                size_t n_pos = web.original_id.rfind("_N");
+                
+                web .is_arg = true;
+                web .arg_num= std::stoi(web.original_id.substr(n_pos+2));
+                web .new_id += "_ARG_" + std::to_string (web.arg_num);
+            }
 
 
             for (auto& def : web.defs) {
