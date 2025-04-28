@@ -229,14 +229,14 @@ public:
         for (auto& web : webs ) {
             if (! web.is_arg ) continue;
             
-            for (int c = 0 ; c < REG.size () ; c ++ ) {
-                if ( REG [c] == param_reg [web.arg_num]) {
-                    web.color = c;
-                }
-            }
-            if (web.color == -1) {
+            // for (int c = 0 ; c < REG.size () ; c ++ ) {
+            //     if ( REG [c] == param_reg [web.arg_num]) {
+            //         web.color = c;
+            //     }
+            // }
+            // if (web.color == -1) {
                 web.color = web.arg_num;
-            }
+            // }
         }
     }
 
