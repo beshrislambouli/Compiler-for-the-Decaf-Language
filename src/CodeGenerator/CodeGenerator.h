@@ -61,6 +61,9 @@ private:
     void store(std::string src_reg, std::unique_ptr<Linear::Location>& dist_loc);
     void store(std::string src_reg, std::unique_ptr<Linear::Operand>& dist_loc);
 
+    // REG
+    std::string REG [4] = {"%r12", "%r13", "%r14", "%r15"};
+    std::map <std::string, int> cur_method_var_to_color;
 
     //symbol table
     void push_scope();

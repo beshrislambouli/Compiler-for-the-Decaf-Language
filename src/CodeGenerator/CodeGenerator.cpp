@@ -33,6 +33,11 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     for (auto& method : linear_program ->methods) {
         CFG cfg (method);
         Register_Allocator::RegisterAllocator reg (globals, cfg);
+        for (auto& web : reg.webs) {
+            if (!web.spilled) {
+                method->var_to_color [web.new_id] = web.color;
+            }
+        }
         // linear_program -> accept (printer);
 
         // EDIT THE DECLARES
@@ -125,6 +130,7 @@ void CodeGenerator::visit(Linear::Program& program) {
 
     add_instr(".globl main");
     for (auto& method : program.methods) {
+        cur_method_var_to_color = method->var_to_color;
         method -> accept(*this);
     }
 
@@ -169,6 +175,11 @@ void CodeGenerator::visit(Linear::Method& method) {
 
     int place_holder_index = asm_code.size();
     add_comment("no_need_to_alloc");
+
+    add_instr("pushq %r12");
+    add_instr("pushq %r13");
+    add_instr("pushq %r14");
+    add_instr("pushq %r15");
     
     // to push a scope
     method.instrs[0] -> accept(*this);
@@ -201,12 +212,13 @@ void CodeGenerator::visit(Linear::Method& method) {
     }
 
     stack_offset = abs(stack_offset);
-    if ( stack_offset > 0 ) {
-        if ( stack_offset % 16 != 0 ){
-            stack_offset += (16 - (stack_offset % 16) );
-        }
+    if ( stack_offset % 16 != 0 ){
+        stack_offset += (16 - (stack_offset % 16) ) % 16;
+    }
+    if (stack_offset > 0 ) {
         asm_code [place_holder_index] = "subq $" + std::to_string(stack_offset) + ", %rsp";
     }
+    
     
 
     if (method.type != Linear::Type::Void) {
@@ -214,6 +226,12 @@ void CodeGenerator::visit(Linear::Method& method) {
     }
     
     add_instr(".L_" + method_name + "_epilogue:");
+
+    add_instr("popq %r15");
+    add_instr("popq %r14");
+    add_instr("popq %r13");
+    add_instr("popq %r12");
+
     add_instr("movq %rbp, %rsp");
     add_instr("popq %rbp");
     if ( method_name == "main" ) add_instr("movq $0, %rax");
@@ -248,6 +266,8 @@ void CodeGenerator::visit(Linear::Var& instr) {
             add_instr("leaq " + get_loc(instr.id) + ", " + "%r11" );
             ret = "%r11";
         }
+    } else if (cur_method_var_to_color.find (instr.id) != cur_method_var_to_color.end ()) {
+        ret = reg_ (REG[cur_method_var_to_color[instr.id]],instr.type);
     } else {
         ret = get_loc(instr.id);
     }

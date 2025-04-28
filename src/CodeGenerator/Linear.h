@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 #include <cassert>
-
+#include <map>
 
 #define is_instance_of(uptr, Type) (dynamic_cast<Type*>((uptr).get()) != nullptr)
 
@@ -106,6 +106,7 @@ public:
     std::string id;
     std::vector<std::unique_ptr<Var>>   params;
     std::vector<std::unique_ptr<Instr>> instrs;
+    std::map <std::string, int> var_to_color;
 
     void accept(Visitor& visitor) override {
         visitor.visit(*this);
