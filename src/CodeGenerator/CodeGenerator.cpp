@@ -133,8 +133,8 @@ void CodeGenerator::visit(Linear::Method& method) {
             add_instr( instr_("mov",type) + reg_(param_reg[i],type) + ", " + loc);
         } else {
             std::string src = std::to_string (16 + 8 * (i-6)) + "(%rbp)";
-            add_instr( instr_("mov",type) + src + ", " + reg_("%r10",type) );
-            add_instr( instr_("mov",type) + reg_("%r10",type) + ", " + loc );
+            add_instr( instr_("mov",type) + src + ", " + reg_("%rax",type) );
+            add_instr( instr_("mov",type) + reg_("%rax",type) + ", " + loc );
         }
         
     }
@@ -189,8 +189,8 @@ void CodeGenerator::visit(Linear::Var& instr) {
         if (info.is_global) {
             ret = "$" + info.id;
         } else {
-            add_instr("leaq " + get_loc(instr.id) + ", " + "%r11" );
-            ret = "%r11";
+            add_instr("leaq " + get_loc(instr.id) + ", " + "%rbx" );
+            ret = "%rbx";
         }
     } else {
         ret = get_loc(instr.id);
@@ -200,14 +200,14 @@ void CodeGenerator::visit(Linear::Var& instr) {
 void CodeGenerator::visit(Linear::Arr& instr) {
 
     // load the index to %rax
-    load (instr.index, "%r10");
-    if (instr.index->type != Linear::Type::Long ) add_instr("movslq %r10d, %r10");
+    load (instr.index, "%rbx");
+    if (instr.index->type != Linear::Type::Long ) add_instr("movslq %ebx, %rbx");
 
     Info info = get(instr.id);
     if (info.is_global) {
-        ret = info.id + "(,%r10," + std::to_string(type_size(info.type)) + ")";
+        ret = info.id + "(,%rbx," + std::to_string(type_size(info.type)) + ")";
     } else {
-        ret = std::to_string(info.offset) + "(%rbp,%r10," + std::to_string(type_size(info.type)) + ")";
+        ret = std::to_string(info.offset) + "(%rbp,%rbx," + std::to_string(type_size(info.type)) + ")";
     }
 }
 void CodeGenerator::visit(Linear::Instr& instr) {
