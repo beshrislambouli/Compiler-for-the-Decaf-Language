@@ -200,8 +200,8 @@ void CodeGenerator::visit(Linear::Method& method) {
             add_instr( instr_("mov",type) + reg_(param_reg[i],type) + ", " + loc);
         } else {
             std::string src = std::to_string (16 + 8 * (i-6)) + "(%rbp)";
-            add_instr( instr_("mov",type) + src + ", " + reg_("%r10",type) );
-            add_instr( instr_("mov",type) + reg_("%r10",type) + ", " + loc );
+            add_instr( instr_("mov",type) + src + ", " + reg_("%rax",type) );
+            add_instr( instr_("mov",type) + reg_("%rax",type) + ", " + loc );
         }
         
     }
@@ -263,8 +263,8 @@ void CodeGenerator::visit(Linear::Var& instr) {
         if (info.is_global) {
             ret = "$" + info.id;
         } else {
-            add_instr("leaq " + get_loc(instr.id) + ", " + "%r11" );
-            ret = "%r11";
+            add_instr("leaq " + get_loc(instr.id) + ", " + "%rbx" );
+            ret = "%rbx";
         }
     } else if (cur_method_var_to_color.find (instr.id) != cur_method_var_to_color.end ()) {
         ret = reg_ (REG[cur_method_var_to_color[instr.id]],instr.type);
@@ -276,14 +276,14 @@ void CodeGenerator::visit(Linear::Var& instr) {
 void CodeGenerator::visit(Linear::Arr& instr) {
 
     // load the index to %rax
-    load (instr.index, "%r10");
-    if (instr.index->type != Linear::Type::Long ) add_instr("movslq %r10d, %r10");
+    load (instr.index, "%rbx");
+    if (instr.index->type != Linear::Type::Long ) add_instr("movslq %ebx, %rbx");
 
     Info info = get(instr.id);
     if (info.is_global) {
-        ret = info.id + "(,%r10," + std::to_string(type_size(info.type)) + ")";
+        ret = info.id + "(,%rbx," + std::to_string(type_size(info.type)) + ")";
     } else {
-        ret = std::to_string(info.offset) + "(%rbp,%r10," + std::to_string(type_size(info.type)) + ")";
+        ret = std::to_string(info.offset) + "(%rbp,%rbx," + std::to_string(type_size(info.type)) + ")";
     }
 }
 void CodeGenerator::visit(Linear::Instr& instr) {
@@ -454,6 +454,10 @@ void CodeGenerator::visit(Linear::Label& instr) {
 void CodeGenerator::visit(Linear::Method_Call& instr) {
     std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
+    // save caller-saved regs, NOTE: pay attention to the alignment
+    add_instr("pushq %r10");
+    add_instr("pushq %r11");
+
     // 16-alignment before call
     if (instr.args.size() > 6) {
         int to_align = ( 16 - ( ( instr.args.size() - 6 ) * 8 ) % 16 ) % 16 ;
@@ -483,6 +487,8 @@ void CodeGenerator::visit(Linear::Method_Call& instr) {
         add_instr("addq $" + std::to_string(to_align) + ", " + "%rsp" );
     }
 
+    add_instr("popq %r11");
+    add_instr("popq %r10");
 
     // store return value
     if (instr.return_location){

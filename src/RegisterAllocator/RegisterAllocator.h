@@ -215,7 +215,7 @@ public:
         
         Build_Webs (Ignore);
         Build_Interference ();
-        Color (4);
+        Color (6);
     }
 
 
