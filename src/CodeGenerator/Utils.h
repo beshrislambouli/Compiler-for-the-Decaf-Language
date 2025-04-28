@@ -104,4 +104,9 @@ public:
         declare(type,tmp);
         return tmp;
     }
+    std::string get_tmp_arg(Linear::Type type) {
+        std::string tmp = "FUNC_ARG_" + method_name + "_T" + std::to_string(tmp_num++); 
+        declare(type,tmp);
+        return tmp;
+    }
 };

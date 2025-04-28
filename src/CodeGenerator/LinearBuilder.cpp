@@ -218,7 +218,41 @@ void MethodBuilder::visit(AST::Method_Call_Stmt& node) {
 
     for (auto& arg : node.extern_args) {
         arg -> accept(*this);
-        instr->args.push_back(std::move(utils.ret));
+        // this will be 
+        // ARG = arg, f (ARG), this will help precoloring the webs for the args
+        // arrays and literals won't be in a web 
+        if ( is_instance_of (utils.ret, Linear::Arr) || is_instance_of (utils.ret, Linear::Literal)) {
+            instr->args.push_back(std::move(utils.ret));
+        } else if (is_instance_of (utils.ret, Linear::Var)) {
+            
+            auto var_ptr = dynamic_cast<Linear::Var*> (utils.ret.get());
+            // array ptr won't be in a web
+            if (var_ptr->is_array_var) {
+                instr->args.push_back(std::move(utils.ret));
+                continue;
+            }
+
+            // only for var args
+            auto type = utils.ret->type;
+
+            // ARG
+            std::string tmp = utils.get_tmp_arg(type);
+            auto dist = std::make_unique<Linear::Var>(type,tmp);
+            
+            //arg
+            auto operand = std::move (utils.ret);
+
+            // ARG = arg
+            auto instr_assign = std::make_unique<Linear::Assign>();
+            instr_assign ->dist = std::move (dist);
+            instr_assign ->operands .push_back (std::move(operand));
+            utils.push_instr (std::move(instr_assign));
+
+            // f (ARG)
+            instr->args .push_back (std::make_unique<Linear::Var>(type,tmp));
+
+        }
+        
     }
 
     utils.push_instr(std::move(instr));
