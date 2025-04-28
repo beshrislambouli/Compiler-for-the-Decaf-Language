@@ -234,6 +234,9 @@ public:
                     web.color = c;
                 }
             }
+            if (web.color == -1) {
+                web.color = web.arg_num;
+            }
         }
     }
 
