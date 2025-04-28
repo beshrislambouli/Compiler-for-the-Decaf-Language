@@ -300,6 +300,8 @@ public:
 
     void Build_Interference () {
         Liveness::Liveness liveness(cfg);
+        ReachingDefinitions::Reaching_Definitions reaching_definitions(cfg);
+
         for (auto& BB: cfg.BBs) {
             std::vector<bool> live = liveness.OUT[BB.id];
 
@@ -308,16 +310,43 @@ public:
                 Var dist = instr -> get_dist();
                 if (dist == "" || !is_V_Reg (dist) ) continue;
 
-                int web1_id = V_Reg_Web (dist);
-                for (auto& u : liveness.Var_to_bit) {
-                    Var var = u.first;
-                    int bit = u.second;
-
-                    if (var == "" || !is_V_Reg (var) || live [bit] == false) continue;
-
-                    int web2_id = V_Reg_Web (var);
-                    add_edge (web1_id, web2_id);
+                // two webs interfere if at a def of web1
+                // web2 has a reaching def to this point and the var is will be alive after this point
+                // DEF_WEB_2 -> DEF_WEB_1 -> USE_WEB_2
+                
+                // First, I will build the reaching def until this point
+                std::vector <bool> Cur_Reaching = reaching_definitions.IN[BB.id];
+                std::vector <bool> place_holder (Cur_Reaching.size());
+                for (int j = 0 ; j < i ; j ++ ) {
+                    reaching_definitions.Process_Instr (BB.instrs[j], Cur_Reaching, place_holder);
                 }
+
+                // (a) DEF_WEB_1
+                int web1_id = V_Reg_Web (dist);
+                for (int web2_id = 0 ; web2_id < webs.size() ; web2_id ++) {
+                    if (web1_id == web2_id) continue;
+
+                    // (b) USE_WEB_2
+                    Var var = webs[web2_id].new_id;
+                    if (live [liveness.Var_to_bit[var]] == false) continue;
+
+                    // (c) DEF_WEB_2
+                    for (auto def : webs[web2_id].defs) {
+                        if (Cur_Reaching [reaching_definitions.Def_to_bit[def]] == true) {
+                            add_edge (web1_id, web2_id);
+                            break;
+                        }
+                    }
+                }
+                // for (auto& u : liveness.Var_to_bit) {
+                //     Var var = u.first;
+                //     int bit = u.second;
+
+                //     if (var == "" || !is_V_Reg (var) || live [bit] == false) continue;
+
+                //     int web2_id = V_Reg_Web (var);
+                //     add_edge (web1_id, web2_id);
+                // }
             }
         }
     }

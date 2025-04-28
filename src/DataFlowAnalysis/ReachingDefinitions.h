@@ -10,6 +10,7 @@ using Var = std::string;
 
 
 class Reaching_Definitions {
+public:
     CFG& cfg;
     std::vector<std::vector<bool>> IN;
     std::vector<std::vector<bool>> OUT;
@@ -20,7 +21,7 @@ class Reaching_Definitions {
     std::map <Var, std::vector<Def> > Var_to_Defs;
     std::map <Def, int> Def_to_bit;
     std::map <Def, std::vector<Use> > Def_To_Uses;
-public:
+
     Reaching_Definitions(CFG& cfg) : cfg(cfg) {
         Build();
         DataFlowAnalysis::DataFlowAnalysis DFS (  
