@@ -32,7 +32,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     // (b) use webs to rename each method
     for (auto& method : linear_program ->methods) {
         CFG cfg (method);
-        Register_Allocator::RegisterAllocator reg (globals, cfg);
+        Register_Allocator::RegisterAllocator reg (globals, cfg, REG);
         for (auto& web : reg.webs) {
             if (!web.spilled) {
                 method->var_to_color [web.new_id] = web.color;
@@ -316,16 +316,20 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         break;
 
     case Linear::Binary::Div: 
+        add_instr("pushq %rdx");
         if (type == Linear::Type::Long) add_instr("cqto");
         else                            add_instr("cltd");
         add_instr( instr_ ("idiv",type) + rbx);
+        add_instr("popq %rdx");
         break;
 
     case Linear::Binary::Mod: 
+        add_instr("pushq %rdx");
         if (type == Linear::Type::Long) add_instr("cqto");
         else                            add_instr("cltd");
         add_instr( instr_ ("idiv",type) + rbx);
         add_instr( instr_ ("mov",type) + reg_("%rdx",type) + ", " + rax);
+        add_instr("popq %rdx");
         break;
     
     case Linear::Binary::EQ: 
@@ -673,7 +677,7 @@ bool Symbol_Table::exist(std::string id) {
     return table.find(id) != table.end();
 }
 Info Symbol_Table::get(std::string id){
-    assert(exit(id));
+    assert(exis(id));
     return table [id];
 }
 void Symbol_Table::put(std::string id, int offset, Linear::Type type){

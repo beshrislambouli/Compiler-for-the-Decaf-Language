@@ -199,7 +199,7 @@ public:
     CFG& cfg;
     std::vector<Web> webs;
 
-    RegisterAllocator (std::vector<Var> Globals, CFG& cfg) : cfg(cfg) {
+    RegisterAllocator (std::vector<Var> Globals, CFG& cfg, std::vector<std::string> REG) : cfg(cfg) {
 
         std::set<Var> Ignore;
         // (a) ignore the globals
@@ -219,7 +219,22 @@ public:
         
         Build_Webs (Ignore);
         Build_Interference ();
-        Color (6);
+
+        PreColor(REG);
+        Color (REG.size());
+    }
+    void PreColor(std::vector<std::string> REG) {
+        std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+
+        for (auto& web : webs ) {
+            if (! web.is_arg ) continue;
+            
+            for (int c = 0 ; c < REG.size () ; c ++ ) {
+                if ( REG [c] == param_reg [web.arg_num]) {
+                    web.color = c;
+                }
+            }
+        }
     }
 
 
@@ -229,6 +244,8 @@ public:
         std::set <int> web_less_k;
         std::set <int> web_more_k;
         for (int i = 0 ; i < webs.size() ; i ++ ) {
+            if (webs [i].color != -1) continue;
+            
             if (webs[i].adj.size () >= k){
                 web_more_k .insert (i);
             } else {

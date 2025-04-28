@@ -220,10 +220,10 @@ void MethodBuilder::visit(AST::Method_Call_Stmt& node) {
     for (auto& arg : node.extern_args) {
         arg_num ++ ;
         arg -> accept(*this);
-        // this will be 
+        // if first 6 args -> 
         // ARG = arg, f (ARG), this will help precoloring the webs for the args
         // arrays and literals won't be in a web 
-        if ( is_instance_of (utils.ret, Linear::Arr) || is_instance_of (utils.ret, Linear::Literal)) {
+        if ( arg_num >= 6 || is_instance_of (utils.ret, Linear::Arr) || is_instance_of (utils.ret, Linear::Literal)) {
             instr->args.push_back(std::move(utils.ret));
         } else if (is_instance_of (utils.ret, Linear::Var)) {
             
@@ -659,10 +659,10 @@ void MethodBuilder::visit(AST::Method_Call_Expr& node) {
     for (auto& arg : node.extern_args) {
         arg_num ++ ;
         arg -> accept(*this);
-        // this will be 
+        // if first 6 args -> 
         // ARG = arg, f (ARG), this will help precoloring the webs for the args
         // arrays and literals won't be in a web 
-        if ( is_instance_of (utils.ret, Linear::Arr) || is_instance_of (utils.ret, Linear::Literal)) {
+        if ( arg_num >= 6 || is_instance_of (utils.ret, Linear::Arr) || is_instance_of (utils.ret, Linear::Literal)) {
             instr->args.push_back(std::move(utils.ret));
         } else if (is_instance_of (utils.ret, Linear::Var)) {
             
