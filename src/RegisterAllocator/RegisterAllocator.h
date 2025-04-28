@@ -228,12 +228,12 @@ public:
 
         for (auto& web : webs ) {
             if (! web.is_arg ) continue;
-            
-            for (int c = 0 ; c < REG.size () ; c ++ ) {
-                if ( REG [c] == param_reg [web.arg_num]) {
-                    web.color = c;
-                }
-            }
+            web.color = web.arg_num;
+            // for (int c = 0 ; c < REG.size () ; c ++ ) {
+            //     if ( REG [c] == param_reg [web.arg_num]) {
+            //         web.color = c;
+            //     }
+            // }
         }
     }
 
