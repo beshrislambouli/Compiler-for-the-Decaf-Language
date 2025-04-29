@@ -39,14 +39,10 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
                 method->var_to_color [web.new_id] = web.color;
             }
             // if (web.spilled) {
-            //     web.new_id += "_spilled";
-            // }
-            // if (web.is_arg) {
-            //     web.new_id += "_arg_" + std::to_string (web.arg_num);
-            // }
-            // if (web.color != -1) {
-            //     web.new_id += "_color_" + std::to_string (web.color);
-            // }
+            //     std::cout << web.original_id << " " << web.new_id << " " << " spilled" << std::endl;
+            // } else {
+            //     std::cout << web.original_id << " " << web.new_id << " " << web.color << std::endl;
+            // } 
             
         }
         // linear_program -> accept (printer);

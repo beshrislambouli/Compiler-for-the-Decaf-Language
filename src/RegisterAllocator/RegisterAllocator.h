@@ -337,7 +337,6 @@ public:
 
     void Coalesce() {
         int m = *(worklistMoves.begin());
-        worklistMoves.erase (m);
 
         auto p = dist_src (m);
         int x = p.first;
@@ -355,10 +354,11 @@ public:
             v = y ;
         }
 
+        worklistMoves.erase (m);
         if (u == v) {
             coalescedMoves .insert (m);
             AddWorkList (u);
-        } else if ( in (precolored,v) || (webs [u].is_adj (v) || webs [v].is_adj (u)) ) {
+        } else if ( in (precolored,u) || in (precolored,v) || (webs [u].is_adj (v) || webs [v].is_adj (u)) ) {
             constrainedMoves .insert (m);
             AddWorkList (u);
             AddWorkList (v);
@@ -480,6 +480,8 @@ public:
         auto ADJ = Adjacent (v);
 
         for (auto t : ADJ ) {
+            // std::cout << "V: " << v << " t " << t << " " << in(precolored,t) << " " << webs[t].color << " " << webs[r].color << std::endl;
+            // if (in(precolored,t) && webs[t].color == webs[r].color) return false;
             if ( webs [t].deg < K || in (precolored,t) || (webs [t].is_adj (r) || webs[r].is_adj (t) )) continue;
             return false;
         }
@@ -545,7 +547,7 @@ public:
     std::set<int> Adjacent (int node) {
         std::set <int> ret;
         for (auto u : webs[node].adj) {
-            if ( ! in (coloredNodes,u) ) {
+            if ( ! in (coalescedNodes,u) ) {
                 bool here = false;
                 for (auto v : selectStack) if (v == u) here = true;
                 if (!here) {
@@ -695,17 +697,17 @@ public:
                 int web1_id = V_Reg_Web (dist);
                 
                 // add moves
-                // if ( is_instance_of (instr, Linear::Assign) ) {
-                //     Linear::Assign* assign_ptr = dynamic_cast <Linear::Assign*> (instr.get());
-                //     Var src = assign_ptr->operands[0]->id;
-                //     if (src != "" && is_V_Reg (src)) {
-                //         int web2_id = V_Reg_Web (src);
+                if ( is_instance_of (instr, Linear::Assign) ) {
+                    Linear::Assign* assign_ptr = dynamic_cast <Linear::Assign*> (instr.get());
+                    Var src = assign_ptr->operands[0]->id;
+                    if (src != "" && is_V_Reg (src)) {
+                        int web2_id = V_Reg_Web (src);
 
-                //         webs [web1_id] .moves .insert (BB.instrs[i]);
-                //         webs [web2_id] .moves .insert (BB.instrs[i]);
-                //         worklistMoves  .insert (BB.instrs[i]);
-                //     }
-                // }
+                        webs [web1_id] .moves .insert (BB.instrs[i]);
+                        webs [web2_id] .moves .insert (BB.instrs[i]);
+                        worklistMoves  .insert (BB.instrs[i]);
+                    }
+                }
 
 
                 // add adj
