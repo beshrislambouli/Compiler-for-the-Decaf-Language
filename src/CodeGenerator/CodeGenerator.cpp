@@ -31,12 +31,23 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
     // (b) use webs to rename each method
     for (auto& method : linear_program ->methods) {
+        // std::cout << "----------------------" << std::endl;
         CFG cfg (method);
         Register_Allocator::RegisterAllocator reg (globals, cfg, REG);
         for (auto& web : reg.webs) {
             if (!web.spilled) {
                 method->var_to_color [web.new_id] = web.color;
             }
+            // if (web.spilled) {
+            //     web.new_id += "_spilled";
+            // }
+            // if (web.is_arg) {
+            //     web.new_id += "_arg_" + std::to_string (web.arg_num);
+            // }
+            // if (web.color != -1) {
+            //     web.new_id += "_color_" + std::to_string (web.color);
+            // }
+            
         }
         // linear_program -> accept (printer);
 
@@ -538,6 +549,7 @@ std::string CodeGenerator::code() {
     return x86;
 }
 void CodeGenerator::add_instr(std::string instr) {
+    // std::cout << instr << std::endl;
     asm_code.push_back(instr);
 }
 void CodeGenerator::add_comment(std::string instr) {

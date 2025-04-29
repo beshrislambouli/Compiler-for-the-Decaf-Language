@@ -26,13 +26,15 @@ public:
 
     // coalescing
     Var coalesced_to = "";
-    std::vector <Move> moves;
+    std::set <Move> moves;
 
     // graph 
+    int deg = 0;
     std::set <int> adj;
     std::set <int> del;
 
     // color
+    int alias = -1;
     int color = -1;
     bool spilled = false;
 
@@ -63,6 +65,9 @@ public:
     }
     double get_cost (){
         return defs.size() + uses.size();
+    }
+    bool is_adj (int node) {
+        return adj.find (node) != adj.end () ;
     }
 
     void print () {
@@ -198,8 +203,9 @@ class RegisterAllocator {
 public:
     CFG& cfg;
     std::vector<Web> webs;
+    int K;
 
-    RegisterAllocator (std::vector<Var> Globals, CFG& cfg, std::vector<std::string> REG) : cfg(cfg) {
+    RegisterAllocator (std::vector<Var> Globals, CFG& cfg, std::vector<std::string> REG) : cfg(cfg), K (REG.size()) {
 
         std::set<Var> Ignore;
         // (a) ignore the globals
@@ -218,11 +224,355 @@ public:
         
         
         Build_Webs (Ignore);
-        Build_Interference ();
-
         PreColor(REG);
-        Color (REG.size());
+
+        Build_Interference ();
+        // for (auto& web : webs ) {
+        //     web.print ();
+        // }
+        Color ();
     }
+
+    // webs
+    std::set <int> precolored;
+    std::set <int> simplifyWorklist;
+    std::set <int> freezeWorklist;
+    std::set <int> spillWorklist;
+    std::set <int> coalescedNodes;
+    std::set <int> coloredNodes;
+    std::set <int> spilledNodes;
+    std::vector <int> selectStack;
+    
+    // moves
+    std::set<int> coalescedMoves;
+    std::set<int> constrainedMoves;
+    std::set<int> frozenMoves;
+    std::set<int> worklistMoves;
+    std::set<int> activeMoves;
+
+    void printAll() {
+    std::cout << "precolored: ";
+    for (const int& x : precolored) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "simplifyWorklist: ";
+    for (const int& x : simplifyWorklist) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "freezeWorklist: ";
+    for (const int& x : freezeWorklist) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "spillWorklist: ";
+    for (const int& x : spillWorklist) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "coalescedNodes: ";
+    for (const int& x : coalescedNodes) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "coloredNodes: ";
+    for (const int& x : coloredNodes) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "spilledNodes: ";
+    for (const int& x : spilledNodes) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "selectStack: ";
+    for (const int& x : selectStack) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "coalescedMoves: ";
+    for (const int& x : coalescedMoves) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "constrainedMoves: ";
+    for (const int& x : constrainedMoves) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "frozenMoves: ";
+    for (const int& x : frozenMoves) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "worklistMoves: ";
+    for (const int& x : worklistMoves) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "activeMoves: ";
+    for (const int& x : activeMoves) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << "------------" << std::endl;
+}
+
+    void Color () {
+        MakeWorklist ();
+
+        while (true) {
+            // printAll();
+            if (simplifyWorklist.size()) Simplify();
+            else if (worklistMoves.size()) Coalesce();
+            else if (freezeWorklist.size()) Freeze();
+            else if (spillWorklist.size()) SelectSpill();
+            else break;
+        }
+        // std::cout << "DONE" << std::endl;
+        // printAll();
+        AssignColors();
+
+    }
+
+    void Simplify() {
+        int node = * (simplifyWorklist.begin());
+        simplifyWorklist.erase (node);
+        
+        selectStack .push_back (node);
+        
+        auto ADJ = Adjacent (node);
+        for (auto u : ADJ) {
+            DecrementDegree (u);
+        }
+    }
+
+    void Coalesce() {
+        int m = *(worklistMoves.begin());
+        worklistMoves.erase (m);
+
+        auto p = dist_src (m);
+        int x = p.first;
+        int y = p.second;
+
+        x = GetAlias (x);
+        y = GetAlias (y);
+
+        int u,v;
+        if ( in (precolored,y) ) {
+            u = y ;
+            v = x ;
+        } else {
+            u = x ;
+            v = y ;
+        }
+
+        if (u == v) {
+            coalescedMoves .insert (m);
+            AddWorkList (u);
+        } else if ( in (precolored,v) || (webs [u].is_adj (v) || webs [v].is_adj (u)) ) {
+            constrainedMoves .insert (m);
+            AddWorkList (u);
+            AddWorkList (v);
+        } else if ( ( in (precolored,u) && OK (v,u) ) || ( !in (precolored,u) && Conservative (u,v) )) {
+            coalescedMoves .insert (m);
+            Combine (u,v);
+            AddWorkList(u);
+        } else {
+            activeMoves .insert (m);
+        }
+    }
+
+    void Combine (int u, int v) {
+        if ( in (freezeWorklist, v) ) {
+            freezeWorklist .erase (v);
+        } else {
+            spillWorklist .erase (v);
+        }
+        coalescedNodes .insert (v);
+        webs [v].alias = u;
+
+        for (auto m : webs [v].moves) {
+            webs [u].moves .insert (m);
+        }
+
+        auto ADJ_v = Adjacent (v);
+        for (auto t : ADJ_v) {
+            AddEdge (t,u);
+            DecrementDegree(t);
+        }
+        if (webs [u].deg >= K && in(freezeWorklist,u) ) {
+            freezeWorklist .erase (u);
+            spillWorklist  .insert(u);
+        }
+    }
+
+    void Freeze () {
+        int node = *(freezeWorklist.begin());
+        freezeWorklist.erase (node);
+        simplifyWorklist .insert (node);
+        FreezeMoves (node);
+    }
+
+    void FreezeMoves (int node) {
+        auto node_moves = NodeMoves(node);
+
+        for (auto m : node_moves) {
+            auto p = dist_src (m);
+            int x = p.first ;
+            int y = p.second;
+
+            int v;
+            if (GetAlias(y) == GetAlias (node)) {
+                v = GetAlias(x);
+            } else {
+                v = GetAlias (y);
+            }
+
+            activeMoves .erase (m);
+            frozenMoves .insert(m);
+
+            auto tmp = NodeMoves(v);
+            if (tmp.size() == 0 && webs [v].deg < K ) {
+                freezeWorklist   .erase (v);
+                simplifyWorklist .insert(v);
+            }
+        }
+    }
+
+    void SelectSpill() {
+        int node = *(spillWorklist.begin());
+        spillWorklist.erase (node);
+        simplifyWorklist.insert (node);
+        FreezeMoves (node);
+    }
+
+    void AssignColors () {
+        while (selectStack.size ()) {
+            int node = selectStack.back();
+            selectStack.pop_back();
+
+            std::set <int> okColors;
+            for (int i = 0 ; i < K ; i ++ ) okColors .insert (i);
+
+            for (auto w : webs [node].adj) {
+                auto alias = GetAlias (w);
+                if ( in(precolored,alias) || in (coloredNodes,alias) ) {
+                    okColors .erase (webs [alias].color);
+                }
+            }
+            if ( okColors.size() == 0 ) {
+                spilledNodes.insert (node);
+                webs [node].spilled = true;
+            } else {
+                coloredNodes.insert (node);
+                webs [node].color = * (okColors.begin());
+            }
+        }
+        for (auto node : coalescedNodes) {
+            webs [node].color = webs [GetAlias(node)].color;
+        }
+    }
+
+    bool Conservative (int u , int v) {
+        int k = 0 ;
+        
+        auto ADJ = Adjacent (u);
+        for (auto node : ADJ) {
+            if ( webs [node].deg >= K ) k ++ ;
+        }
+        ADJ = Adjacent (v);
+        for (auto node : ADJ) {
+            if ( webs [node].deg >= K ) k ++ ;
+        }
+        return k < K;
+    }
+
+    bool OK (int v, int r) {
+        auto ADJ = Adjacent (v);
+
+        for (auto t : ADJ ) {
+            if ( webs [t].deg < K || in (precolored,t) || (webs [t].is_adj (r) || webs[r].is_adj (t) )) continue;
+            return false;
+        }
+
+        return true; 
+    }
+    void AddWorkList(int node) {
+        if ( !in(precolored,node) && !MoveRelated (node) && webs [node].deg < K ) {
+            freezeWorklist .erase (node);
+            simplifyWorklist .insert (node);
+        }
+    }
+
+    int GetAlias (int node) {
+        if ( in (coalescedNodes, node) ) {
+            return GetAlias (webs[node].alias);
+        } else {
+            return node;
+        }
+    }
+
+    void DecrementDegree (int node) {
+        webs [node] .deg -- ;
+        if (webs [node].deg == K-1 ) {
+            auto ADJ = Adjacent (node);
+            ADJ .insert (node);
+            EnableMoves (ADJ);
+            spillWorklist .erase (node);
+            if (MoveRelated (node)) {
+                freezeWorklist .insert (node);
+            } else {
+                simplifyWorklist.insert (node);
+            }
+        }
+    }
+
+    void EnableMoves (std::set<int> nodes) {
+        for (auto node : nodes) {
+            auto node_moves = NodeMoves (node);
+            for (auto m : node_moves) {
+                if ( in (activeMoves, m) ) {
+                    activeMoves .erase (m);
+                    worklistMoves .insert (m);
+                }
+            }
+        }
+    }
+
+    void MakeWorklist () {
+        for (int web_id = 0 ; web_id < webs.size () ; web_id ++ ) {
+            if (webs [web_id].color != -1) continue;
+            if (webs [web_id].deg >= K ) {
+                spillWorklist  .insert (web_id);
+            } else if ( MoveRelated (web_id) ){
+                freezeWorklist .insert (web_id);
+            } else {
+                simplifyWorklist .insert (web_id);
+            }
+        }
+    }
+
+    // adjList[n] \ (selectStack ∪ coalescedNodes)
+    std::set<int> Adjacent (int node) {
+        std::set <int> ret;
+        for (auto u : webs[node].adj) {
+            if ( ! in (coloredNodes,u) ) {
+                bool here = false;
+                for (auto v : selectStack) if (v == u) here = true;
+                if (!here) {
+                    ret .insert (u);
+                }
+            }
+        }
+        return ret;
+    }
+
+    // moveList[n] ∩ (activeMoves ∪ worklistMoves)
+    std::set<int> NodeMoves (int node ) {
+        std::set <int> ret;
+        for (auto m : webs [node].moves){
+            if ( in (activeMoves,m) ||  in(worklistMoves,m) ) {
+                ret .insert (m);
+            }
+        }
+        return ret;
+    }
+
+    // NodeMoves(n) ̸= {}
+    bool MoveRelated (int node) {
+        std::set<int> tmp = NodeMoves(node);
+        return tmp.size () != 0;
+    }
+
     void PreColor(std::vector<std::string> REG) {
         std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
@@ -237,91 +587,102 @@ public:
         }
     }
 
-
-    void Color (int k) {
-
-        // classify nodes
-        std::set <int> web_less_k;
-        std::set <int> web_more_k;
-        for (int i = 0 ; i < webs.size() ; i ++ ) {
-            if (webs [i].color != -1) continue;
-            
-            if (webs[i].adj.size () >= k){
-                web_more_k .insert (i);
-            } else {
-                web_less_k .insert (i);
-            }
+    void AddEdge (int web1_id, int web2_id) {
+        if (web1_id == web2_id) return ;
+        if ( !in (precolored, web1_id) ) {
+            webs [web1_id] .add_adj (web2_id);
+            webs [web1_id] .deg = webs [web1_id] .adj.size() ;
         }
-        
-        // fill stack 
-        std::vector <int> stack;
-        while (web_less_k.size () > 0 || web_more_k .size () > 0 ) {
-            if (web_less_k.size()>0){
-                int node = * (web_less_k.begin());
-                web_less_k .erase (node);
-
-                stack.push_back (node);
-                
-                for (auto adj_id : webs[node].adj) {
-                    auto& adj_web = webs [adj_id];
-
-                    adj_web.del_adj (node);
-                    if (adj_web.adj.size () == k-1) {
-                        web_more_k .erase (adj_id);
-                        web_less_k .insert(adj_id);
-                    }
-                }
-            } else if (web_more_k.size()>0) {
-                int to_spill_id = -1;
-                double min_cost = 1e9;
-                for (auto web_id : web_more_k) {
-                    double cur_cost = webs [web_id].get_cost() / (double)(webs [web_id].adj.size());
-                    if (cur_cost < min_cost) {
-                        min_cost = cur_cost;
-                        to_spill_id = web_id;
-                    }
-                }
-                assert (to_spill_id != -1);
-
-                web_more_k.erase (to_spill_id);
-                web_less_k.insert(to_spill_id);
-            }
+        if ( !in (precolored, web2_id) ) {
+            webs [web2_id] .add_adj (web1_id); 
+            webs [web2_id] .deg = webs [web2_id] .adj.size() ;
         }
-
-        // return the del to adj
-        for (auto& web : webs) {
-            web.restore ();
-        }
-
-        // color
-        while (stack.size()) {
-            int node = stack.back () ;
-            auto& web = webs [node];
-            stack.pop_back();
-
-            std::set<int> taken_colors;
-            for (auto u : web.adj) {
-                taken_colors .insert (webs[u].color);
-            }
-
-            bool to_spill = true;
-            for (int c = 0 ; c < k ; c ++ ) {
-                if ( taken_colors.find (c) == taken_colors.end () ) {
-                    web. color = c;
-                    to_spill = false;
-                    break;
-                }
-            }
-
-            web. spilled = to_spill;
-        }
-
     }
+
+
+    // void Color (int k) {
+
+    //     // classify nodes
+    //     std::set <int> web_less_k;
+    //     std::set <int> web_more_k;
+    //     for (int i = 0 ; i < webs.size() ; i ++ ) {
+    //         if (webs [i].color != -1) continue;
+            
+    //         if (webs[i].adj.size () >= k){
+    //             web_more_k .insert (i);
+    //         } else {
+    //             web_less_k .insert (i);
+    //         }
+    //     }
+        
+    //     // fill stack 
+    //     std::vector <int> stack;
+    //     while (web_less_k.size () > 0 || web_more_k .size () > 0 ) {
+    //         if (web_less_k.size()>0){
+    //             int node = * (web_less_k.begin());
+    //             web_less_k .erase (node);
+
+    //             stack.push_back (node);
+                
+    //             for (auto adj_id : webs[node].adj) {
+    //                 auto& adj_web = webs [adj_id];
+
+    //                 adj_web.del_adj (node);
+    //                 if (adj_web.adj.size () == k-1) {
+    //                     web_more_k .erase (adj_id);
+    //                     web_less_k .insert(adj_id);
+    //                 }
+    //             }
+    //         } else if (web_more_k.size()>0) {
+    //             int to_spill_id = -1;
+    //             double min_cost = 1e9;
+    //             for (auto web_id : web_more_k) {
+    //                 double cur_cost = webs [web_id].get_cost() / (double)(webs [web_id].adj.size());
+    //                 if (cur_cost < min_cost) {
+    //                     min_cost = cur_cost;
+    //                     to_spill_id = web_id;
+    //                 }
+    //             }
+    //             assert (to_spill_id != -1);
+
+    //             web_more_k.erase (to_spill_id);
+    //             web_less_k.insert(to_spill_id);
+    //         }
+    //     }
+
+    //     // return the del to adj
+    //     for (auto& web : webs) {
+    //         web.restore ();
+    //     }
+
+    //     // color
+    //     while (stack.size()) {
+    //         int node = stack.back () ;
+    //         auto& web = webs [node];
+    //         stack.pop_back();
+
+    //         std::set<int> taken_colors;
+    //         for (auto u : web.adj) {
+    //             taken_colors .insert (webs[u].color);
+    //         }
+
+    //         bool to_spill = true;
+    //         for (int c = 0 ; c < k ; c ++ ) {
+    //             if ( taken_colors.find (c) == taken_colors.end () ) {
+    //                 web. color = c;
+    //                 to_spill = false;
+    //                 break;
+    //             }
+    //         }
+
+    //         web. spilled = to_spill;
+    //     }
+
+    // }
 
 
     void Build_Interference () {
         Liveness::Liveness liveness(cfg);
-        ReachingDefinitions::Reaching_Definitions reaching_definitions(cfg);
 
         for (auto& BB: cfg.BBs) {
             std::vector<bool> live = liveness.OUT[BB.id];
@@ -331,51 +692,34 @@ public:
                 Var dist = instr -> get_dist();
                 if (dist == "" || !is_V_Reg (dist) ) continue;
 
-                // two webs interfere if at a def of web1
-                // web2 has a reaching def to this point and the var is will be alive after this point
-                // DEF_WEB_2 -> DEF_WEB_1 -> USE_WEB_2
-                
-                // First, I will build the reaching def until this point
-                std::vector <bool> Cur_Reaching = reaching_definitions.IN[BB.id];
-                std::vector <bool> place_holder (Cur_Reaching.size());
-                for (int j = 0 ; j < i ; j ++ ) {
-                    reaching_definitions.Process_Instr (BB.instrs[j], Cur_Reaching, place_holder);
-                }
-
-                // (a) DEF_WEB_1
                 int web1_id = V_Reg_Web (dist);
-                for (int web2_id = 0 ; web2_id < webs.size() ; web2_id ++) {
-                    if (web1_id == web2_id) continue;
+                
+                // add moves
+                // if ( is_instance_of (instr, Linear::Assign) ) {
+                //     Linear::Assign* assign_ptr = dynamic_cast <Linear::Assign*> (instr.get());
+                //     Var src = assign_ptr->operands[0]->id;
+                //     if (src != "" && is_V_Reg (src)) {
+                //         int web2_id = V_Reg_Web (src);
 
-                    // (b) USE_WEB_2
-                    Var var = webs[web2_id].new_id;
-                    if (live [liveness.Var_to_bit[var]] == false) continue;
-
-                    // (c) DEF_WEB_2
-                    for (auto def : webs[web2_id].defs) {
-                        if (Cur_Reaching [reaching_definitions.Def_to_bit[def]] == true) {
-                            add_edge (web1_id, web2_id);
-                            break;
-                        }
-                    }
-                }
-                // for (auto& u : liveness.Var_to_bit) {
-                //     Var var = u.first;
-                //     int bit = u.second;
-
-                //     if (var == "" || !is_V_Reg (var) || live [bit] == false) continue;
-
-                //     int web2_id = V_Reg_Web (var);
-                //     add_edge (web1_id, web2_id);
+                //         webs [web1_id] .moves .insert (BB.instrs[i]);
+                //         webs [web2_id] .moves .insert (BB.instrs[i]);
+                //         worklistMoves  .insert (BB.instrs[i]);
+                //     }
                 // }
+
+
+                // add adj
+                for (auto& u : liveness.Var_to_bit) {
+                    Var var = u.first;
+                    int bit = u.second;
+
+                    if (var == "" || !is_V_Reg (var) || live [bit] == false) continue;
+
+                    int web2_id = V_Reg_Web (var);
+                    AddEdge (web1_id, web2_id);
+                }
             }
         }
-    }
-
-    void add_edge (int web1_id, int web2_id) {
-        if (web1_id == web2_id) return ;
-        webs [web1_id] . add_adj (web2_id);
-        webs [web2_id] . add_adj (web1_id);
     }
 
     void Build_Webs (std::set<Var>& Ignore) {
@@ -460,6 +804,7 @@ public:
                 web .is_arg = true;
                 web .arg_num= std::stoi(web.original_id.substr(n_pos+2));
                 web .new_id += "_ARG_" + std::to_string (web.arg_num);
+                precolored .insert (counter-1);
             }
 
 
@@ -502,5 +847,21 @@ public:
         }
         assert (false);
     }
+
+    bool in (std::set<int>& s, int id) {
+        return s.find (id) != s.end ();
+    }
+
+    std::pair<int,int> dist_src (int m) {
+        auto& instr = cfg.method->instrs [m];
+        if (! is_instance_of (instr, Linear::Assign) ) std::cout << "ERROR" << std::endl;
+        Linear::Assign* assign_ptr = dynamic_cast <Linear::Assign*> (instr.get());
+        Var x_id = assign_ptr -> get_dist();
+        Var y_id = (assign_ptr -> get_operands())[0];
+        int x = V_Reg_Web (x_id);
+        int y = V_Reg_Web (y_id);
+        return std::make_pair (x,y);
+    }
+    
 };
 }
