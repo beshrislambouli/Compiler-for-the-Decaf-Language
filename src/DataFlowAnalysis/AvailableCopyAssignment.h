@@ -34,20 +34,21 @@ public:
 
     void Build () {
         Build_Defs();
+        if (IN[0].size()==0) return;
 
         for (auto& BB : cfg.BBs) {
             for (int i = 0 ; i < BB.instrs.size () ; i ++ ) {
                 Process_Instr (BB.instrs [i], GEN[BB.id], KILL[BB.id]);
 
-                std::cout << BB.instrs [i] << std::endl;
-                std::cout << "GEN" << std::endl;
-                for (auto u: GEN[BB.id]) std::cout << u ? "1" : "0" ;
-                std::cout << std::endl;
+                // std::cout << BB.instrs [i] << std::endl;
+                // std::cout << "GEN" << std::endl;
+                // for (auto u: GEN[BB.id]) std::cout << u ? "1" : "0" ;
+                // std::cout << std::endl;
 
-                std::cout << "KILL" << std::endl;
-                for (auto u:KILL[BB.id]) std::cout << u ? "1" : "0" ;
-                std::cout << std::endl;
-                std::cout << "--------------" << std::endl;
+                // std::cout << "KILL" << std::endl;
+                // for (auto u:KILL[BB.id]) std::cout << u ? "1" : "0" ;
+                // std::cout << std::endl;
+                // std::cout << "--------------" << std::endl;
 
             }
         }
@@ -81,10 +82,7 @@ public:
         Def def_counter = 0 ;
         for (int i = 0 ; i < cfg.method->instrs.size() ; i ++ ) {
             auto& instr = cfg.method->instrs[i];
-
             if ( !is_instance_of (instr, Linear::Assign) ) continue;
-            Linear::Assign* assign_ptr = dynamic_cast<Linear::Assign*>(instr.get());
-            if ( is_instance_of (assign_ptr->operands[0], Linear::Arr) ) continue;
 
             Var dist = instr->get_dist();
             if (Var_to_Defs.find (dist) == Var_to_Defs.end ()) {

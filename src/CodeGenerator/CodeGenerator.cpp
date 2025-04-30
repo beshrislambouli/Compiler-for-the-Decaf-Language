@@ -32,6 +32,11 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     // (b) use webs to rename each method
     for (auto& method : linear_program ->methods) {
         // std::cout << "----------------------" << std::endl;
+        while (true) {
+            CFG cfg(method);
+            CopyPropagation::CopyPropagation CP (globals,cfg);
+            if ( ! CP.apply () ) break;
+        }
         // CFG cfg (method);
         // Register_Allocator::RegisterAllocator reg (globals, cfg, REG);
         // for (auto& web : reg.webs) {
