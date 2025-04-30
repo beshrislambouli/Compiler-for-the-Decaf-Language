@@ -19,11 +19,17 @@ public:
         }
 
         // (b) ignore the local arrays
+        // (c) ignore the args since they are needed for reg alloc
         for (auto& instr : cfg.method -> instrs) {
             if ( ! is_instance_of (instr, Linear::Declare) ) continue;
 
             auto declare_ptr = dynamic_cast<Linear::Declare*>(instr.get());
             if ( is_instance_of (declare_ptr->location, Linear::Arr) ) {
+                Ignore .insert (declare_ptr->location->id);
+            }
+
+            std::string prefix = "FUNC_ARG_";
+            if (declare_ptr->location->id.compare(0, prefix.size(), prefix) == 0) {
                 Ignore .insert (declare_ptr->location->id);
             }
         }
