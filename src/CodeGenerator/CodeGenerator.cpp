@@ -33,10 +33,24 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     for (auto& method : linear_program ->methods) {
         // std::cout << "----------------------" << std::endl;
         while (true) {
-            CFG cfg(method);
-            CopyPropagation::CopyPropagation CP (globals,cfg);
-            if ( ! CP.apply () ) break;
+            int did_cp = 0;
+            while (true) {
+                CFG cfg(method);
+                CopyPropagation::CopyPropagation CP (globals,cfg);
+                if ( ! CP.apply () ) break;
+                did_cp = 1;
+            }
+            int did_dce = 0 ;
+            while (true) {
+                CFG cfg(method);
+                DCE::Dead_Code_Elimination dce (globals,cfg);
+                if ( ! dce.apply () ) break;
+                did_dce = 1;
+            }
+            if (did_cp || did_dce) continue;
+            break;
         }
+        
         // CFG cfg (method);
         // Register_Allocator::RegisterAllocator reg (globals, cfg, REG);
         // for (auto& web : reg.webs) {
