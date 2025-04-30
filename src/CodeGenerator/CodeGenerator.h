@@ -8,6 +8,7 @@
 #include "LinearBuilder.h"
 #include "LinearPrinter.h"
 #include "DeadCodeElimination.h"
+#include "AvailableCopyAssignment.h"
 // #include "Common_Subexpression_Elimination.h"
 #include "preprocess.h"
 #include "RegisterAllocator.h"
