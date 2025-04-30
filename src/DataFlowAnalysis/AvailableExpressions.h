@@ -68,8 +68,8 @@ public:
     }
 
 
-    void Process_Instr (int def_id, std::vector<bool>& GEN, std::vector<bool>& KILL) {
-        auto& instr = cfg.method -> instrs [def_id];
+    void Process_Instr (int expr_id, std::vector<bool>& GEN, std::vector<bool>& KILL) {
+        auto& instr = cfg.method -> instrs [expr_id];
 
         if (instr->get_dist() != "" ) {
             Var dist = instr->get_dist();
@@ -97,8 +97,10 @@ public:
         }
 
     }
-
+    
     void Build_Exprs() {
+        static int AE_N = 0;
+        AE_N ++;
         int expr_counter = 0;
         std::set <std::pair< std::pair<Var,Var>, Linear::Binary::Op> > already ;
         for (int i = 0 ; i < cfg.method->instrs.size() ; i ++ ) {
@@ -113,13 +115,14 @@ public:
 
                 Exprs .push_back (
                     Expr (
-                        "EXPR_" + cfg.method->id + "_" + std::to_string(expr_counter),
+                        "EXPR_" + cfg.method->id + "_" + std::to_string(expr_counter) + "_AE_N_" + std::to_string(AE_N),
                         binary_ptr->operands[0]->id,
                         binary_ptr->operands[1]->id,
                         binary_ptr->op,
-                        expr_counter++
+                        expr_counter
                     )
                 );
+                expr_counter ++ ;
             }
 
         }

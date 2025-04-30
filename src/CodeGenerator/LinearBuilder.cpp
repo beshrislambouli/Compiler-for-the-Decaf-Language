@@ -178,7 +178,16 @@ void MethodBuilder::visit(AST::Location_Assign_Op& node) {
         break;
     }
 
-    utils.binary (std::move(dist), std::move(operand1), std::move(operand2), op);
+    std::string tmp = utils.get_tmp(dist->type);
+    utils.push_instr (
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(dist->type,tmp),
+            std::move(operand1),
+            std::move(operand2),
+            op
+        )
+    );
+    utils.assign(std::move(dist), std::make_unique<Linear::Var>(dist->type,tmp));
 }
 
 void MethodBuilder::visit(AST::Location_Incr& node) {
@@ -208,7 +217,16 @@ void MethodBuilder::visit(AST::Location_Incr& node) {
         break;
     }
 
-    utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
+    std::string tmp = utils.get_tmp(dist->type);
+    utils.push_instr (
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(dist->type,tmp),
+            std::move(operand1),
+            std::move(operand2),
+            op
+        )
+    );
+    utils.assign(std::move(dist), std::make_unique<Linear::Var>(dist->type,tmp));
 }
 
 void MethodBuilder::visit(AST::Method_Call_Stmt& node) {
@@ -416,7 +434,16 @@ void MethodBuilder::visit(AST::For_Upd_Assign_Op& node) {
         break;
     }
 
-    utils.binary (std::move(dist), std::move(operand1), std::move(operand2), op);
+    std::string tmp = utils.get_tmp(dist->type);
+    utils.push_instr (
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(dist->type,tmp),
+            std::move(operand1),
+            std::move(operand2),
+            op
+        )
+    );
+    utils.assign(std::move(dist), std::make_unique<Linear::Var>(dist->type,tmp));
 }
 void MethodBuilder::visit(AST::For_Upd_Incr& node) {
     node.location -> accept(*this);
@@ -445,7 +472,16 @@ void MethodBuilder::visit(AST::For_Upd_Incr& node) {
         break;
     }
 
-    utils.binary(std::move(dist),std::move(operand1),std::move(operand2), op);
+    std::string tmp = utils.get_tmp(dist->type);
+    utils.push_instr (
+        std::make_unique<Linear::Binary>(
+            std::make_unique<Linear::Var>(dist->type,tmp),
+            std::move(operand1),
+            std::move(operand2),
+            op
+        )
+    );
+    utils.assign(std::move(dist), std::make_unique<Linear::Var>(dist->type,tmp));
 }
 
 void MethodBuilder::visit(AST::Loc_Var& node) {

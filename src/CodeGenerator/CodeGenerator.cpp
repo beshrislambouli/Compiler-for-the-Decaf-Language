@@ -32,7 +32,17 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
     // (b) use webs to rename each method
     for (auto& method : linear_program ->methods) {
         // std::cout << "----------------------" << std::endl;
+        // int t = 2;
         while (true) {
+            int did_cse = 0;
+            while (true) {
+                CFG cfg(method);
+                CommonSubexpressionElimination::CommonSubexpressionElimination CSE (globals,cfg);
+                if ( ! CSE.apply () ) break;
+                did_cse = 1;
+            }
+            // std::cout << "---------------------- dce " << did_cse << std::endl;
+            // method -> accept (printer);
             int did_cp = 0;
             while (true) {
                 CFG cfg(method);
@@ -40,6 +50,8 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
                 if ( ! CP.apply () ) break;
                 did_cp = 1;
             }
+            // std::cout << "---------------------- cp " << did_cp << std::endl;
+            // method -> accept (printer);
             int did_dce = 0 ;
             while (true) {
                 CFG cfg(method);
@@ -47,10 +59,42 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
                 if ( ! dce.apply () ) break;
                 did_dce = 1;
             }
-            if (did_cp || did_dce) continue;
+            if (did_cse || did_cp || did_dce) continue;
             break;
         }
+    }
+
+
+    // clean the decl
+   
+    for (auto& method : linear_program -> methods) {
+        std::set < std::string > used_ids;
+        for (auto& instr : method -> instrs) {
+            used_ids .insert (instr->get_dist());
+            auto tmp = instr->get_operands();
+            for (auto u : tmp) used_ids .insert (u);
+        }
         
+        std::vector <std::unique_ptr<Linear::Instr>> to_add;
+        for (int i = method->instrs.size() - 1 ; i >= 0 ; i -- ) {
+            auto& instr = method->instrs [i];
+            if ( !is_instance_of (instr, Linear::Declare) ) continue;
+            Linear::Declare* decl_ptr = dynamic_cast<Linear::Declare*>(instr.get());
+
+            // the var is used -> will add again
+            if (used_ids.find (decl_ptr->location->id) != used_ids.end ()) {
+                to_add .push_back (std::move(instr));
+            }
+            method->instrs.erase(method->instrs.begin() + i);
+        }
+        for (int i = 0 ; i < to_add.size () ; i ++ ) {
+            method->instrs.insert(method->instrs.begin() + 1, std::move(to_add[i]));
+        }
+    }
+
+    // linear_program -> accept (printer);
+
+    for (auto& method : linear_program->methods) {
         CFG cfg (method);
         Register_Allocator::RegisterAllocator reg (globals, cfg, REG);
         for (auto& web : reg.webs) {

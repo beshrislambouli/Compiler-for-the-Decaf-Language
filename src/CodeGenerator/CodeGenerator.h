@@ -11,7 +11,7 @@
 #include "AvailableCopyAssignment.h"
 #include "CopyPropagation.h"
 #include "AvailableExpressions.h"
-// #include "Common_Subexpression_Elimination.h"
+#include "CommonSubexpressionElimination.h"
 #include "preprocess.h"
 #include "RegisterAllocator.h"
 #include "CFG.h"
