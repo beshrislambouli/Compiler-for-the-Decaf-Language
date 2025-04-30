@@ -4,9 +4,18 @@
 
 namespace AvailableCopyAssignment {
 
-using Def = int; // instruction index that has the assignment
 using Var = std::string;
 
+class Assign {
+public:
+    Var dist= "";
+    Var src = "";
+    int bit = -1;
+    std::vector <int> idxs;
+    Assign (int idx, Var dist, Var src, int bit) : dist(dist), src(src) , bit (bit) {
+        idxs.push_back (idx);
+    }
+};
 
 class AvailableCopyAssignment {
 public:
@@ -16,9 +25,7 @@ public:
     std::vector<std::vector<bool>> GEN;
     std::vector<std::vector<bool>> KILL;
 
-    //helpers 
-    std::map <Var, std::vector<Def> > Var_to_Defs;
-    std::map <Def, int> Def_to_bit;
+    std::vector<Assign> Assigns;
     
     AvailableCopyAssignment(CFG& cfg) : cfg(cfg) {
         Build () ;
@@ -56,45 +63,52 @@ public:
 
     void Process_Instr (int def_id, std::vector<bool>& GEN, std::vector<bool>& KILL) {
         auto& instr = cfg.method->instrs [def_id];
-
-        if (instr->get_dist() != "") {
-            Var dist = instr->get_dist();
-            
-            for (auto u : Def_to_bit) {
-                Def def = u.first;
-                int bit = u.second;
-
-                Linear::Assign* assign_ptr = dynamic_cast <Linear::Assign*>(cfg.method->instrs [def].get());
-                if (assign_ptr->get_dist() == dist || assign_ptr->operands[0]->id == dist) {
-                    KILL [bit] = true;
-                    GEN  [bit] = false;
-                }
+        if (instr->get_dist() == "" ) return ;
+    
+        Var dist = instr->get_dist();
+        for (auto& assign : Assigns) {
+            if ( dist == assign.dist || dist == assign.src ) {
+                KILL [assign.bit] = true;
+                GEN  [assign.bit] = false;
             }
         }
 
         if (is_instance_of (instr, Linear::Assign)) {
-            GEN [Def_to_bit[def_id]] = true;
-            KILL[Def_to_bit[def_id]] = false;
+            auto assign_ptr = dynamic_cast<Linear::Assign*>(instr.get());
+            Var src = assign_ptr->operands[0]->id;
+            for (auto& assign : Assigns) {
+                if ( dist == assign.dist && src == assign.src ) {
+                    KILL [assign.bit] = false;
+                    GEN  [assign.bit] = true ;
+                }
+            }
         }
     }
 
     void Build_Defs() {
-        Def def_counter = 0 ;
+        int assign_counter = 0 ;
+        std::set <std::pair<Var,Var>> already;
         for (int i = 0 ; i < cfg.method->instrs.size() ; i ++ ) {
             auto& instr = cfg.method->instrs[i];
             if ( !is_instance_of (instr, Linear::Assign) ) continue;
 
-            Var dist = instr->get_dist();
-            if (Var_to_Defs.find (dist) == Var_to_Defs.end ()) {
-                std::vector <Def> tmp;
-                Var_to_Defs [dist] = tmp;
+            auto assign_ptr = dynamic_cast<Linear::Assign*>(instr.get());
+            std::pair asn = std::make_pair (assign_ptr->dist->id, assign_ptr->operands[0]->id);
+            
+            if ( already.find (asn) == already.end () ) {
+                already.insert (asn);
+                Assigns.push_back (Assign(i,assign_ptr->dist->id, assign_ptr->operands[0]->id, assign_counter++));
+            } else {
+                for (auto& assign : Assigns) {
+                    if (assign .dist == asn.first && assign.src == asn.second) {
+                        assign.idxs.push_back (i);
+                    }
+                }
             }
-
-            Var_to_Defs [dist] .push_back (i);
-            Def_to_bit  [i] = def_counter ++ ;
         }
+
         for (int i = 0 ; i < cfg.BBs.size() ; i ++ ) {
-            std::vector <bool> tmp(def_counter, false);
+            std::vector <bool> tmp(assign_counter, false);
             IN  .push_back (tmp);
             OUT .push_back (tmp);
             GEN .push_back (tmp);
@@ -104,8 +118,8 @@ public:
 
     void print () {
         cfg.print();
-        for (auto& u : Def_to_bit) {
-            std::cout << "Assignment: " << u.first << " BIT: " << u.second << std::endl;
+        for (auto& u : Assigns) {
+            std::cout << "Assignment: " << u.dist << " = " << u.src << " BIT: " << u.bit << std::endl;
         }
         for (int i = 0 ; i < cfg.BBs.size () ; i ++ ) {
             std::cout << "------------" << std::endl;

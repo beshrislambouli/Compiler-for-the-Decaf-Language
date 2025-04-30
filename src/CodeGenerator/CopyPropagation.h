@@ -40,53 +40,67 @@ public:
         AvailableCopyAssignment::AvailableCopyAssignment ACA (cfg);
         // ACA.print();
         bool changed = false;
-
-        for (auto& BB: cfg.BBs) {
-            std::vector<bool> live = ACA.IN[BB.id];
+        
+        for (auto& BB : cfg.BBs) {
+            std::vector<bool> live = ACA.IN [BB.id];
             std::vector<bool> place_holder (live.size());
-            if (live.size () == 0 ) continue;
-            
-            for (int i = 0 ; i < BB.instrs.size () ; ACA.Process_Instr(BB.instrs[i],live,place_holder), i ++) {
+            if (live.size() == 0 ) continue;
+
+            for (int i = 0 ; i < BB.instrs.size () ; ACA.Process_Instr(BB.instrs[i], live, place_holder), i ++) {
+                auto& instr = cfg.method->instrs[BB.instrs[i]];
+
                 // std::cout << "INSTR: " << BB.instrs [i] << std::endl;
-                // std::cout << "live: ";
-                // for (auto u: live) std::cout << u ? "1" : "0" ;
+                // for (auto u : live) std::cout << u ? "1" : "0";
                 // std::cout << std::endl;
 
-                auto& instr = cfg.method ->instrs [BB.instrs[i]];
-                
-                auto uses = instr->get_operands();
-                for (auto use : uses) {
-                    // std::cout << "USE: " << use << " DEF: ";
-                    if (Ignore.find (use) != Ignore.end () ) {
-                        // std::cout << " IGNORED" << std::endl;
+                if (instr->get_operands().size() == 0 ) continue;
+
+                std::vector<Var> operands = instr->get_operands ();
+                // std::cout << "VAR" << std::endl; ;
+                for (auto var : operands) {
+                    // std::cout << std::endl;
+                    // std::cout << var << " " ;
+                    if (Ignore.find (var) != Ignore.end() ) {
+                        // std::cout << "ignored, " ;
                         continue;
-                    }
-                    std::set <Var> new_id;
-                    for (auto def : ACA.Var_to_Defs [use]) {
-                        // std::cout << def << " " ;
-                        if (live [ACA.Def_to_bit[def]] == false) continue;
-                        if (cfg.method->instrs[def]->get_operands().size () == 0 ) continue ;
-                        new_id . insert ((cfg.method->instrs[def]->get_operands())[0]);
                     }
 
-                    if (new_id.size () != 1 ) {
-                        // std::cout << " NOPE" << std::endl;
+                    std::set<Var> candidates;
+                    for (auto& assign: ACA.Assigns) {
+                        if (assign.dist == var && live [assign.bit] == true && ! isLiteral (assign.idxs[0]) ) {
+                            candidates.insert (get_src(assign.idxs[0]));
+                        }
+                    }
+                    if (candidates.size() != 1)  {
+                        // std::cout << "too many candidats, ";
                         continue;
                     }
-                    if (Ignore.find (*(new_id.begin())) != Ignore.end () ) {
-                        // std::cout << " IGNORE the new id" << std::endl;
+                    if (Ignore.find (*(candidates.begin())) != Ignore.end() ) {
+                        // std::cout << "ignored candidate, " ;
                         continue;
                     }
-                    // std::cout << " will rename " << use << " to " << *(new_id.begin()) << std::endl;
-                    Register_Allocator::Edit_Instr edit_instr (Register_Allocator::Edit_Instr::Type::USE, use, *(new_id.begin()) );
-                    instr -> accept (edit_instr);
+                    // std::cout << "CHANGED to " << *(candidates.begin()) << ", " << std::endl;
+                    Register_Allocator::Edit_Instr edit_instr ( Register_Allocator::Edit_Instr::Type::USE,
+                                                                var,
+                                                                *(candidates.begin())                                                                
+                                                                );
+                    instr->accept(edit_instr);
                     changed = true;
-                    
                 }
-                // std::cout << "------------" << std::endl;
             }
         }
+
+
         return changed;
+    }
+
+    bool isLiteral (int id) {
+        Linear::Assign* assign_ptr = dynamic_cast<Linear::Assign*>(cfg.method->instrs[id].get());
+        return is_instance_of (assign_ptr->operands[0],Linear::Literal);
+    }
+    Var get_src (int id) {
+        Linear::Assign* assign_ptr = dynamic_cast<Linear::Assign*>(cfg.method->instrs[id].get());
+        return assign_ptr->operands[0]->id;
     }
 };
 
