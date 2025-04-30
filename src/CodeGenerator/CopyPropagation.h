@@ -28,10 +28,10 @@ public:
                 Ignore .insert (declare_ptr->location->id);
             }
 
-            std::string prefix = "FUNC_ARG_";
-            if (declare_ptr->location->id.compare(0, prefix.size(), prefix) == 0) {
-                Ignore .insert (declare_ptr->location->id);
-            }
+            // std::string prefix = "FUNC_ARG_";
+            // if (declare_ptr->location->id.compare(0, prefix.size(), prefix) == 0) {
+            //     Ignore .insert (declare_ptr->location->id);
+            // }
         }
 
     }

@@ -224,7 +224,7 @@ public:
         
         
         Build_Webs (Ignore);
-        PreColor(REG);
+        // PreColor(REG);
 
         Build_Interference ();
         // for (auto& web : webs ) {
@@ -799,15 +799,15 @@ public:
             // web.print();
 
             // check if arg and add the arg num
-            std::string prefix = "FUNC_ARG_";
-            if (web.original_id.compare(0, prefix.size(), prefix) == 0) {
-                size_t n_pos = web.original_id.rfind("_N");
+            // std::string prefix = "FUNC_ARG_";
+            // if (web.original_id.compare(0, prefix.size(), prefix) == 0) {
+            //     size_t n_pos = web.original_id.rfind("_N");
                 
-                web .is_arg = true;
-                web .arg_num= std::stoi(web.original_id.substr(n_pos+2));
-                web .new_id += "_ARG_" + std::to_string (web.arg_num);
-                precolored .insert (counter-1);
-            }
+            //     web .is_arg = true;
+            //     web .arg_num= std::stoi(web.original_id.substr(n_pos+2));
+            //     web .new_id += "_ARG_" + std::to_string (web.arg_num);
+            //     precolored .insert (counter-1);
+            // }
 
 
             for (auto& def : web.defs) {
