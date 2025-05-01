@@ -204,20 +204,20 @@ public:
     }
 
     // NOTE: only instrs with def/uses will be called
-    void visit(Linear::Program& program) override {}
-    void visit(Linear::Method& method) override {}
-    void visit(Linear::Operand& instr) override {}
-    void visit(Linear::Literal& instr) override {}
-    void visit(Linear::Location& instr) override {}
-    void visit(Linear::Instr& instr) override {}
-    void visit(Linear::Statement& instr) override {}
-    void visit(Linear::Helper& instr) override {}
-    void visit(Linear::Push_Scope& instr) override {}
-    void visit(Linear::Pop_Scope& instr) override {}
-    void visit(Linear::Declare& instr) override {}
-    void visit(Linear::Label& instr) override {}
-    void visit(Linear::Jump& instr) override {}
-    void visit(Linear::J_UnCond& instr) override {}
+    void visit(Linear::Program& program) override { ret = 0 ; }
+    void visit(Linear::Method& method) override { ret = 0 ; }
+    void visit(Linear::Operand& instr) override { ret = 0 ; }
+    void visit(Linear::Literal& instr) override { ret = 0 ; }
+    void visit(Linear::Location& instr) override { ret = 0 ; }
+    void visit(Linear::Instr& instr) override { ret = 0 ; }
+    void visit(Linear::Statement& instr) override { ret = 0 ; }
+    void visit(Linear::Helper& instr) override { ret = 0 ; }
+    void visit(Linear::Push_Scope& instr) override { ret = 0 ; }
+    void visit(Linear::Pop_Scope& instr) override { ret = 0 ; }
+    void visit(Linear::Declare& instr) override { ret = 0 ; }
+    void visit(Linear::Label& instr) override { ret = 0 ; }
+    void visit(Linear::Jump& instr) override { ret = 0 ; }
+    void visit(Linear::J_UnCond& instr) override { ret = 0 ; }
 };
 
 class RegisterAllocator {
