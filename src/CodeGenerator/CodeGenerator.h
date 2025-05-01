@@ -16,6 +16,7 @@
 #include "RegisterAllocator.h"
 #include "CFG.h"
 #include "ReachingDefinitions.h"
+#include "ConstantFolding.h"
 class Info;
 class Symbol_Table;
 

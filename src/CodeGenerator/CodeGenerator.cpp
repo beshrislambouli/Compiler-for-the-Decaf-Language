@@ -50,6 +50,13 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
                 if ( ! CP.apply () ) break;
                 did_cp = 1;
             }
+            
+            int did_cf = 0 ;
+            while (true) {
+                ConstantFolding::ConstantFolding CF (method);
+                if (! CF.apply() ) break;
+                did_cf = 1 ;
+            }
             // std::cout << "---------------------- cp " << did_cp << std::endl;
             // method -> accept (printer);
             int did_dce = 0 ;
@@ -59,7 +66,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
                 if ( ! dce.apply () ) break;
                 did_dce = 1;
             }
-            if (did_cse || did_cp || did_dce) continue;
+            if (did_cse || did_cp || did_dce || did_cf) continue;
             break;
         }
     }

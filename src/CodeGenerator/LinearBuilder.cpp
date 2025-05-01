@@ -784,14 +784,31 @@ void MethodBuilder::visit(AST::Logic_Op& node) {}
 void MethodBuilder::visit(AST::Literal& node) {}
 
 void MethodBuilder::visit(AST::Int_Lit& node) {
+    std::string num = node.literal;
+    int base = 10;
+    if (num.size() > 2 && (num[0] == '0') && num[1] == 'x') {
+        base = 16;
+    }
+    long long val = std::stoll(num, nullptr, base);
+    std::string literal = std::to_string(val);
+
     utils.ret = std::make_unique<Linear::Literal>(
         Linear::Int,
-        node.literal
+        literal
     );
 }
 void MethodBuilder::visit(AST::Long_Lit& node) {
-    std::string literal = node.literal;
-    literal.pop_back();
+    
+    std::string num = node.literal;
+    num.pop_back();
+
+    int base = 10;
+    if (num.size() > 2 && (num[0] == '0') && num[1] == 'x') {
+        base = 16;
+    }
+    long long val = std::stoll(num, nullptr, base);
+    std::string literal = std::to_string(val);
+
     utils.ret = std::make_unique<Linear::Literal>(
         Linear::Long,
         literal
