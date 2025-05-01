@@ -538,9 +538,9 @@ void CodeGenerator::visit(Linear::Method_Call& instr) {
     // save caller-saved regs, NOTE: pay attention to the alignment
     add_instr("pushq %r10");
     add_instr("pushq %r11");
-    for (int i = 0 ; i < 6 ; i ++ ) {
-        add_instr("pushq " + param_reg[i]);
-    }
+    // for (int i = 0 ; i < 6 ; i ++ ) {
+    //     add_instr("pushq " + param_reg[i]);
+    // }
 
     // 16-alignment before call
     if (instr.args.size() > 6) {
@@ -571,9 +571,9 @@ void CodeGenerator::visit(Linear::Method_Call& instr) {
         add_instr("addq $" + std::to_string(to_align) + ", " + "%rsp" );
     }
 
-    for (int i = 5 ; i >= 0 ; i -- ) {
-        add_instr("popq " + param_reg[i]);
-    }
+    // for (int i = 5 ; i >= 0 ; i -- ) {
+    //     add_instr("popq " + param_reg[i]);
+    // }
     add_instr("popq %r11");
     add_instr("popq %r10");
 

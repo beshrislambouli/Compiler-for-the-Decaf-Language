@@ -241,7 +241,7 @@ void MethodBuilder::visit(AST::Method_Call_Stmt& node) {
         // if first 6 args -> 
         // ARG = arg, f (ARG), this will help precoloring the webs for the args
         // literals won't be in a web, but although arrays won't, their index might
-        if ( arg_num >= 6 || is_instance_of (utils.ret, Linear::Literal)) {
+        if ( true || arg_num >= 6 || is_instance_of (utils.ret, Linear::Literal)) {
             instr->args.push_back(std::move(utils.ret));
         } else {
             
@@ -701,7 +701,7 @@ void MethodBuilder::visit(AST::Method_Call_Expr& node) {
         // if first 6 args -> 
         // ARG = arg, f (ARG), this will help precoloring the webs for the args
         // literals won't be in a web, but although arrays won't, their index might
-        if ( arg_num >= 6 || is_instance_of (utils.ret, Linear::Literal)) {
+        if ( true || arg_num >= 6 || is_instance_of (utils.ret, Linear::Literal)) {
             instr->args.push_back(std::move(utils.ret));
         } else {
             
