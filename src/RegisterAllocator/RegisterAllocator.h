@@ -2,6 +2,7 @@
 #include "Linear.h"
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include "CFG.h"
 #include <vector>
 #include "ReachingDefinitions.h"
@@ -65,6 +66,16 @@ public:
     }
     double get_cost (){
         return defs.size() + uses.size();
+    }
+    double spill_cost (std::vector <int>& nested_fors) {
+        double cost = 0.0;
+        for (auto def : defs ) {
+            cost += pow (10, std:: max ( 0 , std::min (nested_fors[def],17) ) ) ;
+        }
+        for (auto use : uses ) {
+            cost += pow (10, std:: max ( 0 , std::min (nested_fors[use],17) ) ) ;
+        }
+        return cost;
     }
     bool is_adj (int node) {
         return adj.find (node) != adj.end () ;
@@ -329,6 +340,7 @@ public:
 
     void Color () {
         MakeWorklist ();
+        fill_nested_fors ();
 
         while (true) {
             // printAll();
@@ -450,7 +462,16 @@ public:
     }
 
     void SelectSpill() {
-        int node = *(spillWorklist.begin());
+        // int node = *(spillWorklist.begin());
+        int node;
+        double min_cost = 1e9;
+        for (auto u : spillWorklist) {
+            if ( ( webs [u].spill_cost(nested_fors) / (1 + Adjacent(u).size()) ) < min_cost) {
+                min_cost = ( webs [u].spill_cost(nested_fors) / (1 + Adjacent(u).size()) );
+                node = u;
+            }
+        }
+
         spillWorklist.erase (node);
         simplifyWorklist.insert (node);
         FreezeMoves (node);
@@ -884,6 +905,27 @@ public:
         int x = V_Reg_Web (x_id);
         int y = V_Reg_Web (y_id);
         return std::make_pair (x,y);
+    }
+
+    std::vector <int> nested_fors;
+    void fill_nested_fors () {
+        int crnt = 0 ;
+
+        std::string for_body   = "for_body"  ;
+        std::string while_body = "while_body";
+
+        std::string for_end   = "for_end";
+        std::string while_end = "while_end";
+
+        for (auto& instr : cfg.method->instrs) {
+            if ( is_instance_of (instr, Linear::Label) ) {
+                Linear::Label* label_ptr = dynamic_cast<Linear::Label*>(instr.get());
+                std::string label = label_ptr->label;
+                crnt += ( label.compare(0, for_body.size(), for_body) || label.compare(0, while_body.size(), while_body));
+                crnt -= ( label.compare(0, for_end.size(), for_end) || label.compare(0, while_end.size(), while_end));
+            }
+            nested_fors.push_back (crnt);
+        }
     }
     
 };
