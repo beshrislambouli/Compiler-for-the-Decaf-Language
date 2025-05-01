@@ -744,7 +744,7 @@ public:
                     Var src = assign_ptr->operands[0]->id;
                     if (src != "" && is_V_Reg (src)) {
                         int web2_id = V_Reg_Web (src);
-
+                        live [liveness.Var_to_bit[src]] = 0 ;
                         webs [web1_id] .moves .insert (BB.instrs[i]);
                         webs [web2_id] .moves .insert (BB.instrs[i]);
                         worklistMoves  .insert (BB.instrs[i]);
