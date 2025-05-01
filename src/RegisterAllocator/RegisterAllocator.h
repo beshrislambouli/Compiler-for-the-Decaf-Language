@@ -99,6 +99,9 @@ public:
     Type type;
     Var original_id;
     Var new_id;
+    int ret = false;
+    int to_literal = false;
+    
     Edit_Instr (Type type, Var original_id, Var new_id) 
     : type(type) 
     , original_id (original_id)
@@ -117,8 +120,11 @@ public:
             }
         }
         if (type == Type::USE) {
-            for (auto& operand : instr.operands) {
-                operand -> accept (*this);
+            for (int i = 0 ; i < instr.operands.size () ; i ++ ) {
+                instr.operands[i]->accept(*this);
+                if (ret && to_literal) {
+                    instr.operands[i] = std::make_unique<Linear::Literal>(instr.operands[i]->type,new_id);
+                }
             }
 
             // need to edit c in a[b[c]] = 5;
@@ -140,14 +146,17 @@ public:
     }
     void visit(Linear::Method_Call& instr) override {
         if (type == Type::DEF) {
-            // return location is an var from linear builder so need to check for arr
+            // return location is a var from linear builder so no need to check for arr
             if (instr.return_location) {
                 instr.return_location -> accept (*this);
             }
         }
         if (type == Type::USE) {
-            for (auto& arg : instr.args) {
-                arg -> accept (*this);
+            for (int i = 0 ; i < instr.args.size () ; i ++ ) {
+                instr.args[i]->accept(*this);
+                if (ret && to_literal) {
+                    instr.args[i] = std::make_unique<Linear::Literal>(instr.args[i]->type,new_id);
+                }
             }
         }
     }
@@ -158,6 +167,9 @@ public:
         if (type == Type::USE) {
             if (instr.return_value) {
                 instr.return_value -> accept (*this);
+                if (ret && to_literal) {
+                    instr.return_value = std::make_unique<Linear::Literal>(instr.return_value->type,new_id);
+                }
             }
         }
     }
@@ -167,19 +179,28 @@ public:
         }
         if (type == Type::USE) {
             instr.condition -> accept (*this);
+            if (ret && to_literal) {
+                instr.condition = std::make_unique<Linear::Literal>(instr.condition->type,new_id);
+            }
         }
     }
 
     void visit(Linear::Var& instr) override {
+        ret = 0 ;
         if (instr.is_array_var) return;
 
         if ( instr.id == original_id ) {
             instr.id = new_id;
+            ret = 1; 
         }
     }
     void visit(Linear::Arr& instr) override {
         // we don't change names of arrays, so we only go to index
         instr.index -> accept(*this);
+        if (ret && to_literal) {
+            instr.index = std::make_unique<Linear::Literal>(instr.index->type,new_id);
+        }
+        ret = 0;
     }
 
     // NOTE: only instrs with def/uses will be called

@@ -64,11 +64,12 @@ public:
                         // std::cout << "ignored, " ;
                         continue;
                     }
-
+                    bool to_literal = 0;
                     std::set<Var> candidates;
                     for (auto& assign: ACA.Assigns) {
-                        if (assign.dist == var && live [assign.bit] == true && ! isLiteral (assign.idxs[0]) ) {
+                        if (assign.dist == var && live [assign.bit] == true ) {
                             candidates.insert (get_src(assign.idxs[0]));
+                            if ( isLiteral (assign.idxs[0]) ) to_literal = true;
                         }
                     }
                     if (candidates.size() != 1)  {
@@ -82,8 +83,11 @@ public:
                     // std::cout << "CHANGED to " << *(candidates.begin()) << ", " << std::endl;
                     Register_Allocator::Edit_Instr edit_instr ( Register_Allocator::Edit_Instr::Type::USE,
                                                                 var,
-                                                                *(candidates.begin())                                                                
+                                                                *(candidates.begin())                                                             
                                                                 );
+                    
+                    edit_instr .to_literal = to_literal;
+
                     instr->accept(edit_instr);
                     changed = true;
                 }
