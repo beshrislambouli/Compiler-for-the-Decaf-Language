@@ -68,7 +68,7 @@ private:
     // REG
     std::vector<std::string> REG = {
         // "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9",
-        "%r10", "%r11", 
+        // "%r10", "%r11", 
         "%r12", "%r13", "%r14", "%r15"
     };
     std::map <std::string, int> cur_method_var_to_color;

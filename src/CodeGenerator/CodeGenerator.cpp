@@ -536,8 +536,8 @@ void CodeGenerator::visit(Linear::Method_Call& instr) {
     std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
     // save caller-saved regs, NOTE: pay attention to the alignment
-    add_instr("pushq %r10");
-    add_instr("pushq %r11");
+    // add_instr("pushq %r10");
+    // add_instr("pushq %r11");
     // for (int i = 0 ; i < 6 ; i ++ ) {
     //     add_instr("pushq " + param_reg[i]);
     // }
@@ -574,8 +574,8 @@ void CodeGenerator::visit(Linear::Method_Call& instr) {
     // for (int i = 5 ; i >= 0 ; i -- ) {
     //     add_instr("popq " + param_reg[i]);
     // }
-    add_instr("popq %r11");
-    add_instr("popq %r10");
+    // add_instr("popq %r11");
+    // add_instr("popq %r10");
 
     // store return value
     if (instr.return_location){
