@@ -101,78 +101,78 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
 
     // linear_program -> accept (printer);
 
-    for (auto& method : linear_program->methods) {
-        CFG cfg (method);
-        Register_Allocator::RegisterAllocator reg (globals, cfg, REG);
-        for (auto& web : reg.webs) {
-            if (!web.spilled) {
-                method->var_to_color [web.new_id] = web.color;
-            }
-            // if (web.spilled) {
-            //     std::cout << web.original_id << " " << web.new_id << " " << " spilled" << std::endl;
-            // } else {
-            //     std::cout << web.original_id << " " << web.new_id << " " << web.color << std::endl;
-            // } 
+    // for (auto& method : linear_program->methods) {
+    //     CFG cfg (method);
+    //     Register_Allocator::RegisterAllocator reg (globals, cfg, REG);
+    //     for (auto& web : reg.webs) {
+    //         if (!web.spilled) {
+    //             method->var_to_color [web.new_id] = web.color;
+    //         }
+    //         // if (web.spilled) {
+    //         //     std::cout << web.original_id << " " << web.new_id << " " << " spilled" << std::endl;
+    //         // } else {
+    //         //     std::cout << web.original_id << " " << web.new_id << " " << web.color << std::endl;
+    //         // } 
             
-        }
-        // linear_program -> accept (printer);
+    //     }
+    //     // linear_program -> accept (printer);
 
-        // EDIT THE DECLARES
+    //     // EDIT THE DECLARES
 
-        // First, collect any id used anywhere (you don't want to delete decls for those vars)
-        // vars that are not V_reg are those that have a use before any def
-        std::set<std::string> ids;
-        for (auto& instr : method->instrs) {
-            std::string dist = instr->get_dist();
-            std::vector<std::string> operands = instr->get_operands();
+    //     // First, collect any id used anywhere (you don't want to delete decls for those vars)
+    //     // vars that are not V_reg are those that have a use before any def
+    //     std::set<std::string> ids;
+    //     for (auto& instr : method->instrs) {
+    //         std::string dist = instr->get_dist();
+    //         std::vector<std::string> operands = instr->get_operands();
 
-            ids .insert (dist);
-            for (auto& operand : operands) {
-                ids .insert (operand);
-            }
-        } 
+    //         ids .insert (dist);
+    //         for (auto& operand : operands) {
+    //             ids .insert (operand);
+    //         }
+    //     } 
 
-        // Now collect all the defs for unused vars anymore, record their type so that the new
-        // V_reg get the correct type
-        std::vector<int> declare_to_del;
-        std::map <std::string, Linear::Type> original_id_to_type;
-        for (int i = 0 ; i < cfg.method->instrs.size () ; i ++ ) {
-            auto& instr = cfg.method->instrs[i];
-            if ( !is_instance_of (instr, Linear::Declare) ) continue;
+    //     // Now collect all the defs for unused vars anymore, record their type so that the new
+    //     // V_reg get the correct type
+    //     std::vector<int> declare_to_del;
+    //     std::map <std::string, Linear::Type> original_id_to_type;
+    //     for (int i = 0 ; i < cfg.method->instrs.size () ; i ++ ) {
+    //         auto& instr = cfg.method->instrs[i];
+    //         if ( !is_instance_of (instr, Linear::Declare) ) continue;
 
-            auto declare_ptr = dynamic_cast<Linear::Declare*>(instr.get());
-            if ( !is_instance_of (declare_ptr->location, Linear::Var) ) ;
-            std::string original_id =  declare_ptr->location->id;
-            Linear::Type type = declare_ptr->location->type;
+    //         auto declare_ptr = dynamic_cast<Linear::Declare*>(instr.get());
+    //         if ( !is_instance_of (declare_ptr->location, Linear::Var) ) ;
+    //         std::string original_id =  declare_ptr->location->id;
+    //         Linear::Type type = declare_ptr->location->type;
             
-            // while all local vars should be renamed in theory
-            // you still need this is because there might be a declare to a var that get used before a def -> not in webs
-            // changing the declare name would make a use of a var without a declare
-            if ( ids.find (original_id) != ids.end() ) continue;
+    //         // while all local vars should be renamed in theory
+    //         // you still need this is because there might be a declare to a var that get used before a def -> not in webs
+    //         // changing the declare name would make a use of a var without a declare
+    //         if ( ids.find (original_id) != ids.end() ) continue;
 
-            declare_to_del .push_back (i);
-            original_id_to_type [original_id] = type;
-        }
+    //         declare_to_del .push_back (i);
+    //         original_id_to_type [original_id] = type;
+    //     }
 
-        std::sort    (declare_to_del.begin(), declare_to_del.end());
-        std::reverse (declare_to_del.begin(), declare_to_del.end());
+    //     std::sort    (declare_to_del.begin(), declare_to_del.end());
+    //     std::reverse (declare_to_del.begin(), declare_to_del.end());
         
-        // del old declared
-        for (auto idx : declare_to_del) method->instrs.erase (method->instrs.begin() + idx) ;
+    //     // del old declared
+    //     for (auto idx : declare_to_del) method->instrs.erase (method->instrs.begin() + idx) ;
         
-        // add the webs' ones
-        for (auto& web : reg.webs) {
+    //     // add the webs' ones
+    //     for (auto& web : reg.webs) {
             
-            auto var = std::make_unique <Linear::Var>();
-            var ->id = web.new_id;
-            var ->type = original_id_to_type [web.original_id];
+    //         auto var = std::make_unique <Linear::Var>();
+    //         var ->id = web.new_id;
+    //         var ->type = original_id_to_type [web.original_id];
 
-            auto declare = std::make_unique <Linear::Declare>();
-            declare->location = std::move(var);
+    //         auto declare = std::make_unique <Linear::Declare>();
+    //         declare->location = std::move(var);
 
-            method -> instrs .insert (method->instrs.begin() +1 , std::move (declare)); // declare after the push_scope
-        }
-    }
+    //         method -> instrs .insert (method->instrs.begin() +1 , std::move (declare)); // declare after the push_scope
+    //     }
+    // }
 
     // linear_program -> accept (printer);
 
