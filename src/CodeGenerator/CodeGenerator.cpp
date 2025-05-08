@@ -372,12 +372,26 @@ void CodeGenerator::visit(Linear::Statement& instr) {
 
 void CodeGenerator::visit_PLUS (Linear::Binary& instr){
     std::string op = "add";
-    if (instr.op == Linear::Binary::Mul) op = "imul";
+    if (instr.op == Linear::Binary::Mul)   op = "imul";
+    if (instr.op == Linear::Binary::Minus) op = "sub";
 
     if (is_reg(instr.dist->id) && is_reg(instr.operands[1]->id) && get_reg (instr.dist->id,instr.dist->type) == get_reg (instr.operands[1]->id,instr.operands[1]->type) ) {
-        std::string op0 = query(instr.operands[0]);
-        add_instr( instr_ (op,instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
-    } else if ( !is_instance_of(instr.operands[1], Linear::Arr) && is_reg (instr.dist->id) ) { 
+
+        if (op == "sub") {
+            auto type = instr.operands[0]->type;
+            std::string rax = reg_("%rax",type);
+
+            load (instr.operands[0], rax);
+
+            add_instr( instr_ (op,type) + query(instr.operands[1]) + ", " + rax);
+
+            store (rax, instr.dist);
+        } else {
+            std::string op0 = query(instr.operands[0]);
+            add_instr( instr_ (op,instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
+        }
+    
+    } else if (!is_instance_of(instr.operands[1], Linear::Arr) && is_reg (instr.dist->id) ) { 
         std::string dist_reg = get_reg(instr.dist->id,instr.dist->type);
         std::string op0 = query(instr.operands[0]);
         std::string op1 = query(instr.operands[1]);
@@ -400,7 +414,7 @@ void CodeGenerator::visit_PLUS (Linear::Binary& instr){
     }
 }
 void CodeGenerator::visit(Linear::Binary& instr) {
-    if (instr.op == Linear::Binary::Plus || instr.op == Linear::Binary::Mul) {
+    if (instr.op == Linear::Binary::Plus || instr.op == Linear::Binary::Mul || instr.op == Linear::Binary::Minus ) {
         visit_PLUS (instr);
         return ;
     }
