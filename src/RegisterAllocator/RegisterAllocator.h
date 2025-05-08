@@ -22,8 +22,8 @@ public:
 
     // web's defs/uses for interfering
     // note there might be redundancy here but it doesn't really matter
-    std::vector <Def> defs;
-    std::vector <Use> uses;
+    std::set <Def> defs;
+    std::set <Use> uses;
 
     // coalescing
     Var coalesced_to = "";
@@ -46,10 +46,10 @@ public:
     Web (Var original_id) : original_id(original_id) {}
 
     void add_def ( Def def ) {
-        defs .push_back (def);
+        defs .insert (def);
     }
     void add_use ( Use use ) {
-        uses. push_back (use);
+        uses. insert (use);
     }
     void add_adj (int adj_web) {
         adj .insert (adj_web);
@@ -921,8 +921,8 @@ public:
             if ( is_instance_of (instr, Linear::Label) ) {
                 Linear::Label* label_ptr = dynamic_cast<Linear::Label*>(instr.get());
                 std::string label = label_ptr->label;
-                crnt += ( label.compare(0, for_body.size(), for_body) || label.compare(0, while_body.size(), while_body));
-                crnt -= ( label.compare(0, for_end.size(), for_end) || label.compare(0, while_end.size(), while_end));
+                crnt += ( !label.compare(0, for_body.size(), for_body) || !label.compare(0, while_body.size(), while_body));
+                crnt -= ( !label.compare(0, for_end.size(), for_end) || !label.compare(0, while_end.size(), while_end));
             }
             nested_fors.push_back (crnt);
         }
