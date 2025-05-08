@@ -472,7 +472,7 @@ void CodeGenerator::visit_LONG_CAST(Linear::Unary& instr) {
 
         add_instr( instr_("mov",instr.dist->type) + from + ", " + to );
         return ;
-    } else if (false && is_reg (instr.dist->id)) {
+    } else if (is_reg (instr.dist->id)) {
         std::string from = query(instr.operands[0]);
         std::string to   = query(instr.dist);
 
