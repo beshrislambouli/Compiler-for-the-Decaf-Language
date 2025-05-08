@@ -378,14 +378,16 @@ void CodeGenerator::visit_PLUS (Linear::Binary& instr){
     if (is_reg(instr.dist->id) && is_reg(instr.operands[1]->id) && get_reg (instr.dist->id,instr.dist->type) == get_reg (instr.operands[1]->id,instr.operands[1]->type) ) {
 
         if (op == "sub") {
-            auto type = instr.operands[0]->type;
-            std::string rax = reg_("%rax",type);
+            // auto type = instr.operands[0]->type;
+            // std::string rax = reg_("%rax",type);
 
-            load (instr.operands[0], rax);
+            // load (instr.operands[0], rax);
 
-            add_instr( instr_ (op,type) + query(instr.operands[1]) + ", " + rax);
+            // add_instr( instr_ (op,type) + query(instr.operands[1]) + ", " + rax);
 
-            store (rax, instr.dist);
+            // store (rax, instr.dist);
+            add_instr (instr_ ("neg",instr.dist->type) + get_reg(instr.dist->id, instr.dist->type));
+            add_instr (instr_ ("add",instr.dist->type) + query(instr.operands[0]) + ", " + get_reg(instr.dist->id, instr.dist->type));
         } else {
             std::string op0 = query(instr.operands[0]);
             add_instr( instr_ (op,instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
