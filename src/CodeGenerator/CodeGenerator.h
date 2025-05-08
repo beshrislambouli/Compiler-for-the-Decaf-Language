@@ -99,6 +99,7 @@ private:
 
     // other
     void visit_LONG_CAST (Linear::Unary& instr);
+    void visit_PLUS (Linear::Binary& instr);
 };
 
 class Info {

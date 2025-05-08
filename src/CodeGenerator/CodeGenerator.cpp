@@ -369,7 +369,38 @@ void CodeGenerator::visit(Linear::Instr& instr) {
 void CodeGenerator::visit(Linear::Statement& instr) {
     assert(false);
 }
+
+void CodeGenerator::visit_PLUS (Linear::Binary& instr){
+    if (is_reg(instr.dist->id) && is_reg(instr.operands[1]->id) && get_reg (instr.dist->id,instr.dist->type) == get_reg (instr.operands[1]->id,instr.operands[1]->type) ) {
+        std::string op0 = query(instr.operands[0]);
+        add_instr( instr_ ("add",instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
+    } else if (is_reg(instr.dist->id)) {
+        std::string op0 = query(instr.operands[0]);
+        std::string op1 = query(instr.operands[1]);
+        if (op0 != get_reg(instr.dist->id,instr.dist->type) ) {
+            add_instr( instr_ ("mov",instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
+        }
+        add_instr( instr_ ("add",instr.dist->type) + op1 + ", " + get_reg(instr.dist->id,instr.dist->type) );
+    }  else {
+        auto type = instr.operands[0]->type;
+        std::string rax = reg_("%rax",type);
+        std::string rbx = reg_("%rbx",type);
+
+        load (instr.operands[0], rax);
+        load (instr.operands[1], rbx);
+
+        add_instr( instr_ ("add",type) + rbx + ", " + rax);
+
+        store (rax, instr.dist);
+    }
+    
+}
 void CodeGenerator::visit(Linear::Binary& instr) {
+    if (instr.op == Linear::Binary::Plus) {
+        visit_PLUS (instr);
+        return ;
+    }
+
     auto type = instr.operands[0]->type;
     std::string rax = reg_("%rax",type);
     std::string rbx = reg_("%rbx",type);
@@ -381,7 +412,7 @@ void CodeGenerator::visit(Linear::Binary& instr) {
     switch (instr.op)
     {
     case Linear::Binary::Plus: 
-        add_instr( instr_ ("add",type) + rbx + ", " + rax);
+        // add_instr( instr_ ("add",type) + rbx + ", " + rax);
         break;
     
     case Linear::Binary::Minus: 
