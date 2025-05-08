@@ -88,6 +88,8 @@ private:
     int stack_alloc(Linear::Type type);
     std::string instr_ (std::string id,  Linear::Type type);
     std::string reg_   (std::string reg, Linear::Type type);
+    bool is_reg (std::string id);
+    std::string get_reg (std::string id, Linear::Type type);
 
     std::string ret;
     std::string query(std::unique_ptr<Linear::Operand>& operand);

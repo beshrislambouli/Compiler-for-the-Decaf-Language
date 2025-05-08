@@ -344,7 +344,7 @@ void CodeGenerator::visit(Linear::Var& instr) {
             ret = "%rbx";
         }
     } else if (cur_method_var_to_color.find (instr.id) != cur_method_var_to_color.end ()) {
-        ret = reg_ (REG[cur_method_var_to_color[instr.id]],instr.type);
+        ret = get_reg (instr.id,instr.type);
     } else {
         ret = get_loc(instr.id);
     }
@@ -501,6 +501,11 @@ void CodeGenerator::visit(Linear::Unary& instr) {
     store (rax, instr.dist);
 }
 void CodeGenerator::visit(Linear::Assign& instr) {
+    if (is_reg (instr.dist->id) && is_reg (instr.operands[0]->id)) {
+        if (get_reg (instr.dist->id,instr.dist->type) == get_reg(instr.operands[0]->id,instr.dist->type) ) return;
+        add_instr( instr_("mov",instr.dist->type) +  get_reg (instr.operands[0]->id,instr.dist->type) + ", " + get_reg(instr.dist->id,instr.dist->type) );
+        return ;
+    }
     load (instr.operands[0], "%rax");
     store ("%rax", instr.dist);
 }
@@ -739,6 +744,15 @@ std::string CodeGenerator::reg_   (std::string reg, Linear::Type type){
         }
     }
     assert(false);
+}
+
+bool CodeGenerator::is_reg (std::string id){
+    return cur_method_var_to_color.find (id) != cur_method_var_to_color.end ();
+}
+
+std::string CodeGenerator::get_reg (std::string id, Linear::Type type){
+    if (!is_reg (id)) std::cout << "ERROR" << std::endl;
+    return reg_ (REG[cur_method_var_to_color[id]],type);
 }
 
 std::string CodeGenerator::query(std::unique_ptr<Linear::Operand>& operand) {
