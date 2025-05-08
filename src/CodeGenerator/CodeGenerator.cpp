@@ -374,14 +374,17 @@ void CodeGenerator::visit_PLUS (Linear::Binary& instr){
     if (is_reg(instr.dist->id) && is_reg(instr.operands[1]->id) && get_reg (instr.dist->id,instr.dist->type) == get_reg (instr.operands[1]->id,instr.operands[1]->type) ) {
         std::string op0 = query(instr.operands[0]);
         add_instr( instr_ ("add",instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
-    } else if (false && is_reg(instr.dist->id)) {
-        std::string op0 = query(instr.operands[0]);
-        std::string op1 = query(instr.operands[1]);
-        if (op0 != get_reg(instr.dist->id,instr.dist->type) ) {
-            add_instr( instr_ ("mov",instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
-        }
-        add_instr( instr_ ("add",instr.dist->type) + op1 + ", " + get_reg(instr.dist->id,instr.dist->type) );
-    }  else {
+    } else if (is_reg(instr.dist->id)) {
+        auto type = instr.operands[0]->type;
+        std::string rax = reg_("%rax",type);
+
+        load (instr.operands[0], rax);
+
+        add_instr( instr_ ("add",type) + query(instr.operands[1]) + ", " + rax);
+
+        store (rax, instr.dist);
+
+    } else {
         auto type = instr.operands[0]->type;
         std::string rax = reg_("%rax",type);
         std::string rbx = reg_("%rbx",type);
