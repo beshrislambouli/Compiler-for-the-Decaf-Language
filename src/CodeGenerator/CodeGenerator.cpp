@@ -466,7 +466,7 @@ void CodeGenerator::visit(Linear::Binary& instr) {
     store (rax, instr.dist);
 }
 void CodeGenerator::visit_LONG_CAST(Linear::Unary& instr) {    
-    if (false && is_instance_of(instr.operands[0],Linear::Literal)) {
+    if (is_instance_of(instr.operands[0],Linear::Literal)) {
         std::string from = query(instr.operands[0]);
         std::string to   = query(instr.dist);
 
