@@ -465,7 +465,37 @@ void CodeGenerator::visit(Linear::Binary& instr) {
 
     store (rax, instr.dist);
 }
+void CodeGenerator::visit_LONG_CAST(Linear::Unary& instr) {    
+    if (is_instance_of(instr.operands[0],Linear::Literal)) {
+        std::string from = query(instr.operands[0]);
+        std::string to   = query(instr.dist);
+
+        add_instr( instr_("mov",instr.dist->type) + from + ", " + to );
+        return ;
+    }
+
+    if (is_reg (instr.dist->id)) {
+        std::string from = query(instr.operands[0]);
+        std::string to   = query(instr.dist);
+
+        add_instr("movslq " + from + ", " + to);
+        return ;
+    }
+    
+    std::string from = query(instr.operands[0]);
+    std::string to   = query(instr.dist);
+
+    add_instr("movslq " + from + ", %rax");
+    add_instr("movq %rax, " + to);
+    return ;
+}
+
 void CodeGenerator::visit(Linear::Unary& instr) {
+    if (instr.op == Linear::Unary::LONG_CAST) {
+        visit_LONG_CAST (instr);
+        return ;
+    }
+
     auto type = instr.dist->type;
     std::string rax = reg_("%rax",type);
     std::string rbx = reg_("%rbx",type);
@@ -489,8 +519,8 @@ void CodeGenerator::visit(Linear::Unary& instr) {
         break;
     
     case Linear::Unary::LONG_CAST:
-        load (instr.operands[0], "%eax"); // instr.operands[0] has to be int from linear builder
-        add_instr("movslq %eax, %rax");
+        // load (instr.operands[0], "%eax"); // instr.operands[0] has to be int from linear builder
+        // add_instr("movslq %eax, %rax");
         break;
 
     default:

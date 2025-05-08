@@ -95,6 +95,10 @@ private:
     std::string ret;
     std::string query(std::unique_ptr<Linear::Operand>& operand);
     std::string query(std::unique_ptr<Linear::Location>& operand);
+
+
+    // other
+    void visit_LONG_CAST (Linear::Unary& instr);
 };
 
 class Info {
