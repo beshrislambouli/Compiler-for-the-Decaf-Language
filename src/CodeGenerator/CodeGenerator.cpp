@@ -162,7 +162,7 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
         
         // add the webs' ones
         for (auto& web : reg.webs) {
-            
+            if (!web.spilled) continue;
             auto var = std::make_unique <Linear::Var>();
             var ->id = web.new_id;
             var ->type = original_id_to_type [web.original_id];
