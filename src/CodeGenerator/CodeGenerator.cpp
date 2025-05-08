@@ -371,9 +371,12 @@ void CodeGenerator::visit(Linear::Statement& instr) {
 }
 
 void CodeGenerator::visit_PLUS (Linear::Binary& instr){
+    std::string op = "add";
+    if (instr.op == Linear::Binary::Mul) op = "imul";
+
     if (is_reg(instr.dist->id) && is_reg(instr.operands[1]->id) && get_reg (instr.dist->id,instr.dist->type) == get_reg (instr.operands[1]->id,instr.operands[1]->type) ) {
         std::string op0 = query(instr.operands[0]);
-        add_instr( instr_ ("add",instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
+        add_instr( instr_ (op,instr.dist->type) + op0 + ", " + get_reg(instr.dist->id,instr.dist->type) );
     } else if ( !is_instance_of(instr.operands[1], Linear::Arr) && is_reg (instr.dist->id) ) { 
         std::string dist_reg = get_reg(instr.dist->id,instr.dist->type);
         std::string op0 = query(instr.operands[0]);
@@ -383,21 +386,21 @@ void CodeGenerator::visit_PLUS (Linear::Binary& instr){
             add_instr( instr_("mov",instr.dist->type) + op0 + ", " + dist_reg );
         }
 
-        add_instr( instr_ ("add",instr.dist->type) + op1 + ", " + dist_reg );
+        add_instr( instr_ (op,instr.dist->type) + op1 + ", " + dist_reg );
     } else {
         auto type = instr.operands[0]->type;
         std::string rax = reg_("%rax",type);
 
         load (instr.operands[0], rax);
 
-        add_instr( instr_ ("add",type) + query(instr.operands[1]) + ", " + rax);
+        add_instr( instr_ (op,type) + query(instr.operands[1]) + ", " + rax);
 
         store (rax, instr.dist);
 
     }
 }
 void CodeGenerator::visit(Linear::Binary& instr) {
-    if (instr.op == Linear::Binary::Plus) {
+    if (instr.op == Linear::Binary::Plus || instr.op == Linear::Binary::Mul) {
         visit_PLUS (instr);
         return ;
     }
@@ -421,7 +424,7 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         break;
     
     case Linear::Binary::Mul: 
-        add_instr( instr_ ("imul",type) + rbx + ", " + rax);
+        // add_instr( instr_ ("imul",type) + rbx + ", " + rax);
         break;
 
     case Linear::Binary::Div: 
