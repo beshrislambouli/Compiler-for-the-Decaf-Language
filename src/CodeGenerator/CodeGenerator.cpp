@@ -501,13 +501,17 @@ void CodeGenerator::visit(Linear::Unary& instr) {
     store (rax, instr.dist);
 }
 void CodeGenerator::visit(Linear::Assign& instr) {
-    if (is_reg (instr.dist->id) && is_reg (instr.operands[0]->id)) {
-        if (get_reg (instr.dist->id,instr.dist->type) == get_reg(instr.operands[0]->id,instr.dist->type) ) return;
-        add_instr( instr_("mov",instr.dist->type) +  get_reg (instr.operands[0]->id,instr.dist->type) + ", " + get_reg(instr.dist->id,instr.dist->type) );
+    if (is_MEM(instr.operands[0]) && is_MEM(instr.dist)) {
+        load (instr.operands[0], "%rax");
+        store ("%rax", instr.dist);
         return ;
     }
-    load (instr.operands[0], "%rax");
-    store ("%rax", instr.dist);
+
+    std::string from = query(instr.operands[0]);
+    std::string to   = query(instr.dist);
+    if (from == to) return ;
+
+    add_instr( instr_("mov",instr.dist->type) + from + ", " + to );
 }
 void CodeGenerator::visit(Linear::Helper& instr) {
     assert(false);
@@ -758,6 +762,11 @@ std::string CodeGenerator::get_reg (std::string id, Linear::Type type){
 std::string CodeGenerator::query(std::unique_ptr<Linear::Operand>& operand) {
     operand->accept(*this);
     return ret;
+}
+bool CodeGenerator::is_MEM(std::unique_ptr<Linear::Operand>& operand) {
+    if (is_instance_of(operand,Linear::Literal)) return false;
+    if (is_instance_of(operand,Linear::Arr))     return true ;
+    return ! is_reg(operand->id);
 }
 
 std::string CodeGenerator::query(std::unique_ptr<Linear::Location>& operand) {
