@@ -531,7 +531,7 @@ public:
                 } 
             }
 
-            if ( !across_call ) {
+            if ( okColors.size() == 0 && !across_call ) {
                 if ( okK ) {
                     coloredNodes.insert (node);
                     webs [node].color = K ;
