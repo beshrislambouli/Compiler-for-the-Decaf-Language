@@ -70,10 +70,10 @@ public:
     double spill_cost (std::vector <int>& nested_fors) {
         double cost = 0.0;
         for (auto def : defs ) {
-            cost += pow (10, std:: max ( 0 , std::min (nested_fors[def],17) ) ) ;
+            cost += pow (100, std:: max ( 0 , std::min (nested_fors[def],7) ) ) ;
         }
         for (auto use : uses ) {
-            cost += pow (10, std:: max ( 0 , std::min (nested_fors[use],17) ) ) ;
+            cost += pow (100, std:: max ( 0 , std::min (nested_fors[use],7) ) ) ;
         }
         return cost;
     }
