@@ -523,7 +523,15 @@ public:
                 }
             }
 
-            if ( !webs [node] .across_call ) {
+            bool across_call = 0;
+            if ( webs[node] .across_call ) across_call = 1 ;
+            for (auto u : coalescedNodes) {
+                if ( GetAlias(u) == node && webs [u].across_call) {
+                    across_call = 1 ;
+                } 
+            }
+
+            if ( !across_call ) {
                 if ( okK ) {
                     coloredNodes.insert (node);
                     webs [node].color = K ;
