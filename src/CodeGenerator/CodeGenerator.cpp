@@ -173,10 +173,11 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
             method -> instrs .insert (method->instrs.begin() +1 , std::move (declare)); // declare after the push_scope
         }
     }
+    std::string param_reg [] = {"%rdi", "%rsi", "%rcx", "%r8", "%r9"};
+    for (int i = 0 ; i < 5 ; i ++ ) {
+        REG .push_back (param_reg[i]);
+    }
 
-    REG .push_back ("%r10");
-    REG .push_back ("%r11");
-    
     // linear_program -> accept (printer);
 
     linear_program -> accept (*this);

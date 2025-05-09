@@ -39,6 +39,7 @@ public:
     int color = -1;
     bool spilled = false;
     bool across_call = false;
+    bool is_param = false;
 
     // for precoloring
     bool is_arg = false;
@@ -502,6 +503,13 @@ public:
                 }
             }
         }
+        for (auto& web : webs) {
+            for (auto use : web.uses) {
+                if ( is_instance_of (cfg.method->instrs[use], Linear::Method_Call) ) {
+                    web .is_param = true;
+                }
+            }
+        }
     }
 
     void AssignColors () {
@@ -514,9 +522,7 @@ public:
             for (int i = 0 ; i < K ; i ++ ) okColors .insert (i);
 
             std::set <int> extra ;
-            extra .insert (K);
-            extra .insert (K+1);
-
+            for (int i = 0 ; i < K + 5 ; i ++ ) extra .insert (i);
 
             for (auto w : webs [node].adj) {
                 auto alias = GetAlias (w);
@@ -529,15 +535,15 @@ public:
 
             if ( okColors.size() == 0 ) {
 
-                bool across_call = 0;
-                if ( webs[node] .across_call ) across_call = 1 ;
+                bool allowed_extra = 1;
+                if ( webs[node] .across_call || webs [node].is_param ) allowed_extra = 0 ;
                 for (auto u : coalescedNodes) {
-                    if ( GetAlias(u) == node && webs [u].across_call) {
-                        across_call = 1 ;
+                    if ( GetAlias(u) == node) {
+                        if ( webs[u] .across_call || webs [u].is_param ) allowed_extra = 0 ;
                     } 
                 }
 
-                if (!across_call && extra.size()) {
+                if (allowed_extra && extra.size()) {
                     coloredNodes.insert (node);
                     webs [node].color = * (extra.begin());
                 } else {
