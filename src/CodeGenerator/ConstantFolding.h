@@ -75,6 +75,37 @@ public:
             method->instrs[i] = std::move (asn_ptr);
             changed = true;
         }
+
+        for (int i = 0 ; i < method->instrs.size () ; i ++ ) {
+            if ( ! is_instance_of(method->instrs[i], Linear::Unary) ) continue;
+
+            Linear::Unary* Unary_ptr = dynamic_cast<Linear::Unary*>(method->instrs[i].get());
+
+            if ( ! is_instance_of (Unary_ptr->operands [0], Linear::Literal)) continue;
+            if ( Unary_ptr -> op == Linear::Unary::LONG_CAST ) continue;
+
+            long long num1 = std::stoll(Unary_ptr->operands [0]->id);
+            long long res;
+            switch (Unary_ptr->op) {
+                case Linear::Unary::Not:
+                    res = ! num1;
+                    break;
+                case Linear::Unary::Minus:
+                    res = - num1 ;
+                    break;
+                default: assert(false);
+            }
+            
+            auto res_ptr = std::make_unique <Linear::Literal> (Unary_ptr->dist->type, std::to_string (res));
+            auto asn_ptr = std::make_unique <Linear::Assign > ();
+            asn_ptr -> dist = std::move (Unary_ptr->dist);
+            asn_ptr -> operands .push_back (std::move(res_ptr));
+
+            method->instrs[i] = std::move (asn_ptr);
+            changed = true;
+        }
+
+
         return changed;
     }
 };
