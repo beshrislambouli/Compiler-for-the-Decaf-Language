@@ -174,6 +174,9 @@ int CodeGenerator::Generate(std::ifstream& fin, std::ofstream& fout) {
         }
     }
 
+    REG .push_back ("%r10");
+    REG .push_back ("%r11");
+    
     // linear_program -> accept (printer);
 
     linear_program -> accept (*this);

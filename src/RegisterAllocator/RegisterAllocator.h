@@ -38,6 +38,7 @@ public:
     int alias = -1;
     int color = -1;
     bool spilled = false;
+    bool across_call = false;
 
     // for precoloring
     bool is_arg = false;
@@ -477,7 +478,34 @@ public:
         FreezeMoves (node);
     }
 
+    void FillAcrossCall() {
+        Liveness::Liveness liveness(cfg);
+
+        for (auto& BB: cfg.BBs) {
+            std::vector<bool> live = liveness.OUT[BB.id];
+
+            for (int i = BB.instrs.size() - 1 ; i >= 0 ; liveness.Process_Instr (BB, i, live), i --) {
+                auto& instr = cfg.method->instrs [BB.instrs[i]];
+                if ( !is_instance_of(instr,Linear::Method_Call) ) continue;
+
+                for (auto u : liveness.Var_to_bit) {
+                    auto var = u.first;
+                    auto bit = u.second;
+
+                    if ( !live[bit] ) continue;
+
+                    for (auto& web : webs ) {
+                        if (web .new_id == var) {
+                            web .across_call = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     void AssignColors () {
+        FillAcrossCall ();
         while (selectStack.size ()) {
             int node = selectStack.back();
             selectStack.pop_back();
@@ -485,15 +513,38 @@ public:
             std::set <int> okColors;
             for (int i = 0 ; i < K ; i ++ ) okColors .insert (i);
 
+            std::set <int> extra ;
+            extra .insert (K);
+            extra .insert (K+1);
+
+
             for (auto w : webs [node].adj) {
                 auto alias = GetAlias (w);
                 if ( in(precolored,alias) || in (coloredNodes,alias) ) {
                     okColors .erase (webs [alias].color);
+                    extra    .erase (webs [alias].color);
                 }
             }
+
+
             if ( okColors.size() == 0 ) {
-                spilledNodes.insert (node);
-                webs [node].spilled = true;
+
+                bool across_call = 0;
+                if ( webs[node] .across_call ) across_call = 1 ;
+                for (auto u : coalescedNodes) {
+                    if ( GetAlias(u) == node && webs [u].across_call) {
+                        across_call = 1 ;
+                    } 
+                }
+
+                if (!across_call && extra.size()) {
+                    coloredNodes.insert (node);
+                    webs [node].color = * (extra.begin());
+                } else {
+                    spilledNodes.insert (node);
+                    webs [node].spilled = true;
+                }
+                
             } else {
                 coloredNodes.insert (node);
                 webs [node].color = * (okColors.begin());
