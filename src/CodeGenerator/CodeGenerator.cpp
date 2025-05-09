@@ -424,13 +424,17 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         visit_PLUS (instr);
         return ;
     }
-
+    add_comment("NEW");
+    
     auto type = instr.operands[0]->type;
     std::string rax = reg_("%rax",type);
-    std::string rbx = reg_("%rbx",type);
-
     load (instr.operands[0], rax);
-    load (instr.operands[1], rbx);
+    
+    std::string rbx ;
+    
+    if ( instr.op != Linear::Binary::Div && instr.op != Linear::Binary::Mod ) {
+        rbx = query(instr.operands[1]);
+    }
 
     bool is_compare = false;
     switch (instr.op)
@@ -440,7 +444,7 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         break;
     
     case Linear::Binary::Minus: 
-        add_instr( instr_ ("sub",type) + rbx + ", " + rax);
+        // add_instr( instr_ ("sub",type) + rbx + ", " + rax);
         break;
     
     case Linear::Binary::Mul: 
@@ -448,6 +452,8 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         break;
 
     case Linear::Binary::Div: 
+        rbx = reg_("%rbx",type);
+        load (instr.operands[1], rbx);
         // add_instr("pushq %rdx");
         if (type == Linear::Type::Long) add_instr("cqto");
         else                            add_instr("cltd");
@@ -456,6 +462,8 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         break;
 
     case Linear::Binary::Mod: 
+        rbx = reg_("%rbx",type);
+        load (instr.operands[1], rbx);
         // add_instr("pushq %rdx");
         if (type == Linear::Type::Long) add_instr("cqto");
         else                            add_instr("cltd");
