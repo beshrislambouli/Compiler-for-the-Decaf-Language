@@ -424,7 +424,6 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         visit_PLUS (instr);
         return ;
     }
-    add_comment("NEW");
     
     auto type = instr.operands[0]->type;
     std::string rax = reg_("%rax",type);
@@ -452,6 +451,18 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         break;
 
     case Linear::Binary::Div: 
+        if (is_instance_of (instr.operands[1], Linear::Literal)) {
+            long long num = std::stoll(instr.operands[1]->id);
+            if ( ( num & ( num - 1 ) ) == 0 ) {
+                long long power ;
+                for ( power = 0 ; power < 64 ; power ++ ) {
+                    if ( (num & (1ll << power))) break;
+                }
+                add_instr( instr_ ("sar",type) + "$" + std::to_string (power) + ", " + rax);
+                store (rax, instr.dist);
+                return;
+            }
+        }
         rbx = reg_("%rbx",type);
         load (instr.operands[1], rbx);
         // add_instr("pushq %rdx");

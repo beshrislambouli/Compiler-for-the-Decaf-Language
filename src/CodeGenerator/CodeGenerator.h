@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
+#include <bit>
 #include "semantics.h"
 #include "Linear.h"
 #include "LinearBuilder.h"
