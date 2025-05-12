@@ -268,77 +268,77 @@ public:
     }
 
     // webs
-    std::set <int> precolored;
+    // std::set <int> precolored;
     std::set <int> simplifyWorklist;
-    std::set <int> freezeWorklist;
+    // std::set <int> freezeWorklist;
     std::set <int> spillWorklist;
-    std::set <int> coalescedNodes;
+    // std::set <int> coalescedNodes;
     std::set <int> coloredNodes;
     std::set <int> spilledNodes;
     std::vector <int> selectStack;
     
     // moves
-    std::set<int> coalescedMoves;
-    std::set<int> constrainedMoves;
-    std::set<int> frozenMoves;
-    std::set<int> worklistMoves;
-    std::set<int> activeMoves;
+    // std::set<int> coalescedMoves;
+    // std::set<int> constrainedMoves;
+    // std::set<int> frozenMoves;
+    // std::set<int> worklistMoves;
+    // std::set<int> activeMoves;
 
-    void printAll() {
-    std::cout << "precolored: ";
-    for (const int& x : precolored) std::cout << x << " ";
-    std::cout << std::endl;
+//     void printAll() {
+//     std::cout << "precolored: ";
+//     for (const int& x : precolored) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "simplifyWorklist: ";
-    for (const int& x : simplifyWorklist) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "simplifyWorklist: ";
+//     for (const int& x : simplifyWorklist) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "freezeWorklist: ";
-    for (const int& x : freezeWorklist) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "freezeWorklist: ";
+//     for (const int& x : freezeWorklist) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "spillWorklist: ";
-    for (const int& x : spillWorklist) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "spillWorklist: ";
+//     for (const int& x : spillWorklist) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "coalescedNodes: ";
-    for (const int& x : coalescedNodes) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "coalescedNodes: ";
+//     for (const int& x : coalescedNodes) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "coloredNodes: ";
-    for (const int& x : coloredNodes) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "coloredNodes: ";
+//     for (const int& x : coloredNodes) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "spilledNodes: ";
-    for (const int& x : spilledNodes) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "spilledNodes: ";
+//     for (const int& x : spilledNodes) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "selectStack: ";
-    for (const int& x : selectStack) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "selectStack: ";
+//     for (const int& x : selectStack) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "coalescedMoves: ";
-    for (const int& x : coalescedMoves) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "coalescedMoves: ";
+//     for (const int& x : coalescedMoves) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "constrainedMoves: ";
-    for (const int& x : constrainedMoves) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "constrainedMoves: ";
+//     for (const int& x : constrainedMoves) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "frozenMoves: ";
-    for (const int& x : frozenMoves) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "frozenMoves: ";
+//     for (const int& x : frozenMoves) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "worklistMoves: ";
-    for (const int& x : worklistMoves) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "worklistMoves: ";
+//     for (const int& x : worklistMoves) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "activeMoves: ";
-    for (const int& x : activeMoves) std::cout << x << " ";
-    std::cout << std::endl;
+//     std::cout << "activeMoves: ";
+//     for (const int& x : activeMoves) std::cout << x << " ";
+//     std::cout << std::endl;
 
-    std::cout << "------------" << std::endl;
-}
+//     std::cout << "------------" << std::endl;
+// }
 
     void Color () {
         MakeWorklist ();
@@ -347,8 +347,8 @@ public:
         while (true) {
             // printAll();
             if (simplifyWorklist.size()) Simplify();
-            else if (worklistMoves.size()) Coalesce();
-            else if (freezeWorklist.size()) Freeze();
+            // else if (worklistMoves.size()) Coalesce();
+            // else if (freezeWorklist.size()) Freeze();
             else if (spillWorklist.size()) SelectSpill();
             else break;
         }
@@ -370,98 +370,98 @@ public:
         }
     }
 
-    void Coalesce() {
-        int m = *(worklistMoves.begin());
+    // void Coalesce() {
+    //     int m = *(worklistMoves.begin());
 
-        auto p = dist_src (m);
-        int x = p.first;
-        int y = p.second;
+    //     auto p = dist_src (m);
+    //     int x = p.first;
+    //     int y = p.second;
 
-        x = GetAlias (x);
-        y = GetAlias (y);
+    //     x = GetAlias (x);
+    //     y = GetAlias (y);
 
-        int u,v;
-        if ( in (precolored,y) ) {
-            u = y ;
-            v = x ;
-        } else {
-            u = x ;
-            v = y ;
-        }
+    //     int u,v;
+    //     if ( in (precolored,y) ) {
+    //         u = y ;
+    //         v = x ;
+    //     } else {
+    //         u = x ;
+    //         v = y ;
+    //     }
 
-        worklistMoves.erase (m);
-        if (u == v) {
-            coalescedMoves .insert (m);
-            AddWorkList (u);
-        } else if ( in (precolored,u) || in (precolored,v) || (webs [u].is_adj (v) || webs [v].is_adj (u)) ) {
-            constrainedMoves .insert (m);
-            AddWorkList (u);
-            AddWorkList (v);
-        } else if ( ( in (precolored,u) && OK (v,u) ) || ( !in (precolored,u) && Conservative (u,v) )) {
-            coalescedMoves .insert (m);
-            Combine (u,v);
-            AddWorkList(u);
-        } else {
-            activeMoves .insert (m);
-        }
-    }
+    //     worklistMoves.erase (m);
+    //     if (u == v) {
+    //         coalescedMoves .insert (m);
+    //         AddWorkList (u);
+    //     } else if ( in (precolored,u) || in (precolored,v) || (webs [u].is_adj (v) || webs [v].is_adj (u)) ) {
+    //         constrainedMoves .insert (m);
+    //         AddWorkList (u);
+    //         AddWorkList (v);
+    //     } else if ( ( in (precolored,u) && OK (v,u) ) || ( !in (precolored,u) && Conservative (u,v) )) {
+    //         coalescedMoves .insert (m);
+    //         Combine (u,v);
+    //         AddWorkList(u);
+    //     } else {
+    //         activeMoves .insert (m);
+    //     }
+    // }
 
-    void Combine (int u, int v) {
-        if ( in (freezeWorklist, v) ) {
-            freezeWorklist .erase (v);
-        } else {
-            spillWorklist .erase (v);
-        }
-        coalescedNodes .insert (v);
-        webs [v].alias = u;
+    // void Combine (int u, int v) {
+    //     if ( in (freezeWorklist, v) ) {
+    //         freezeWorklist .erase (v);
+    //     } else {
+    //         spillWorklist .erase (v);
+    //     }
+    //     coalescedNodes .insert (v);
+    //     webs [v].alias = u;
 
-        for (auto m : webs [v].moves) {
-            webs [u].moves .insert (m);
-        }
+    //     for (auto m : webs [v].moves) {
+    //         webs [u].moves .insert (m);
+    //     }
 
-        auto ADJ_v = Adjacent (v);
-        for (auto t : ADJ_v) {
-            AddEdge (t,u);
-            DecrementDegree(t);
-        }
-        if (webs [u].deg >= K && in(freezeWorklist,u) ) {
-            freezeWorklist .erase (u);
-            spillWorklist  .insert(u);
-        }
-    }
+    //     auto ADJ_v = Adjacent (v);
+    //     for (auto t : ADJ_v) {
+    //         AddEdge (t,u);
+    //         DecrementDegree(t);
+    //     }
+    //     if (webs [u].deg >= K && in(freezeWorklist,u) ) {
+    //         freezeWorklist .erase (u);
+    //         spillWorklist  .insert(u);
+    //     }
+    // }
 
-    void Freeze () {
-        int node = *(freezeWorklist.begin());
-        freezeWorklist.erase (node);
-        simplifyWorklist .insert (node);
-        FreezeMoves (node);
-    }
+    // void Freeze () {
+    //     int node = *(freezeWorklist.begin());
+    //     freezeWorklist.erase (node);
+    //     simplifyWorklist .insert (node);
+    //     FreezeMoves (node);
+    // }
 
-    void FreezeMoves (int node) {
-        auto node_moves = NodeMoves(node);
+    // void FreezeMoves (int node) {
+    //     auto node_moves = NodeMoves(node);
 
-        for (auto m : node_moves) {
-            auto p = dist_src (m);
-            int x = p.first ;
-            int y = p.second;
+    //     for (auto m : node_moves) {
+    //         auto p = dist_src (m);
+    //         int x = p.first ;
+    //         int y = p.second;
 
-            int v;
-            if (GetAlias(y) == GetAlias (node)) {
-                v = GetAlias(x);
-            } else {
-                v = GetAlias (y);
-            }
+    //         int v;
+    //         if (GetAlias(y) == GetAlias (node)) {
+    //             v = GetAlias(x);
+    //         } else {
+    //             v = GetAlias (y);
+    //         }
 
-            activeMoves .erase (m);
-            frozenMoves .insert(m);
+    //         activeMoves .erase (m);
+    //         frozenMoves .insert(m);
 
-            auto tmp = NodeMoves(v);
-            if (tmp.size() == 0 && webs [v].deg < K ) {
-                freezeWorklist   .erase (v);
-                simplifyWorklist .insert(v);
-            }
-        }
-    }
+    //         auto tmp = NodeMoves(v);
+    //         if (tmp.size() == 0 && webs [v].deg < K ) {
+    //             freezeWorklist   .erase (v);
+    //             simplifyWorklist .insert(v);
+    //         }
+    //     }
+    // }
 
     void SelectSpill() {
         // int node = *(spillWorklist.begin());
@@ -476,7 +476,7 @@ public:
 
         spillWorklist.erase (node);
         simplifyWorklist.insert (node);
-        FreezeMoves (node);
+        // FreezeMoves (node);
     }
 
     void FillAcrossCall() {
@@ -526,7 +526,7 @@ public:
 
             for (auto w : webs [node].adj) {
                 auto alias = GetAlias (w);
-                if ( in(precolored,alias) || in (coloredNodes,alias) ) {
+                if ( /*in(precolored,alias) ||*/ in (coloredNodes,alias) ) {
                     okColors .erase (webs [alias].color);
                     extra    .erase (webs [alias].color);
                 }
@@ -537,11 +537,11 @@ public:
 
                 bool allowed_extra = 1;
                 if ( webs[node] .across_call || webs [node].is_param ) allowed_extra = 0 ;
-                for (auto u : coalescedNodes) {
-                    if ( GetAlias(u) == node) {
-                        if ( webs[u] .across_call || webs [u].is_param ) allowed_extra = 0 ;
-                    } 
-                }
+                // for (auto u : coalescedNodes) {
+                //     if ( GetAlias(u) == node) {
+                //         if ( webs[u] .across_call || webs [u].is_param ) allowed_extra = 0 ;
+                //     } 
+                // }
 
                 if (allowed_extra && extra.size()) {
                     coloredNodes.insert (node);
@@ -556,50 +556,50 @@ public:
                 webs [node].color = * (okColors.begin());
             }
         }
-        for (auto node : coalescedNodes) {
-            webs [node].color = webs [GetAlias(node)].color;
-        }
+        // for (auto node : coalescedNodes) {
+        //     webs [node].color = webs [GetAlias(node)].color;
+        // }
     }
 
-    bool Conservative (int u , int v) {
-        int k = 0 ;
+    // bool Conservative (int u , int v) {
+    //     int k = 0 ;
         
-        auto ADJ = Adjacent (u);
-        for (auto node : ADJ) {
-            if ( webs [node].deg >= K ) k ++ ;
-        }
-        ADJ = Adjacent (v);
-        for (auto node : ADJ) {
-            if ( webs [node].deg >= K ) k ++ ;
-        }
-        return k < K;
-    }
+    //     auto ADJ = Adjacent (u);
+    //     for (auto node : ADJ) {
+    //         if ( webs [node].deg >= K ) k ++ ;
+    //     }
+    //     ADJ = Adjacent (v);
+    //     for (auto node : ADJ) {
+    //         if ( webs [node].deg >= K ) k ++ ;
+    //     }
+    //     return k < K;
+    // }
 
-    bool OK (int v, int r) {
-        auto ADJ = Adjacent (v);
+    // bool OK (int v, int r) {
+    //     auto ADJ = Adjacent (v);
 
-        for (auto t : ADJ ) {
-            // std::cout << "V: " << v << " t " << t << " " << in(precolored,t) << " " << webs[t].color << " " << webs[r].color << std::endl;
-            // if (in(precolored,t) && webs[t].color == webs[r].color) return false;
-            if ( webs [t].deg < K || in (precolored,t) || (webs [t].is_adj (r) || webs[r].is_adj (t) )) continue;
-            return false;
-        }
+    //     for (auto t : ADJ ) {
+    //         // std::cout << "V: " << v << " t " << t << " " << in(precolored,t) << " " << webs[t].color << " " << webs[r].color << std::endl;
+    //         // if (in(precolored,t) && webs[t].color == webs[r].color) return false;
+    //         if ( webs [t].deg < K || in (precolored,t) || (webs [t].is_adj (r) || webs[r].is_adj (t) )) continue;
+    //         return false;
+    //     }
 
-        return true; 
-    }
-    void AddWorkList(int node) {
-        if ( !in(precolored,node) && !MoveRelated (node) && webs [node].deg < K ) {
-            freezeWorklist .erase (node);
-            simplifyWorklist .insert (node);
-        }
-    }
+    //     return true; 
+    // }
+    // void AddWorkList(int node) {
+    //     if ( !in(precolored,node) && !MoveRelated (node) && webs [node].deg < K ) {
+    //         freezeWorklist .erase (node);
+    //         simplifyWorklist .insert (node);
+    //     }
+    // }
 
     int GetAlias (int node) {
-        if ( in (coalescedNodes, node) ) {
-            return GetAlias (webs[node].alias);
-        } else {
+        // if ( in (coalescedNodes, node) ) {
+        //     return GetAlias (webs[node].alias);
+        // } else {
             return node;
-        }
+        // }
     }
 
     void DecrementDegree (int node) {
@@ -607,36 +607,38 @@ public:
         if (webs [node].deg == K-1 ) {
             auto ADJ = Adjacent (node);
             ADJ .insert (node);
-            EnableMoves (ADJ);
+            // EnableMoves (ADJ);
             spillWorklist .erase (node);
-            if (MoveRelated (node)) {
-                freezeWorklist .insert (node);
-            } else {
+            // if (MoveRelated (node)) {
+            //     freezeWorklist .insert (node);
+            // } else {
                 simplifyWorklist.insert (node);
-            }
+            // }
         }
     }
 
-    void EnableMoves (std::set<int> nodes) {
-        for (auto node : nodes) {
-            auto node_moves = NodeMoves (node);
-            for (auto m : node_moves) {
-                if ( in (activeMoves, m) ) {
-                    activeMoves .erase (m);
-                    worklistMoves .insert (m);
-                }
-            }
-        }
-    }
+    // void EnableMoves (std::set<int> nodes) {
+    //     for (auto node : nodes) {
+    //         auto node_moves = NodeMoves (node);
+    //         for (auto m : node_moves) {
+    //             if ( in (activeMoves, m) ) {
+    //                 activeMoves .erase (m);
+    //                 worklistMoves .insert (m);
+    //             }
+    //         }
+    //     }
+    // }
 
     void MakeWorklist () {
         for (int web_id = 0 ; web_id < webs.size () ; web_id ++ ) {
             if (webs [web_id].color != -1) continue;
             if (webs [web_id].deg >= K ) {
                 spillWorklist  .insert (web_id);
-            } else if ( MoveRelated (web_id) ){
-                freezeWorklist .insert (web_id);
-            } else {
+            } 
+            // else if ( MoveRelated (web_id) ){
+            //     freezeWorklist .insert (web_id);
+            // } 
+            else {
                 simplifyWorklist .insert (web_id);
             }
         }
@@ -646,58 +648,58 @@ public:
     std::set<int> Adjacent (int node) {
         std::set <int> ret;
         for (auto u : webs[node].adj) {
-            if ( ! in (coalescedNodes,u) ) {
+            // if ( ! in (coalescedNodes,u) ) {
                 bool here = false;
                 for (auto v : selectStack) if (v == u) here = true;
                 if (!here) {
                     ret .insert (u);
                 }
-            }
+            // }
         }
         return ret;
     }
 
     // moveList[n] ∩ (activeMoves ∪ worklistMoves)
-    std::set<int> NodeMoves (int node ) {
-        std::set <int> ret;
-        for (auto m : webs [node].moves){
-            if ( in (activeMoves,m) ||  in(worklistMoves,m) ) {
-                ret .insert (m);
-            }
-        }
-        return ret;
-    }
+    // std::set<int> NodeMoves (int node ) {
+    //     std::set <int> ret;
+    //     for (auto m : webs [node].moves){
+    //         if ( in (activeMoves,m) ||  in(worklistMoves,m) ) {
+    //             ret .insert (m);
+    //         }
+    //     }
+    //     return ret;
+    // }
 
     // NodeMoves(n) ̸= {}
-    bool MoveRelated (int node) {
-        std::set<int> tmp = NodeMoves(node);
-        return tmp.size () != 0;
-    }
+    // bool MoveRelated (int node) {
+    //     std::set<int> tmp = NodeMoves(node);
+    //     return tmp.size () != 0;
+    // }
 
     void PreColor(std::vector<std::string> REG) {
-        std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+        // std::string param_reg [] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
-        for (auto& web : webs ) {
-            if (! web.is_arg ) continue;
+        // for (auto& web : webs ) {
+        //     if (! web.is_arg ) continue;
             
-            for (int c = 0 ; c < REG.size () ; c ++ ) {
-                if ( REG [c] == param_reg [web.arg_num]) {
-                    web.color = c;
-                }
-            }
-        }
+        //     for (int c = 0 ; c < REG.size () ; c ++ ) {
+        //         if ( REG [c] == param_reg [web.arg_num]) {
+        //             web.color = c;
+        //         }
+        //     }
+        // }
     }
 
     void AddEdge (int web1_id, int web2_id) {
         if (web1_id == web2_id) return ;
-        if ( !in (precolored, web1_id) ) {
+        // if ( !in (precolored, web1_id) ) {
             webs [web1_id] .add_adj (web2_id);
             webs [web1_id] .deg = webs [web1_id] .adj.size() ;
-        }
-        if ( !in (precolored, web2_id) ) {
+        // }
+        // if ( !in (precolored, web2_id) ) {
             webs [web2_id] .add_adj (web1_id); 
             webs [web2_id] .deg = webs [web2_id] .adj.size() ;
-        }
+        // }
     }
 
 
@@ -796,17 +798,17 @@ public:
                 int web1_id = V_Reg_Web (dist);
                 
                 // add moves
-                if ( is_instance_of (instr, Linear::Assign) ) {
-                    Linear::Assign* assign_ptr = dynamic_cast <Linear::Assign*> (instr.get());
-                    Var src = assign_ptr->operands[0]->id;
-                    if (src != "" && is_V_Reg (src)) {
-                        int web2_id = V_Reg_Web (src);
-                        live [liveness.Var_to_bit[src]] = 0 ;
-                        webs [web1_id] .moves .insert (BB.instrs[i]);
-                        webs [web2_id] .moves .insert (BB.instrs[i]);
-                        worklistMoves  .insert (BB.instrs[i]);
-                    }
-                }
+                // if ( is_instance_of (instr, Linear::Assign) ) {
+                //     Linear::Assign* assign_ptr = dynamic_cast <Linear::Assign*> (instr.get());
+                //     Var src = assign_ptr->operands[0]->id;
+                //     if (src != "" && is_V_Reg (src)) {
+                //         int web2_id = V_Reg_Web (src);
+                //         live [liveness.Var_to_bit[src]] = 0 ;
+                //         webs [web1_id] .moves .insert (BB.instrs[i]);
+                //         webs [web2_id] .moves .insert (BB.instrs[i]);
+                //         worklistMoves  .insert (BB.instrs[i]);
+                //     }
+                // }
 
 
                 // add adj
@@ -898,15 +900,15 @@ public:
             // web.print();
 
             // check if arg and add the arg num
-            std::string prefix = "FUNC_ARG_";
-            if (web.original_id.compare(0, prefix.size(), prefix) == 0) {
-                size_t n_pos = web.original_id.rfind("_N");
+            // std::string prefix = "FUNC_ARG_";
+            // if (web.original_id.compare(0, prefix.size(), prefix) == 0) {
+            //     size_t n_pos = web.original_id.rfind("_N");
                 
-                web .is_arg = true;
-                web .arg_num= std::stoi(web.original_id.substr(n_pos+2));
-                web .new_id += "_ARG_" + std::to_string (web.arg_num);
-                precolored .insert (counter-1);
-            }
+            //     web .is_arg = true;
+            //     web .arg_num= std::stoi(web.original_id.substr(n_pos+2));
+            //     web .new_id += "_ARG_" + std::to_string (web.arg_num);
+            //     precolored .insert (counter-1);
+            // }
 
 
             for (auto& def : web.defs) {
