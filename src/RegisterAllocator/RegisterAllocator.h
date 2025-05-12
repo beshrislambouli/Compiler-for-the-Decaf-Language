@@ -84,22 +84,22 @@ public:
     }
 
     void print () {
-        std::cout << "old_id: " << original_id << " new_id: " << new_id << std::endl;
-        std::cout << "COLOR: " << color << " SPILLED: " << spilled << std::endl; 
+        std::cerr << "old_id: " << original_id << " new_id: " << new_id << std::endl;
+        std::cerr << "COLOR: " << color << " SPILLED: " << spilled << std::endl; 
 
-        std::cout << "DEFS: " << std::endl;
-        for (auto def : defs ) std::cout << def << " " ;
-        std::cout << std::endl;
+        std::cerr << "DEFS: " << std::endl;
+        for (auto def : defs ) std::cerr << def << " " ;
+        std::cerr << std::endl;
 
-        std::cout << "USES: " << std::endl;
-        for (auto use : uses ) std::cout << use << " " ;
-        std::cout << std::endl;
+        std::cerr << "USES: " << std::endl;
+        for (auto use : uses ) std::cerr << use << " " ;
+        std::cerr << std::endl;
 
-        std::cout << "Adj: " << std::endl;
-        for (auto web : adj ) std::cout << web << " " ;
-        std::cout << std::endl;
+        std::cerr << "Adj: " << std::endl;
+        for (auto web : adj ) std::cerr << web << " " ;
+        std::cerr << std::endl;
 
-        std::cout << "---------------" << std::endl;
+        std::cerr << "---------------" << std::endl;
     }
 };
 
@@ -957,7 +957,7 @@ public:
 
     std::pair<int,int> dist_src (int m) {
         auto& instr = cfg.method->instrs [m];
-        if (! is_instance_of (instr, Linear::Assign) ) std::cout << "ERROR" << std::endl;
+        if (! is_instance_of (instr, Linear::Assign) ) std::cerr << "ERROR" << std::endl;
         Linear::Assign* assign_ptr = dynamic_cast <Linear::Assign*> (instr.get());
         Var x_id = assign_ptr -> get_dist();
         Var y_id = (assign_ptr -> get_operands())[0];

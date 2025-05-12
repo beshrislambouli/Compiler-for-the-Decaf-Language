@@ -63,21 +63,21 @@ public:
     // put
     void put_method(std::string id, T_t type, bool is_import, std::vector<T_t>& parameters) {
 
-        if ( in_scope (id) ) std::cout << "ERROR: Scope put" << std::endl;
+        if ( in_scope (id) ) std::cerr << "ERROR: Scope put" << std::endl;
 
         hash_table [id] = Method(type,is_import,parameters);
     }
 
     void put_var(std::string id, T_t type) {
         
-        if ( in_scope (id) ) std::cout << "ERROR: Scope put" << std::endl;
+        if ( in_scope (id) ) std::cerr << "ERROR: Scope put" << std::endl;
 
         hash_table [id] = Var(type);
     }
 
     void put_arr(std::string id, T_t type, std::string size) {
         
-        if ( in_scope (id) ) std::cout << "ERROR: Scope put" << std::endl;
+        if ( in_scope (id) ) std::cerr << "ERROR: Scope put" << std::endl;
 
         hash_table [id] = Arr(type,size);
     }
@@ -112,7 +112,7 @@ public:
 
     void pop() {
         if (stack.size () == 0 ) {
-            std::cout << "ERROR: POP Scope_Stack" << std::endl;
+            std::cerr << "ERROR: POP Scope_Stack" << std::endl;
             return;
         }
         stack.pop_back();
@@ -133,7 +133,7 @@ public:
                 return stack[i].current_method;
             }
         }
-        std::cout << "ERROR: Scope_Stack : get_current_method" << std::endl;
+        std::cerr << "ERROR: Scope_Stack : get_current_method" << std::endl;
         return std::nullopt;
     }
 
@@ -190,7 +190,7 @@ public:
             return std::get<Arr>(ans).type;
         }
 
-        std::cout << "ERROR: Scope_Stack : get_type " << std::endl;
+        std::cerr << "ERROR: Scope_Stack : get_type " << std::endl;
         return std::nullopt;
     }
 
@@ -247,7 +247,7 @@ public:
 
     std::vector<T_t> get_method_parameters (std::string id) {
         if (!is_method(id)) {
-            std::cout << "ERROR: Scope_Stack : get_method_parameters" << std::endl;
+            std::cerr << "ERROR: Scope_Stack : get_method_parameters" << std::endl;
             return {};
         }
         return std::get<Method>(get(id).value()).parameters; // TODO: recheck this

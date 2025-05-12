@@ -5,7 +5,7 @@ using namespace AST;
 template<typename T>
 std::unique_ptr<T> any_to_unique_ptr(antlrcpp::Any obj) {
     if (obj.isNull()) {
-        std::cout << "ERROR: any_to_unique_ptr" << std::endl;
+        std::cerr << "ERROR: any_to_unique_ptr" << std::endl;
         return nullptr;
     }
     return std::unique_ptr<T>(obj.as<T*>());
@@ -115,7 +115,7 @@ antlrcpp::Any DecafASTBuilder::visitMethod_type(DecafParser::Method_typeContext 
     } else if (ctx->VOID()) {
         method_type -> type = make_Type (Type::Void);
     } else {
-        std::cout << "ERROR DecafASTBuilder::visitMethod_type" << std::endl;
+        std::cerr << "ERROR DecafASTBuilder::visitMethod_type" << std::endl;
     }
     
     return method_type.release();
@@ -131,7 +131,7 @@ antlrcpp::Any DecafASTBuilder::visitField_type(DecafParser::Field_typeContext *c
     } else if (ctx->BOOL()) {
         field_type -> type = make_Type (Type::Bool);
     } else {
-        std::cout << "ERROR DecafASTBuilder::visitField_type" << std::endl;
+        std::cerr << "ERROR DecafASTBuilder::visitField_type" << std::endl;
     }
 
     return field_type.release();
@@ -285,7 +285,7 @@ antlrcpp::Any DecafASTBuilder::visitAssign_op(DecafParser::Assign_opContext *ctx
     } else if (ctx->MOD_ASSIGN()) {
         assign_op -> type = Assign_Op::MOD_ASSIGN;
     } else {
-        std::cout << "ERROR: DecafASTBuilder::visitAssign_op" << std::endl;
+        std::cerr << "ERROR: DecafASTBuilder::visitAssign_op" << std::endl;
     }
 
     return assign_op.release();
@@ -495,7 +495,7 @@ antlrcpp::Any DecafASTBuilder::visitBin_mul_op(DecafParser::Bin_mul_opContext *c
     } else if (ctx->MOD()) {
         bin_mul_op->type = Mul_Op::MOD;
     } else {
-        std::cout << "ERROR: DecafASTBuilder::visitBin_mul_op" << std::endl;
+        std::cerr << "ERROR: DecafASTBuilder::visitBin_mul_op" << std::endl;
     }
 
 
@@ -510,7 +510,7 @@ antlrcpp::Any DecafASTBuilder::visitBin_add_op(DecafParser::Bin_add_opContext *c
     } else if (ctx->MINUS()) {
         bin_add_op->type = Add_Op::MINUS;
     } else {
-        std::cout << "ERROR: DecafASTBuilder::visitBin_add_op" << std::endl;
+        std::cerr << "ERROR: DecafASTBuilder::visitBin_add_op" << std::endl;
     }
 
     return (Bin_Op*)bin_add_op.release();
@@ -528,7 +528,7 @@ antlrcpp::Any DecafASTBuilder::visitRel_op(DecafParser::Rel_opContext *ctx) {
     } else if (ctx->GE()) {
         rel_op->type = Rel_Op::GE;
     } else {
-        std::cout << "ERROR: DecafASTBuilder::visitRel_op" << std::endl;
+        std::cerr << "ERROR: DecafASTBuilder::visitRel_op" << std::endl;
     }
 
     return (Bin_Op*)rel_op.release();
@@ -542,7 +542,7 @@ antlrcpp::Any DecafASTBuilder::visitEq_op(DecafParser::Eq_opContext *ctx) {
     } else if (ctx->NEQ()) {
         eq_op->type = Eq_Op::NEQ;
     } else {
-        std::cout << "ERROR: DecafASTBuilder::visitEq_op" << std::endl;
+        std::cerr << "ERROR: DecafASTBuilder::visitEq_op" << std::endl;
     }
 
     return (Bin_Op*)eq_op.release();

@@ -12,7 +12,7 @@ std::unique_ptr<T> cast (std::unique_ptr<Linear::Operand>&& ret) {
         return std::unique_ptr<T>(raw_pointer);
     }
 
-    std::cout << "Error cast" << std::endl;
+    std::cerr << "Error cast" << std::endl;
     exit(1);
 } 
 
@@ -174,7 +174,7 @@ void MethodBuilder::visit(AST::Location_Assign_Op& node) {
         break;
     
     default:
-        std::cout << "Error MethodBuilder::visit AST::Location_Assign_Op" << std::endl;
+        std::cerr << "Error MethodBuilder::visit AST::Location_Assign_Op" << std::endl;
         break;
     }
 
@@ -430,7 +430,7 @@ void MethodBuilder::visit(AST::For_Upd_Assign_Op& node) {
         break;
     
     default:
-        std::cout << "Error MethodBuilder::visit AST::Location_Assign_Op" << std::endl;
+        std::cerr << "Error MethodBuilder::visit AST::Location_Assign_Op" << std::endl;
         break;
     }
 
@@ -858,7 +858,7 @@ Linear::Type T(AST::Type::Type_t AST_t) {
         break;
     
     default:
-        std::cout << "ERROR T: Null_Type" << std::endl;
+        std::cerr << "ERROR T: Null_Type" << std::endl;
         exit(1);
         break;
     }
@@ -920,7 +920,7 @@ Linear::Binary::Op B(AST::Bin_Op::Type from) {
         break;
     
     default:
-        std::cout << "ERROR B: Null_Type" << std::endl;
+        std::cerr << "ERROR B: Null_Type" << std::endl;
         exit(1);
         break;
     }

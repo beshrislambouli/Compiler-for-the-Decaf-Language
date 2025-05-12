@@ -140,29 +140,29 @@ public:
     void print () {
         cfg.print();
         for (auto& u : Exprs) {
-            std::cout << "Expr: " << u.dist << " = " << u.operand1 << " op " << u.operand2 << " BIT: " << u.bit << std::endl;
+            std::cerr << "Expr: " << u.dist << " = " << u.operand1 << " op " << u.operand2 << " BIT: " << u.bit << std::endl;
         }
         for (int i = 0 ; i < cfg.BBs.size () ; i ++ ) {
-            std::cout << "------------" << std::endl;
-            std::cout << "Block: " << i << std::endl;
+            std::cerr << "------------" << std::endl;
+            std::cerr << "Block: " << i << std::endl;
 
-            std::cout << "IN" << std::endl;
-            for (auto u: IN[i]) std::cout << u ? "1" : "0" ;
-            std::cout << std::endl;
+            std::cerr << "IN" << std::endl;
+            for (auto u: IN[i]) std::cerr << u ? "1" : "0" ;
+            std::cerr << std::endl;
 
-            std::cout << "OUT" << std::endl;
-            for (auto u: OUT[i]) std::cout << u ? "1" : "0" ;
-            std::cout << std::endl;
+            std::cerr << "OUT" << std::endl;
+            for (auto u: OUT[i]) std::cerr << u ? "1" : "0" ;
+            std::cerr << std::endl;
 
-            std::cout << "GEN" << std::endl;
-            for (auto u: GEN[i]) std::cout << u ? "1" : "0" ;
-            std::cout << std::endl;
+            std::cerr << "GEN" << std::endl;
+            for (auto u: GEN[i]) std::cerr << u ? "1" : "0" ;
+            std::cerr << std::endl;
 
-            std::cout << "KILL" << std::endl;
-            for (auto u:KILL[i]) std::cout << u ? "1" : "0" ;
-            std::cout << std::endl;
+            std::cerr << "KILL" << std::endl;
+            for (auto u:KILL[i]) std::cerr << u ? "1" : "0" ;
+            std::cerr << std::endl;
 
-            std::cout << "------------" << std::endl;
+            std::cerr << "------------" << std::endl;
         }
     }
 };

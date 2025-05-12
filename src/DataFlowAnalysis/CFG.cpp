@@ -56,30 +56,30 @@ void CFG::add_directed_edge (int bb_from, int bb_to) {
 
 void CFG::print () {
     for (int i = 0 ; i < BBs.size () ; i ++ ) {
-        std::cout << "----------------" << std::endl;
-        std::cout << "Block: " << i << std::endl;
+        std::cerr << "----------------" << std::endl;
+        std::cerr << "Block: " << i << std::endl;
 
-        std::cout << "Instrs: " << std::endl;
+        std::cerr << "Instrs: " << std::endl;
         for (int j = 0 ; j < BBs[i].instrs.size() ; j ++ ) {
             auto& instr = method->instrs [BBs[i].instrs[j]];
-            std::cout << BBs[i].instrs[j] << " " ;
+            std::cerr << BBs[i].instrs[j] << " " ;
             Linear::PrettyPrinter printer;
             instr -> accept (printer); 
         }
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
-        std::cout << "Parents: " << std::endl;
+        std::cerr << "Parents: " << std::endl;
         for (int j = 0 ; j < BBs[i].parents.size() ; j ++ ) {
-            std::cout << BBs[i].parents[j] << " " ;
+            std::cerr << BBs[i].parents[j] << " " ;
         }
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
-        std::cout << "Children: " << std::endl;
+        std::cerr << "Children: " << std::endl;
         for (int j = 0 ; j < BBs[i].children.size() ; j ++ ) {
-            std::cout << BBs[i].children[j] << " " ;
+            std::cerr << BBs[i].children[j] << " " ;
         }
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
-        std::cout << "----------------" << std::endl;
+        std::cerr << "----------------" << std::endl;
     }
 }

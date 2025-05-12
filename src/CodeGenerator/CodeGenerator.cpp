@@ -866,7 +866,7 @@ bool CodeGenerator::is_reg (std::string id){
 }
 
 std::string CodeGenerator::get_reg (std::string id, Linear::Type type){
-    if (!is_reg (id)) std::cout << "ERROR" << std::endl;
+    if (!is_reg (id)) std::cerr << "ERROR" << std::endl;
     return reg_ (REG[cur_method_var_to_color[id]],type);
 }
 

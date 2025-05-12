@@ -303,7 +303,7 @@ void Semantics::visit(AST::Return_Stmt& node) {
 
     auto current_method_id_opt = scope_stack.get_current_method();
     if (! current_method_id_opt.has_value() || !scope_stack.is_method(current_method_id_opt.value()) ) {
-        std::cout << "ERROR: return in non method\n"; // (should not happen in first place but just checking) 
+        std::cerr << "ERROR: return in non method\n"; // (should not happen in first place but just checking) 
     }
     auto current_method_return_type = scope_stack.get_type(current_method_id_opt.value()).value();
 

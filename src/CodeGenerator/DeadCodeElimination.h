@@ -73,11 +73,11 @@ public:
     }
 
     void show (std::vector<bool>& v, std::string xx) {
-        std::cout << "-------------" << std::endl;
-        std::cout << xx << std::endl;
-        for (auto u : v ) std::cout << u ? "1" : "0";
-        std::cout << std::endl;
-        std::cout << "--------------" << std::endl;
+        std::cerr << "-------------" << std::endl;
+        std::cerr << xx << std::endl;
+        for (auto u : v ) std::cerr << u ? "1" : "0";
+        std::cerr << std::endl;
+        std::cerr << "--------------" << std::endl;
     }
 };
 }
