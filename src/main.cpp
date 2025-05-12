@@ -12,8 +12,9 @@ namespace decaf {
     class DecafCompiler {
     public:
         static int main(int argc, char** argv) {
-            CommandLineInterface::parse(argc, argv, {});
-
+            std::vector<std::string> optNames = {"cp", "cse", "cf", "dce", "regalloc"};
+            CommandLineInterface::parse(argc, argv, optNames);
+        
             std::ifstream inputStream = input (CommandLineInterface::infile);
             std::ofstream outputStream= output(CommandLineInterface::outfile);
             
@@ -31,8 +32,14 @@ namespace decaf {
                 Semantics semantics;
                 return semantics.check(inputStream,outputStream);
             } else if (CommandLineInterface::target == CompilerAction::ASSEMBLY) {
+                std::set <std::string> opts ;
+                for (int i = 0 ; i < optNames .size () ; i ++ ) {
+                    if (CommandLineInterface::opts [i]) {
+                        opts .insert (optNames [i]);
+                    }
+                }
                 CodeGenerator code_generator;
-                return code_generator.Generate(inputStream,outputStream);
+                return code_generator.Generate(inputStream,outputStream, opts);
             }
             return 1;
         }

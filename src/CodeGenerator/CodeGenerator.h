@@ -23,7 +23,7 @@ class Symbol_Table;
 
 class CodeGenerator : public Linear::Visitor {
 public:
-    int Generate(std::ifstream& fin, std::ofstream& fout);
+    int Generate(std::ifstream& fin, std::ofstream& fout, std::set <std::string> opts);
 
 
     void visit(Linear::Program& program) override;

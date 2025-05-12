@@ -83,6 +83,7 @@ public:
 
             if ( ! is_instance_of (Unary_ptr->operands [0], Linear::Literal)) continue;
             if ( Unary_ptr -> op == Linear::Unary::LONG_CAST ) continue;
+            if ( Unary_ptr->operands [0]->type == Linear::Type::Long ) continue;
 
             long long num1 = std::stoll(Unary_ptr->operands [0]->id);
             long long res;

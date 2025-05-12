@@ -69,19 +69,69 @@ namespace decaf {
                 }
             } else if (std::string(argv[i]) == "--opt" || std::string(argv[i]) == "-O") {
                 if (i < argc - 1) {
-                    std::string optsList = argv[++i];
-                    size_t pos = 0;
-                    while ((pos = optsList.find(',')) != std::string::npos) {
-                        std::string opt = optsList.substr(0, pos);
-                        if (opt == "all") {
-                            std::fill(opts.begin(), opts.end(), true);
-                        } else {
-                            auto it = std::find(optNames.begin(), optNames.end(), opt);
-                            if (it != optNames.end()) {
-                                opts[std::distance(optNames.begin(), it)] = true;
-                            }
+                    std::string optsSpec = argv[++i];
+                    std::vector<std::string> specificOpts;
+                    std::string currentOpt;
+                    size_t start = 0;
+                    size_t commaPos;
+
+                    // Split the comma-separated string into individual options
+                    while ((commaPos = optsSpec.find(',', start)) != std::string::npos) {
+                        // Don't add empty strings if there are consecutive commas ,,
+                        if (commaPos > start) {
+                           specificOpts.push_back(optsSpec.substr(start, commaPos - start));
                         }
-                        optsList.erase(0, pos + 1);
+                        start = commaPos + 1;
+                    }
+                    // Add the last (or only) part after the last comma
+                    if (start < optsSpec.length()) {
+                       specificOpts.push_back(optsSpec.substr(start));
+                    }
+
+                    // Check if "all" is present in the list
+                    bool useAll = false;
+                    for (const auto& opt : specificOpts) {
+                        if (opt == "all") {
+                            useAll = true;
+                            break;
+                        }
+                    }
+
+                    if (useAll) {
+                        // Start with all optimizations enabled if "all" is specified
+                        std::fill(opts.begin(), opts.end(), true);
+                        // Process explicit disables (options starting with '-')
+                        for (const auto& opt : specificOpts) {
+                            // Check if the option starts with '-' but is not just "-"
+                            if (opt.length() > 1 && opt.rfind('-', 0) == 0) {
+                                std::string optName = opt.substr(1); // Get name without '-'
+                                auto it = std::find(optNames.begin(), optNames.end(), optName);
+                                if (it != optNames.end()) {
+                                    opts[std::distance(optNames.begin(), it)] = false; // Disable it
+                                } else if (optName != "all") {
+                                     // Optional: Warn about unrecognized disable flag?
+                                     // std::cerr << "Warning: Unrecognized optimization to disable: " << optName << std::endl;
+                                }
+                            }
+                            // Ignore "all" itself and non-prefixed names in this loop when 'useAll' is true
+                        }
+                    } else {
+                        // Start with all optimizations disabled (default behavior)
+                        std::fill(opts.begin(), opts.end(), false); // Ensure a clean slate
+                        // Process explicit enables (options NOT starting with '-')
+                        for (const auto& opt : specificOpts) {
+                           // Check if the option does NOT start with '-' or is not empty
+                           if (!opt.empty() && (opt.length() == 1 || opt.rfind('-', 0) != 0)) {
+                                auto it = std::find(optNames.begin(), optNames.end(), opt);
+                                if (it != optNames.end()) {
+                                    opts[std::distance(optNames.begin(), it)] = true; // Enable it
+                                } else {
+                                    // Optional: Warn about unrecognized enable flag?
+                                    // std::cerr << "Warning: Unrecognized optimization to enable: " << opt << std::endl;
+                                }
+                            }
+                            // Ignore prefixed names (like "-cp") when 'useAll' is false
+                        }
                     }
                 } else {
                     printUsage("No optimizations specified with option " + std::string(argv[i]));
