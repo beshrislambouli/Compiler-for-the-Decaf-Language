@@ -473,6 +473,14 @@ void CodeGenerator::visit(Linear::Binary& instr) {
         break;
 
     case Linear::Binary::Mod: 
+        if (is_instance_of (instr.operands[1], Linear::Literal)) {
+            long long num = std::stoll(instr.operands[1]->id);
+            if ( ( num & ( num - 1 ) ) == 0 ) {
+                add_instr( instr_ ("and",type) + "$" + std::to_string (num-1) + ", " + rax);
+                store (rax, instr.dist);
+                return;
+            }
+        }
         rbx = reg_("%rbx",type);
         load (instr.operands[1], rbx);
         // add_instr("pushq %rdx");
