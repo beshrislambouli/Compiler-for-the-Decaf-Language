@@ -1,4 +1,4 @@
-# Decaf Compiler
+# Compiler for the Decaf (subset of C) Language
 
 A full hybrid SSA-style compiler for the Decaf programming language, built entirely in C++. It compiles high-level Decaf code to optimized x86-64 assembly through multiple intermediate representations and optimization passes. The compiler includes a complete front-end, mid-end, and back-end pipeline.
 
